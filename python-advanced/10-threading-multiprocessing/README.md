@@ -5,7 +5,6 @@ This module demonstrates the practical differences between **threading** and **m
 - When to use threads (I/O-bound tasks)
 - When to use processes (CPU-bound tasks)
 - Python’s Global Interpreter Lock (GIL) and its impact
-- Thread safety and race condition mitigation with `Lock` and `Queue`
 - Practical memory and performance considerations
 
 ---
@@ -25,13 +24,14 @@ This module demonstrates the practical differences between **threading** and **m
 
 ## 📂 Files
 
-| File                               | Description                                      |
-| ---------------------------------- | ------------------------------------------------ |
-| `threading_basics.py`              | Demonstrates threads, Locks, Queues, and Daemons |
-| `cpu_bound_threading.py`           | Shows threading bottleneck with CPU-bound tasks  |
-| `cpu_bound_multiprocessing.py`     | Achieves true parallelism for CPU-bound tasks    |
-| `io_bound_threading.py`            | Ideal use of threading for I/O-heavy workloads   |
-| `shared_memory_gil_limitations.py` | Demonstrates shared state and GIL effects        |
+| File                               | Description                                        |
+| ---------------------------------- | -------------------------------------------------- |
+| `threading_basics.py`              | Thread creation, join, race condition, queue usage |
+| `cpu_bound_threading.py`           | Shows threading bottleneck with CPU-bound tasks    |
+| `cpu_bound_multiprocessing.py`     | Achieves true parallelism for CPU-bound tasks      |
+| `io_bound_threading.py`            | Ideal use of threading for I/O-heavy workloads     |
+| `shared_memory_gil_limitations.py` | Demonstrates shared state and GIL effects          |
+| `multiprocessing_basics.py`        | Process usage, shared memory, Queue, Pool examples |
 
 ---
 
@@ -39,6 +39,7 @@ This module demonstrates the practical differences between **threading** and **m
 
 ```bash
 python threading_basics.py
+python multiprocessing_basics.py
 python cpu_bound_threading.py
 python cpu_bound_multiprocessing.py
 ```
