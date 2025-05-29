@@ -31,14 +31,14 @@ The difference between **CUDA cores** and **Tensor Cores** on NVIDIA GPUs lies i
 
 ### 🔧 Key Differences
 
-| Feature | CUDA Cores | Tensor Cores |
-| -- | | - |
-| Purpose | General compute | Specialized matrix ops |
-| Precision | FP32, FP64 | FP16, BF16, INT8, TF32 (low precision) |
-| Speed | Moderate | **Extremely fast** for matrix ops |
-| Operations Supported | Scalar & vector | Matrix multiply-accumulate (MMA) |
-| Flexibility | High | Low (used mainly by cuDNN, cuBLAS, etc.) |
-| Introduced in | All NVIDIA GPUs | Volta (V100) and later |
+| Feature              | CUDA Cores      | Tensor Cores                             |
+| -------------------- | --------------- | ---------------------------------------- |
+| Purpose              | General compute | Specialized matrix ops                   |
+| Precision            | FP32, FP64      | FP16, BF16, INT8, TF32 (low precision)   |
+| Speed                | Moderate        | Extremely fast for matrix ops            |
+| Operations Supported | Scalar & vector | Matrix multiply-accumulate (MMA)         |
+| Flexibility          | High            | Low (used mainly by cuDNN, cuBLAS, etc.) |
+| Introduced in        | All NVIDIA GPUs | Volta (V100) and later                   |
 
 ### 🔋 Performance Impact
 
