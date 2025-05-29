@@ -12,3 +12,14 @@ repos:
       - id: black
         args: ["-l", "120"]
         files: \.py$
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0
+    hooks:
+      - id: prettier
+        name: Format Markdown files
+        files: \.md$
+
+      - id: prettier
+        name: Format YAML files
+        files: \.(yaml|yml)$

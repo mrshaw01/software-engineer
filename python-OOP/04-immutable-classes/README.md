@@ -17,13 +17,13 @@ This chapter introduces immutable class design in Python. Immutability means tha
 
 ## �� Techniques for Creating Immutable Classes
 
-| File                              | Technique Description                                  |
-|-----------------------------------|--------------------------------------------------------|
-| `getter_only.py`                 | Getter-only methods, no setters                        |
-| `property_readonly.py`           | Read-only properties using `@property`                 |
-| `dataclass_frozen.py`            | `@dataclass(frozen=True)` to auto-generate immutable classes |
-| `namedtuple_immutable.py`        | Using `collections.namedtuple`                         |
-| `slots_example.py`               | `__slots__` to prevent dynamic attribute creation      |
+| File                      | Technique Description                                        |
+| ------------------------- | ------------------------------------------------------------ |
+| `getter_only.py`          | Getter-only methods, no setters                              |
+| `property_readonly.py`    | Read-only properties using `@property`                       |
+| `dataclass_frozen.py`     | `@dataclass(frozen=True)` to auto-generate immutable classes |
+| `namedtuple_immutable.py` | Using `collections.namedtuple`                               |
+| `slots_example.py`        | `__slots__` to prevent dynamic attribute creation            |
 
 ---
 
