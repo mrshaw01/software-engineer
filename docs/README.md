@@ -28,7 +28,7 @@
 ### Keywords
 
 - `frozenset`
-- `namedtuple`, `@dataclass(frozen=True)`
+- `namedtuple`, `@dataclass(frozen=True)`, `__slots__`
 - Decorators:
   - [`@functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps): Preserves metadata when wrapping functions.
   - [`@functools.update_wrapper`](https://docs.python.org/3/library/functools.html#functools.update_wrapper)
