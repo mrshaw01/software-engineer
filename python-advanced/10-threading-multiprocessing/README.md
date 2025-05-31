@@ -7,8 +7,6 @@ This module demonstrates the practical differences between **threading** and **m
 - Python’s Global Interpreter Lock (GIL) and its impact
 - Practical memory and performance considerations
 
----
-
 ## ⚙️ Key Differences
 
 | Aspect            | Threading                           | Multiprocessing                         |
@@ -20,8 +18,6 @@ This module demonstrates the practical differences between **threading** and **m
 | Best for          | I/O-bound tasks (e.g., networking)  | CPU-bound tasks (e.g., computation)     |
 | Failure Isolation | Threads can crash the whole process | Process isolation; safer error handling |
 
----
-
 ## 📂 Files
 
 | File                               | Description                                        |
@@ -32,8 +28,6 @@ This module demonstrates the practical differences between **threading** and **m
 | `io_bound_threading.py`            | Ideal use of threading for I/O-heavy workloads     |
 | `shared_memory_gil_limitations.py` | Demonstrates shared state and GIL effects          |
 | `multiprocessing_basics.py`        | Process usage, shared memory, Queue, Pool examples |
-
----
 
 ## ▶️ Run Examples
 
