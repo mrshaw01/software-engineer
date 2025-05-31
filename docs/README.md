@@ -27,7 +27,7 @@
 
 ### Keywords
 
-frozenset
-namedtuple
-decorators
-@functools.wraps: https://docs.python.org/3/library/functools.html#functools.wraps
+- `frozenset`
+- `namedtuple`
+- Decorators:
+  - [`@functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps): Preserves metadata when wrapping functions.
