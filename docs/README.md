@@ -38,3 +38,11 @@
 - `Attributes`: Store object state (data)
 - `Properties`: Control access to attributes with logic
 - Context managers: `__enter__`, `__exit__`
+
+### Attribute Naming Conventions in Python
+
+| Naming   | Type      | Meaning                                                                 |
+| -------- | --------- | ----------------------------------------------------------------------- |
+| `name`   | Public    | Accessible inside or outside the class.                                 |
+| `_name`  | Protected | Should be accessed only within the class or subclasses (by convention). |
+| `__name` | Private   | Name mangled to prevent access from outside the class.                  |
