@@ -1,5 +1,7 @@
 ## 📘 Documentation
 
+### Questions
+
 1. How would you design a Python API for a high-performance library to be both user-friendly and efficient?
 2. What steps can you take to minimize Python overhead in numeric computations?
 3. How would you ensure your Python API integrates well with existing scientific Python libraries (NumPy/SciPy)?
@@ -22,3 +24,10 @@
 20. Discuss your experience with PyTorch or TensorFlow and how they achieve high performance.
 21. What is JAX and how does it enable high-performance Python computations?
 22. Do you have experience with parallel computing frameworks or libraries (e.g. MPI, Dask)?
+
+### Keywords
+
+frozenset
+namedtuple
+decorators
+@functools.wraps: https://docs.python.org/3/library/functools.html#functools.wraps
