@@ -46,3 +46,15 @@
 | `name`   | Public    | Accessible inside or outside the class.                                 |
 | `_name`  | Protected | Should be accessed only within the class or subclasses (by convention). |
 | `__name` | Private   | Name mangled to prevent access from outside the class.                  |
+
+### Method Types in Python
+
+| Feature            | Instance Method                    | Class Method                                           | Static Method                      |
+| ------------------ | ---------------------------------- | ------------------------------------------------------ | ---------------------------------- |
+| Decorator          | _(none)_                           | `@classmethod`                                         | `@staticmethod`                    |
+| First Argument     | `self` (instance)                  | `cls` (class)                                          | None                               |
+| Access to Instance | ✅ Yes                             | ❌ No                                                  | ❌ No                              |
+| Access to Class    | ✅ Via `self.__class__` (indirect) | ✅ Yes via `cls`                                       | ❌ No                              |
+| Use Case           | Operates on object state           | Operates on class state, often used as factory methods | Utility function, no state needed  |
+| Bound To           | Instance                           | Class                                                  | Class                              |
+| Example Call       | `obj.method()`                     | `Class.method()` or `obj.method()`                     | `Class.method()` or `obj.method()` |
