@@ -20,6 +20,7 @@ def increment():
 
 
 if __name__ == "__main__":
+    # To confirm the race potential, inspect the bytecode of the function
     dis.dis(f)
     threads = []
     for _ in range(2):
