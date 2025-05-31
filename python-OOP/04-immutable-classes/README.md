@@ -13,7 +13,7 @@ This chapter introduces immutable class design in Python. Immutability means tha
 - 🧮 **Hashable**: Suitable for `set` and `dict` keys.
 - ⚙️ **Functional programming style**: Promotes purity and composability.
 
-## �� Techniques for Creating Immutable Classes
+## Techniques for Creating Immutable Classes
 
 | File                      | Technique Description                                        |
 | ------------------------- | ------------------------------------------------------------ |

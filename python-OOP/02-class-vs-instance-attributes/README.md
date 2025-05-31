@@ -2,7 +2,7 @@
 
 This chapter explores the distinction between **class attributes**, **instance attributes**, and the use of **static** and **class methods** in Python's object-oriented programming model.
 
-## �� Topics Covered
+## Topics Covered
 
 | File                          | Description                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------------ |
