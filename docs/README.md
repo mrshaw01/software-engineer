@@ -30,13 +30,14 @@
 - `frozenset`
 - `namedtuple`, `@dataclass(frozen=True)`, `__slots__`
 - Decorators:
-  - [`@functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps): Preserves metadata when wrapping functions.
+  - [`@functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps): Preserves metadata when wrapping functions
   - [`@functools.update_wrapper`](https://docs.python.org/3/library/functools.html#functools.update_wrapper)
 - Generators: `yield`
 - `Parameters`: Define expected inputs in functions/methods
 - `Arguments`: Provide actual inputs during function calls
 - `Attributes`: Store object state (data)
 - `Properties`: Control access to attributes with logic
+- [`@property`](https://docs.python.org/3/library/functions.html#property)
 - Context managers: `__enter__`, `__exit__`
 
 ### Attribute Naming Conventions in Python
