@@ -1,27 +1,16 @@
-# 9. Introduction to Descriptors
+# Python Descriptors Tutorial
 
-This chapter explores **Python Descriptors**, the core mechanism behind properties, methods, static/class methods, and more. Descriptors let you customize how attributes are accessed or modified via special methods:
+Welcome to the **Python Descriptors Tutorial**. This multi-part guide walks you through the fundamentals and advanced usage of Python’s powerful descriptor protocol—one of the core features behind `@property`, `@classmethod`, `@staticmethod`, and more.
 
-- `__get__(self, instance, owner)`
-- `__set__(self, instance, value)`
-- `__delete__(self, instance)`
+This tutorial is organized into six clearly structured sections:
 
-## Contents
+## 📚 Table of Contents
 
-| File                               | Description                                                                |
-| ---------------------------------- | -------------------------------------------------------------------------- |
-| `01_attribute_lookup_chain.py`     | Demonstrates Python's attribute lookup chain using classes and inheritance |
-| `02_simple_descriptor.py`          | Implements a basic data descriptor and demonstrates how it's triggered     |
-| `03_data_vs_nondata_descriptor.py` | Explains the difference between data and non-data descriptors              |
-| `04_voter_age_descriptor.py`       | Example using `WeakKeyDictionary` for per-instance attribute storage       |
-| `05_custom_property.py`            | Full re-implementation of Python's built-in `property()` using descriptors |
-| `06_robot_property_demo.py`        | Demonstrates property behavior with validation logic                       |
-| `07_decorator_inside_class.py`     | Shows how decorators can be used to enhance method behavior                |
-| `08_dynamic_property_generator.py` | Demonstrates how to generate descriptors dynamically at runtime            |
-
-## Key Concepts
-
-- **Non-Data Descriptor**: Only defines `__get__()`. Example: methods.
-- **Data Descriptor**: Defines `__set__()` or `__delete__()`. Example: properties.
-- **Lookup Chain**: Attributes are first checked in `obj.__dict__`, then `type(obj).__dict__`, then base classes.
-- **Dynamic Descriptors**: Descriptors can be created at runtime using `setattr` and `property`.
+| Part                                               | Title                                      | Description                                                                                    |
+| -------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [1](./1-introduction.md)                           | **Introduction**                           | Overview of descriptors and how they integrate with Python's attribute lookup chain            |
+| [2](./2-descriptor-protocol.md)                    | **Descriptor Protocol**                    | Explanation of `__get__`, `__set__`, and `__delete__`, with a simple custom descriptor example |
+| [3](./3-data-non-data-descriptor.md)               | **Data vs Non-Data Descriptors**           | Difference between data and non-data descriptors, and how lookup precedence works              |
+| [4](./4-practical-use-cases.md)                    | **Practical Use Cases**                    | Real-world applications: validation, caching, computed attributes, and type checking           |
+| [5](./5-how-python-internally-uses-descriptors.md) | **How Python Internally Uses Descriptors** | How built-in features like `@property`, methods, and `super()` rely on descriptors             |
+| [6](./6-dynamic-descriptor-creation.md)            | **Dynamic Descriptors & Best Practices**   | How to generate descriptors at runtime and best practices for maintainability                  |
