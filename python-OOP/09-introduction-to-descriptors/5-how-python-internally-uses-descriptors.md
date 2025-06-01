@@ -8,7 +8,7 @@ Descriptors are not just a feature for advanced developers—they are the **foun
 - `super()`
 - Method binding for instance methods
 
-### 🧠 Behind the Scenes: `@property`
+### Behind the Scenes: `@property`
 
 The built-in `property()` function creates a **data descriptor** with optional getter, setter, and deleter methods. Here’s a simplified implementation:
 
@@ -62,7 +62,7 @@ print(x.value)   # Calls __get__
 x.value = "Hi"   # Calls __set__
 ```
 
-### 🧩 Method Binding with `__get__`
+### Method Binding with `__get__`
 
 In Python, **instance methods** are descriptors too! When you access a method from an instance (e.g., `obj.method`), Python retrieves the function object from the class and calls its `__get__` method to bind it to the instance.
 
@@ -76,7 +76,7 @@ bound_method = A.__dict__["method"].__get__(a, A)
 print(bound_method())  # Output: called
 ```
 
-### 📌 `@staticmethod` and `@classmethod`
+### `@staticmethod` and `@classmethod`
 
 These decorators are implemented using descriptor classes.
 
@@ -104,7 +104,7 @@ class ClassMethod:
 
 Python wraps functions in these descriptor classes when you use `@staticmethod` or `@classmethod`.
 
-### 🧭 `super()` is Descriptor-Aware
+### `super()` is Descriptor-Aware
 
 The `super()` object has a custom `__getattribute__()` that invokes descriptors of the next class in the MRO (Method Resolution Order).
 
@@ -126,7 +126,7 @@ C().greet()
 
 The attribute lookup via `super()` ends up calling `B.__dict__['greet'].__get__(obj, C)` if it’s a descriptor.
 
-### 🔄 Descriptor Lookup is Built into `__getattribute__`
+### Descriptor Lookup is Built into `__getattribute__`
 
 Python’s `__getattribute__()` (in both `object` and `type`) contains the logic for checking whether an attribute is a descriptor.
 

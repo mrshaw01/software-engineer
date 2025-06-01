@@ -1,4 +1,4 @@
-# 🐍 Python Advanced
+# Python Advanced
 
 In-depth modules showcasing Python's expressive and powerful capabilities:
 

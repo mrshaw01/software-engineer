@@ -1,8 +1,8 @@
-# 🧺 Python `collections` Module
+# Python `collections` Module
 
 The `collections` module provides high-performance container datatypes as alternatives to Python’s general-purpose built-in containers.
 
-## 🔧 Key Tools Covered
+## Key Tools Covered
 
 - `Counter` – Counting elements and frequencies
 - `namedtuple` – Lightweight, immutable, named object tuples
@@ -10,7 +10,7 @@ The `collections` module provides high-performance container datatypes as altern
 - `defaultdict` – Dictionary with default factory values
 - `deque` – Double-ended queue with fast appends and pops
 
-## 📂 Files
+## Files
 
 - `counter_example.py`
 - `namedtuple_example.py`
@@ -18,7 +18,7 @@ The `collections` module provides high-performance container datatypes as altern
 - `defaultdict_example.py`
 - `deque_example.py`
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python counter_example.py

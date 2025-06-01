@@ -2,7 +2,7 @@
 
 This tutorial explores the concepts and practices that pave the way to understanding Python metaclasses. While not directly implementing metaclasses, we build a foundation by exploring **class decoration**, **runtime augmentation**, and **dynamic behavior injection** into classes.
 
-## 📘 Contents
+## Contents
 
 ### 1. Manual Inheritance
 

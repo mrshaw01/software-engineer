@@ -11,7 +11,7 @@
 | Performance       | Fast on CPU                 | Much faster on GPU for large arrays         |
 | Use case          | General numerical computing | GPU-accelerated computation (DL, HPC, etc.) |
 
-### 🧠 How CuPy Works:
+### How CuPy Works:
 
 - Implements most of NumPy’s API: `cupy.array`, `cupy.dot`, `cupy.fft`, etc.
 - Under the hood, it uses **CUDA libraries** like:
@@ -21,7 +21,7 @@
   - **cuRAND** for random number generation
   - **Thrust/CUB** for scan/sort operations
 
-### 📦 Example: Minimal Code Change
+### Example: Minimal Code Change
 
 ```python
 # NumPy version (CPU)
@@ -37,7 +37,7 @@ y = cp.sqrt(x)
 
 > Just switch `np` → `cp`, and your code runs on the GPU.
 
-### ⚠️ Notes and Caveats:
+### Notes and Caveats:
 
 - CuPy arrays (`cp.ndarray`) live in **GPU memory**; you must transfer data between host and device explicitly:
 

@@ -1,6 +1,6 @@
 # What is the role of shared memory in CUDA kernels?
 
-### 🔍 What is Shared Memory in CUDA?
+### What is Shared Memory in CUDA?
 
 **Shared memory** in CUDA is a small, fast, **on-chip memory** that is shared among all threads in the **same thread block**.
 
@@ -15,7 +15,7 @@ It acts like a **programmable cache**, enabling threads to **cooperate** and **r
 | Size     | Typically 48–100 KB per SM        |
 | Lifetime | Kernel-duration, block-specific   |
 
-### 🎯 Why Use Shared Memory?
+### Why Use Shared Memory?
 
 1. **Avoid Redundant Global Memory Access**
 
@@ -29,7 +29,7 @@ It acts like a **programmable cache**, enabling threads to **cooperate** and **r
 
    - You can **restructure global memory access** into more efficient coalesced patterns using shared memory as a staging buffer.
 
-### 💡 Common Use Case: Matrix Multiplication
+### Common Use Case: Matrix Multiplication
 
 ```cpp
 __shared__ float tileA[BLOCK_SIZE][BLOCK_SIZE];
@@ -43,7 +43,7 @@ __syncthreads();
 - Tiles of A and B are loaded into shared memory.
 - Threads compute partial results collaboratively, reducing global memory traffic.
 
-### ⚠️ Optimization Tips:
+### Optimization Tips:
 
 - **Avoid bank conflicts**: Shared memory is split into banks. If multiple threads access the same bank, access becomes serialized.
 - **Pad arrays** to avoid conflicts in some layouts.

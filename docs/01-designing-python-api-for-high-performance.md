@@ -35,7 +35,7 @@ result = linalg.matmul(A, B)  # Mirrors numpy.linalg
 - Validate inputs early (e.g., shape checks) to prevent downstream crashes.
 - Hide internal C++ complexity behind clean Python interfaces.
 
-### 🔧 Tools I’d Use:
+### Tools I’d Use:
 
 - **pybind11** or **Cython** for C++ integration
 - **NumPy** for data structures and compatibility

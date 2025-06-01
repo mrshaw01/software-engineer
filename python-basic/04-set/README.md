@@ -1,8 +1,8 @@
-# 📚 Python Sets
+# Python Sets
 
 This section covers Python `set` — an unordered, mutable collection of unique elements, and `frozenset` — its immutable counterpart.
 
-## 📂 Contents
+## Contents
 
 - `set_basics.py` – Creating sets and understanding their uniqueness
 - `set_add_remove.py` – Adding/removing elements safely
@@ -12,7 +12,7 @@ This section covers Python `set` — an unordered, mutable collection of unique 
 - `set_relations.py` – Subset, superset, and disjoint checks
 - `frozenset_example.py` – Read-only version of sets
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python set_basics.py

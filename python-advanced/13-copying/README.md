@@ -1,4 +1,4 @@
-# 🧬 Shallow vs Deep Copying in Python
+# Shallow vs Deep Copying in Python
 
 This module demonstrates the difference between **assignment**, **shallow copy**, and **deep copy** in Python using built-in types and custom classes.
 
@@ -10,7 +10,7 @@ This module demonstrates the difference between **assignment**, **shallow copy**
 - Nested lists and objects
 - Copying custom objects
 
-## 🔄 Summary Table
+## Summary Table
 
 | Operation          | Effect                                             |
 | ------------------ | -------------------------------------------------- |
@@ -18,7 +18,7 @@ This module demonstrates the difference between **assignment**, **shallow copy**
 | `copy.copy(a)`     | One-level shallow copy — nested objects are shared |
 | `copy.deepcopy(a)` | Full recursive copy — completely independent       |
 
-## 📂 Files
+## Files
 
 | File                      | Description                                   |
 | ------------------------- | --------------------------------------------- |

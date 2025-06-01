@@ -1,8 +1,8 @@
-# 📚 Python Dictionaries
+# Python Dictionaries
 
 This section covers Python's `dict` type — a powerful, mutable, and indexed collection of key-value pairs.
 
-## 📂 Contents
+## Contents
 
 - `dict_basics.py` – Creating and printing dictionaries
 - `dict_access.py` – Accessing items safely
@@ -12,7 +12,7 @@ This section covers Python's `dict` type — a powerful, mutable, and indexed co
 - `dict_key_types.py` – Valid key types including tuples
 - `nested_dicts.py` – Dictionaries containing other containers
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python dict_basics.py

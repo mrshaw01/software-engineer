@@ -29,7 +29,7 @@ The difference between **CUDA cores** and **Tensor Cores** on NVIDIA GPUs lies i
     Tensor Cores accelerate:   conv2d, matmul, attention, etc.
 ```
 
-### 🔧 Key Differences
+### Key Differences
 
 | Feature              | CUDA Cores      | Tensor Cores                             |
 | -------------------- | --------------- | ---------------------------------------- |
@@ -40,7 +40,7 @@ The difference between **CUDA cores** and **Tensor Cores** on NVIDIA GPUs lies i
 | Flexibility          | High            | Low (used mainly by cuDNN, cuBLAS, etc.) |
 | Introduced in        | All NVIDIA GPUs | Volta (V100) and later                   |
 
-### 🔋 Performance Impact
+### Performance Impact
 
 - Tensor Cores deliver **massive throughput gains** for linear algebra (e.g., training deep neural networks).
 - For example, **NVIDIA A100** can do up to **312 TFLOPS** using Tensor Cores vs. **19.5 TFLOPS** using only CUDA cores (FP32).

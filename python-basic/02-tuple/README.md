@@ -1,8 +1,8 @@
-# 📚 Python Tuples
+# Python Tuples
 
 This section covers the core concepts and usage of Python `tuple` — an ordered, immutable collection that can store heterogeneous items.
 
-## 📂 Contents
+## Contents
 
 - `tuple_basics.py` – Creating and accessing tuples
 - `tuple_methods.py` – Useful methods and conversions
@@ -11,7 +11,7 @@ This section covers the core concepts and usage of Python `tuple` — an ordered
 - `nested_tuples.py` – Tuples inside tuples
 - `tuple_vs_list.py` – Efficiency comparison with lists
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python tuple_basics.py

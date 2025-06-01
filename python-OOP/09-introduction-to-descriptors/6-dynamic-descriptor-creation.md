@@ -2,7 +2,7 @@
 
 Descriptors don’t have to be manually coded into your class—you can also **generate them dynamically at runtime**, giving you extreme flexibility for metaprogramming and frameworks (e.g., ORM fields, serializers, etc.).
 
-### ⚙️ Dynamically Adding Properties at Runtime
+### Dynamically Adding Properties at Runtime
 
 This example demonstrates how to add a property with getter and setter methods **at runtime**, based on a string name:
 
@@ -35,7 +35,7 @@ print(x.name, x.city)
 print(x.__dict__)  # See the internal mangled attribute names
 ```
 
-📌 **Note:** While this pattern is powerful, it can make debugging and maintenance harder. Use it with care in framework-like systems.
+**Note:** While this pattern is powerful, it can make debugging and maintenance harder. Use it with care in framework-like systems.
 
 ## ✅ Descriptor Best Practices
 
@@ -63,7 +63,7 @@ from weakref import WeakKeyDictionary
 
 - Keep `__get__` fast and side-effect free if possible. Lazy evaluation and caching are fine, but logging, I/O, or mutation may be surprising.
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 | Pitfall                                              | Explanation                                                                            |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -72,7 +72,7 @@ from weakref import WeakKeyDictionary
 | Overriding `__getattribute__` without care           | Breaks descriptor behavior or introduces bugs. Always call `super().__getattribute__`. |
 | Not accounting for `obj` being `None` in `__get__`   | Happens when accessed via the class, e.g., `Class.attr`.                               |
 
-## 🧵 Summary
+## Summary
 
 Descriptors provide the foundation for many core Python features and enable highly customizable behavior for attribute access. They are ideal when you need:
 

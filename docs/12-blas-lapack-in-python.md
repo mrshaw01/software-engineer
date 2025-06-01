@@ -14,7 +14,7 @@
 - Libraries like **Intel MKL**, **OpenBLAS**, and **ATLAS** are optimized versions of BLAS/LAPACK tailored to specific CPUs (e.g., cache size, pipeline, instruction sets).
 - This gives **near-C performance** from Python code.
 
-### 🧮 Examples of Usage:
+### Examples of Usage:
 
 | Python Function      | Underlying Call                |
 | -------------------- | ------------------------------ |
@@ -22,7 +22,7 @@
 | `scipy.linalg.svd()` | LAPACK (`gesvd`)               |
 | `np.linalg.solve()`  | LAPACK (`gesv`, `getrf`, etc.) |
 
-### 🔍 Importance in Scientific Workflows:
+### Importance in Scientific Workflows:
 
 - BLAS Level 1: Vector operations (dot product, scaling)
 - BLAS Level 2: Matrix-vector operations

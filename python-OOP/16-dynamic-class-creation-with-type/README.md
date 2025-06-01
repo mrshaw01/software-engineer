@@ -2,7 +2,7 @@
 
 In this lesson, we explore how Python dynamically creates classes using the built-in `type()` function and how class definitions work behind the scenes.
 
-## 🔍 Overview
+## Overview
 
 In Python, **everything is an object**, including classes themselves. This tutorial provides a deeper insight into how class creation works internally using the `type` constructor, and how it relates to metaprogramming.
 
@@ -13,14 +13,14 @@ Key Concepts Covered:
 - Classes can be created dynamically by calling `type()` with 3 arguments.
 - The usual `class` keyword is syntactic sugar for a call to `type`.
 
-## 🧠 Learning Goals
+## Learning Goals
 
 - Understand how class and `type` are related.
 - Create classes dynamically using `type(name, bases, dict)`.
 - See how Python processes class definitions internally.
 - Compare traditional and dynamic class definitions.
 
-## 🗂️ File Guide
+## File Guide
 
 ### `01_type_basics.py`
 

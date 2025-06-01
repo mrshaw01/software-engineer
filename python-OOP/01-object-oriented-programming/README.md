@@ -2,7 +2,7 @@
 
 Welcome to the first module on Object-Oriented Programming (OOP) in Python. This section introduces key OOP concepts and how they are implemented in Python with clear examples and exercises.
 
-## 📚 Topics Covered
+## Topics Covered
 
 | File                                  | Topic                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------- |

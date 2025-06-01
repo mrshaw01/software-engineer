@@ -1,4 +1,4 @@
-# 🧵 Threading vs Multiprocessing in Python
+# Threading vs Multiprocessing in Python
 
 This module demonstrates the practical differences between **threading** and **multiprocessing** in Python — two powerful tools for concurrency and parallelism. It explains:
 
@@ -7,7 +7,7 @@ This module demonstrates the practical differences between **threading** and **m
 - Python’s Global Interpreter Lock (GIL) and its impact
 - Practical memory and performance considerations
 
-## ⚙️ Key Differences
+## Key Differences
 
 | Aspect            | Threading                           | Multiprocessing                         |
 | ----------------- | ----------------------------------- | --------------------------------------- |
@@ -18,7 +18,7 @@ This module demonstrates the practical differences between **threading** and **m
 | Best for          | I/O-bound tasks (e.g., networking)  | CPU-bound tasks (e.g., computation)     |
 | Failure Isolation | Threads can crash the whole process | Process isolation; safer error handling |
 
-## 📂 Files
+## Files
 
 | File                               | Description                                        |
 | ---------------------------------- | -------------------------------------------------- |
@@ -29,7 +29,7 @@ This module demonstrates the practical differences between **threading** and **m
 | `shared_memory_gil_limitations.py` | Demonstrates shared state and GIL effects          |
 | `multiprocessing_basics.py`        | Process usage, shared memory, Queue, Pool examples |
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python threading_basics.py
@@ -38,7 +38,7 @@ python cpu_bound_threading.py
 python cpu_bound_multiprocessing.py
 ```
 
-## 📖 Recommended Reading
+## Recommended Reading
 
 - [Python `threading`](https://docs.python.org/3/library/threading.html)
 - [Python `multiprocessing`](https://docs.python.org/3/library/multiprocessing.html)

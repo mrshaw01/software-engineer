@@ -8,7 +8,7 @@
 - Add a **`@jit` decorator** (or `@njit` for no Python fallback).
 - Numba compiles the function to **native code at runtime**, eliminating Python interpreter overhead.
 
-### 🔧 Example
+### Example
 
 ```python
 from numba import njit

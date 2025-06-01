@@ -8,7 +8,7 @@ The asterisk `*` is a versatile operator in Python. This module covers:
 - Unpacking containers and function arguments
 - Merging containers and dictionaries
 
-## 📂 Files
+## Files
 
 | File                              | Purpose                                                         |
 | --------------------------------- | --------------------------------------------------------------- |

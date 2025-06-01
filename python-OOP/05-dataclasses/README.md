@@ -2,15 +2,15 @@
 
 Dataclasses simplify the creation of classes that primarily store data. Introduced in Python 3.7, they automatically generate boilerplate methods such as `__init__`, `__repr__`, `__eq__`, and optionally `__hash__`.
 
-## 🌟 Benefits of Using Dataclasses
+## Benefits of Using Dataclasses
 
 - ✅ Less boilerplate: Auto-generates `__init__`, `__repr__`, `__eq__`, and `__hash__`
-- 🧪 Ideal for immutable data with `frozen=True`
-- 🧵 Works well with `typing` for better static checks
-- 🔄 Supports default values and default factories
-- 🧬 Inheritance and customization-friendly
+- Ideal for immutable data with `frozen=True`
+- Works well with `typing` for better static checks
+- Supports default values and default factories
+- Inheritance and customization-friendly
 
-## 📘 Topics Covered
+## Topics Covered
 
 | File                       | Description                                         |
 | -------------------------- | --------------------------------------------------- |
@@ -21,6 +21,6 @@ Dataclasses simplify the creation of classes that primarily store data. Introduc
 | `dataclass_in_set_dict.py` | Hashable dataclasses used in sets and dictionaries  |
 | `exercise_book.py`         | Exercise solution: Book class with dataclass        |
 
-## 🔧 Tip
+## Tip
 
 Use `frozen=True` when your data should never change. This makes your instances hashable and usable in sets and dict keys.

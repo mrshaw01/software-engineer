@@ -14,7 +14,7 @@ This chapter explores the distinction between **class attributes**, **instance a
 | `class_method_inheritance.py` | Shows advantage of classmethods in inheritance scenarios                       |
 | `person_counter.py`           | Real-world example of classmethod usage to track population count              |
 
-## 🔍 Key Concepts
+## Key Concepts
 
 ### Class Attribute
 
@@ -36,7 +36,7 @@ This chapter explores the distinction between **class attributes**, **instance a
 - Takes `cls` as the first parameter.
 - Can access class state; useful in inheritance and factory patterns.
 
-## 🧠 Learning Tip
+## Learning Tip
 
 - Use class attributes for global counters or shared constants.
 - Use instance attributes to track data specific to each object.

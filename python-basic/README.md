@@ -1,4 +1,4 @@
-# 🐍 Python Basics
+# Python Basics
 
 Fundamental data structures and operations in Python:
 

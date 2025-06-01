@@ -4,7 +4,7 @@ Yes, I have experience with **parallel computing frameworks** and tools like **D
 
 ### My Experience with Parallel Computing
 
-#### 🔹 **Dask**
+#### **Dask**
 
 - Used **Dask** to parallelize NumPy and Pandas workflows on **multi-core CPUs** and **clusters**.
 - Experience includes:
@@ -13,7 +13,7 @@ Yes, I have experience with **parallel computing frameworks** and tools like **D
   - Scheduling distributed tasks across a **local thread/process pool** or **remote Dask cluster**
   - Profiling Dask workloads with its dashboard to optimize task graph execution
 
-#### 🔹 **MPI Concepts (via `mpi4py`)**
+#### **MPI Concepts (via `mpi4py`)**
 
 - Familiar with **message-passing** parallelism (used in HPC).
 - Used **`mpi4py`** for:
@@ -23,7 +23,7 @@ Yes, I have experience with **parallel computing frameworks** and tools like **D
 
 - Understand how MPI enables **distributed memory parallelism**, in contrast to shared memory models.
 
-#### 🔹 **Multiprocessing and Threading in Python**
+#### **Multiprocessing and Threading in Python**
 
 - Used Python’s `multiprocessing` module to:
 
@@ -32,7 +32,7 @@ Yes, I have experience with **parallel computing frameworks** and tools like **D
 
 - Used `concurrent.futures`, `ThreadPoolExecutor`, and `ProcessPoolExecutor` for task-based parallelism
 
-### 🧠 Broader Concepts I Understand
+### Broader Concepts I Understand
 
 | Concept                          | Description                                                                                    |
 | -------------------------------- | ---------------------------------------------------------------------------------------------- |

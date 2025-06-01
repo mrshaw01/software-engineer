@@ -11,7 +11,7 @@ Modern CPUs load data in **cache lines** (typically 64 bytes). Performance is be
 - Are **contiguous**
 - Exhibit **spatial and temporal locality**
 
-### ⚠️ Poor Memory Access Patterns
+### Poor Memory Access Patterns
 
 #### ❌ Strided Access:
 
@@ -35,7 +35,7 @@ for i in random_indices:
 
 ### Optimized Patterns
 
-#### ✔️ Contiguous Access (Row-major in NumPy by default):
+#### Contiguous Access (Row-major in NumPy by default):
 
 ```python
 for i in range(len(arr)):
@@ -45,7 +45,7 @@ for i in range(len(arr)):
 - Maximizes **cache line reuse**
 - Enables **hardware prefetching**
 
-### 🔄 Structures of Arrays vs Arrays of Structures
+### Structures of Arrays vs Arrays of Structures
 
 - **Structure of Arrays (SoA)** improves performance over **Array of Structures (AoS)** in many cases:
 
@@ -61,14 +61,14 @@ y_array = [...]
 
 This is especially true in SIMD/vectorized code.
 
-### ⚙️ Optimization Techniques
+### Optimization Techniques
 
 - **Loop blocking / tiling**: Break work into cache-sized chunks.
 - **Alignment**: Use aligned data structures to match cache line size.
 - **SIMD**: Use vector instructions (AVX, SSE) that benefit from contiguous data.
 - **Prefetching**: Manually prefetch or design for hardware prefetchers.
 
-### 🧪 Example in NumPy
+### Example in NumPy
 
 ```python
 # Fast: access along rows (C-order)

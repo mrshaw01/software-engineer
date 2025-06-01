@@ -1,6 +1,6 @@
 # Have you used OpenCL, and how does it compare to CUDA?
 
-### 🔄 **OpenCL vs CUDA: High-Level Comparison**
+### **OpenCL vs CUDA: High-Level Comparison**
 
 | Feature               | **CUDA**                             | **OpenCL**                             |
 | --------------------- | ------------------------------------ | -------------------------------------- |
@@ -31,7 +31,7 @@
 - **Lag in hardware features**: Access to new GPU features (like Tensor Cores) arrives slower than with CUDA.
 - Tooling and debugging support vary greatly by vendor.
 
-### 🔧 Practical Summary
+### Practical Summary
 
 - If targeting **NVIDIA GPUs for deep learning or HPC**, **CUDA is preferred** for its performance and ecosystem.
 - If you need **portability across vendors or devices**, **OpenCL is the right choice**.

@@ -9,14 +9,14 @@ This section of our Python OOP tutorial focuses on **Multiple Inheritance**, bui
 
 ## Structure
 
-### 🧠 Concepts Covered:
+### Concepts Covered:
 
 - Base class: `Robot`
 - Derived classes: `NursingRobot`, `FightingRobot`
 - Multiple inheritance: `FightingNurseRobot`
 - Flexible constructors with `**kwargs`: `FightingHealingRobot`
 
-### 🚀 How to Run
+### How to Run
 
 Each `.py` file contains standalone runnable code. You can execute them directly:
 

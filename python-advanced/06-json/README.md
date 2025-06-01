@@ -1,8 +1,8 @@
-# 📦 Python JSON Handling
+# Python JSON Handling
 
 This module covers how to serialize and deserialize data using Python's built-in `json` module.
 
-## 📂 Files
+## Files
 
 - `json_basic_encode.py` – Convert Python objects to JSON strings
 - `json_basic_decode.py` – Convert JSON strings to Python objects
@@ -12,10 +12,10 @@ This module covers how to serialize and deserialize data using Python's built-in
 - `json_template_encoder.py` – Generic encoding/decoding for any class using metadata
 - `sample_files/person.json` – Sample JSON file used in file-based examples
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python json_basic_encode.py
 ```
 
-📚 Docs: [https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)
+Docs: [https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)

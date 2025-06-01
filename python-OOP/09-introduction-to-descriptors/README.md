@@ -4,7 +4,7 @@ Welcome to the **Python Descriptors Tutorial**. This multi-part guide walks you 
 
 This tutorial is organized into six clearly structured sections:
 
-## 📚 Table of Contents
+## Table of Contents
 
 | Part                                               | Title                                      | Description                                                                                    |
 | -------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |

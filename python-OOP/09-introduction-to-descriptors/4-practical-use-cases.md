@@ -8,7 +8,7 @@ Descriptors are powerful tools that allow developers to control attribute behavi
 - **Computed properties**
 - **Logging or access tracing**
 
-### 🛡️ 1. Validation Descriptor (Voting Age)
+### 1. Validation Descriptor (Voting Age)
 
 Use case: Only allow assignment of valid values (e.g., enforce minimum age).
 
@@ -39,7 +39,7 @@ p = Person("Alice", 22)  # ✅
 p = Person("Bob", 16)    # ❌ Raises ValueError
 ```
 
-### 🧮 2. Computed Property (Emulate `@property`)
+### 2. Computed Property (Emulate `@property`)
 
 Use case: Define dynamic, computed attributes.
 
@@ -65,7 +65,7 @@ print(c.temperature)   # Getting temperature...
 c.temperature = 30     # Setting temperature...
 ```
 
-### 📦 3. Caching Descriptor
+### 3. Caching Descriptor
 
 Use case: Cache the result of an expensive computation after the first access.
 
@@ -95,7 +95,7 @@ print(c.area)  # Computes once
 print(c.area)  # Uses cache
 ```
 
-### 🔍 4. Debugging Descriptor
+### 4. Debugging Descriptor
 
 Use case: Log all access to a field for auditing or debugging.
 
@@ -122,7 +122,7 @@ d.x = 42
 print(d.x)
 ```
 
-### 🔧 5. Type Enforcement Descriptor
+### 5. Type Enforcement Descriptor
 
 Use case: Automatically check the type of assigned values.
 

@@ -12,9 +12,9 @@
 | **Vectorization**        | `jax.vmap` auto-vectorizes code across batch dimensions           |
 | **Parallelism**          | `jax.pmap` runs computations across multiple devices (e.g., GPUs) |
 
-### 🧠 How JAX Achieves High Performance
+### How JAX Achieves High Performance
 
-#### 🔹 1. **JIT Compilation with XLA**
+#### 1. **JIT Compilation with XLA**
 
 - Functions decorated with `@jax.jit` are compiled into highly optimized machine code.
 - XLA fuses operations, eliminates Python overhead, and leverages hardware-specific optimizations.
@@ -28,7 +28,7 @@ def compute(x):
     return jnp.sin(x) + jnp.cos(x**2)
 ```
 
-#### 🔹 2. **Autograd + Efficient Backprop**
+#### 2. **Autograd + Efficient Backprop**
 
 - JAX provides `jax.grad()` to compute gradients efficiently using **reverse-mode autodiff**.
 - Works seamlessly with JIT and vectorized functions.
@@ -38,12 +38,12 @@ from jax import grad
 grad_f = grad(lambda x: jnp.sum(x**2))
 ```
 
-#### 🔹 3. **Functional + Immutable Model**
+#### 3. **Functional + Immutable Model**
 
 - Encourages **pure functions** and immutable data, which simplifies optimization and compilation.
 - Enables easier **parallelization** and **operation fusion**.
 
-#### 🔹 4. **GPU/TPU Acceleration**
+#### 4. **GPU/TPU Acceleration**
 
 - Code written in JAX automatically runs on available accelerators.
 - It uses the same backend (XLA) as TensorFlow for **maximum performance**.

@@ -2,7 +2,7 @@
 
 This chapter covers the evolution from traditional getter/setter methods to Pythonic property-based encapsulation. It highlights the simplicity and flexibility that Python properties offer, and explains when getter/setter methods may still be useful.
 
-## 📘 Topics Covered
+## Topics Covered
 
 | File                          | Description                                                            |
 | ----------------------------- | ---------------------------------------------------------------------- |
@@ -17,7 +17,7 @@ This chapter covers the evolution from traditional getter/setter methods to Pyth
 | `conditional_setattr.py`      | Advanced example with conditional validation in `__setattr__`          |
 | `getter_setter_use_case.py`   | When to prefer traditional getters/setters (e.g. additional arguments) |
 
-## 🔍 Key Takeaways
+## Key Takeaways
 
 - **Use properties** for Pythonic, simple, and readable interfaces.
 - **Use private attributes with properties** when encapsulation or validation is needed.

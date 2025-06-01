@@ -1,8 +1,8 @@
-# 📝 Python Logging
+# Python Logging
 
 This module introduces Python’s built-in `logging` module and best practices for structured, efficient, and extensible logging systems.
 
-## 📂 Files
+## Files
 
 - `logging_levels.py` – Basic log levels
 - `basic_config.py` – Custom formatting and file logging
@@ -16,7 +16,7 @@ This module introduces Python’s built-in `logging` module and best practices f
 - `timed_rotating_handler.py` – Time-based log rotation
 - `json_logger.py` – Logging structured messages in JSON
 
-📚 Official Docs:
+Official Docs:
 
 - https://docs.python.org/3/library/logging.html
 - https://github.com/madzak/python-json-logger

@@ -2,7 +2,7 @@
 
 Dynamic data transformation refers to the process of modifying data on-the-fly based on specific rules or conditions, rather than applying a fixed static transformation. This allows for greater flexibility in processing, formatting, and analyzing data without permanently altering the underlying values.
 
-## 🧠 Analogy
+## Analogy
 
 Think of a saxophone player adjusting pitch using finger holes. The sound changes dynamically, but the instrument itself remains unaltered. Similarly, dynamic transformations change the data view, not the actual data.
 
@@ -12,17 +12,17 @@ Think of a saxophone player adjusting pitch using finger holes. The sound change
 - On-the-fly formatting in ETL pipelines
 - Adapting views of metrics in dashboards
 
-## 📦 Example: Product Pricing
+## Example: Product Pricing
 
 The provided Python example simulates a system where a `Product` class stores price and shipping cost in a base currency. You can dynamically convert to other currencies with or without altering the stored values.
 
-## 🔁 Key Concepts
+## Key Concepts
 
 - `currency`: What the user wants to view the data in
 - `_used_currency`: What the data is actually stored in
 - `adapt_data`: Boolean flag to indicate if the underlying data should be transformed or just the view
 
-## 🧪 Code Files
+## Code Files
 
 ### `product.py`
 
@@ -35,7 +35,7 @@ Defines:
 
 Creates random product instances and demonstrates dynamic viewing and transformation behavior.
 
-## ▶️ Example Run
+## Example Run
 
 ```bash
 python products_demo.py
@@ -58,6 +58,6 @@ Saved internal data view:
 Saved Data: self.name='Elixir of Eternal Youth', self.currency='CHF', self._used_currency='CHF' ...
 ```
 
-## 📚 Bonus
+## Bonus
 
 This example also illustrates class composition (`Products` uses `Product`) and property-based design to separate internal state from presentation.

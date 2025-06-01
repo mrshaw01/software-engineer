@@ -1,4 +1,4 @@
-# 🔐 Context Managers in Python
+# Context Managers in Python
 
 Context managers allow for clean and reliable acquisition and release of resources in Python.
 This section demonstrates the use and implementation of context managers using the `with` statement.
@@ -11,7 +11,7 @@ This section demonstrates the use and implementation of context managers using t
 - Exception handling in context managers
 - Implementing context managers using generator functions
 
-## 📂 Files
+## Files
 
 | File                              | Description                                              |
 | --------------------------------- | -------------------------------------------------------- |
@@ -21,6 +21,6 @@ This section demonstrates the use and implementation of context managers using t
 | `managed_file_class_handled.py`   | Suppress exceptions by returning True in `__exit__`      |
 | `managed_file_generator.py`       | Custom context manager using `@contextmanager` decorator |
 
-## 📖 References
+## References
 
 - [Python docs: contextlib](https://docs.python.org/3/library/contextlib.html)

@@ -14,7 +14,7 @@ If your C++ code:
 
 Then you can **safely release the GIL** to allow other Python threads to run concurrently.
 
-### 🔧 In Native C++ (Python C API):
+### In Native C++ (Python C API):
 
 Wrap compute-intensive code like this:
 
@@ -29,9 +29,9 @@ void heavy_computation() {
 }
 ```
 
-> ⚠️ Important: **Do not call any Python C API functions inside** this block.
+> Important: **Do not call any Python C API functions inside** this block.
 
-### 🔧 In `pybind11`:
+### In `pybind11`:
 
 Pybind11 handles this cleanly using `py::gil_scoped_release`:
 

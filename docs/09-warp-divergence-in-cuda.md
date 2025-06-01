@@ -1,6 +1,6 @@
 # Describe the concept of warp divergence and its impact on GPU performance.
 
-### 🔍 What is Warp Divergence?
+### What is Warp Divergence?
 
 On NVIDIA GPUs, a **warp** is a group of **32 threads** that execute **in lockstep** — meaning all threads in the warp execute the **same instruction** at the **same time**.
 
@@ -22,7 +22,7 @@ if (tid % 2 == 0) {
 
 > Result: Threads must **serialize** — first, all even threads run while odd ones are idle, then vice versa.
 
-### 🎯 Impact on Performance:
+### Impact on Performance:
 
 - GPU **serializes** divergent paths within a warp.
 - This **reduces effective parallelism** — while some threads are active, others are **idle**.

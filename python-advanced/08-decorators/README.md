@@ -1,4 +1,4 @@
-# 🌀 Python Decorators
+# Python Decorators
 
 Decorators provide a powerful way to extend and modify function or method behavior without modifying the actual code.
 
@@ -30,4 +30,4 @@ Decorators provide a powerful way to extend and modify function or method behavi
 python basic_function_decorator.py
 ```
 
-📘 Docs: https://realpython.com/primer-on-python-decorators/
+Docs: https://realpython.com/primer-on-python-decorators/

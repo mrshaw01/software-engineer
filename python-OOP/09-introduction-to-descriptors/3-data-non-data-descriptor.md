@@ -7,7 +7,7 @@ Descriptors in Python fall into two main categories based on which methods of th
 | **Data Descriptor**     | `__get__` + (`__set__` or `__delete__`) | ✅ Yes                               | Validated or managed attributes |
 | **Non-Data Descriptor** | `__get__` only                          | ❌ No                                | Methods, computed values        |
 
-### ⚙️ How Precedence Works
+### How Precedence Works
 
 Python’s attribute lookup order gives priority in the following order:
 

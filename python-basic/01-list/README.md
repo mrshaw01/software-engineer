@@ -1,8 +1,8 @@
-# 📚 Python Lists
+# Python Lists
 
 This section covers the fundamental operations and behaviors of Python `list` — an ordered, mutable collection that allows duplicate elements.
 
-## 📂 Contents
+## Contents
 
 - `list_basics.py` – Creating and accessing lists
 - `list_methods.py` – Common list methods like `append`, `pop`, `insert`, etc.
@@ -11,7 +11,7 @@ This section covers the fundamental operations and behaviors of Python `list` �
 - `list_comprehension.py` – List comprehensions for elegant list construction
 - `nested_lists.py` – Working with lists of lists
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python list_basics.py

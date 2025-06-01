@@ -4,7 +4,7 @@
 
 Descriptors are a foundational feature in Python that allow developers to customize attribute access on objects. Introduced in **Python 2.2** as part of the _new-style class_ model, descriptors form the underlying mechanism for several built-in constructs like `@property`, `@staticmethod`, `@classmethod`, and even `super()`.
 
-> 📌 A _descriptor_ is any object that defines one or more of the following methods:
+> A _descriptor_ is any object that defines one or more of the following methods:
 > `__get__()`, `__set__()`, and `__delete__()`.
 > If an object implements any of these methods, it is recognized as a descriptor.
 

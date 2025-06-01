@@ -7,11 +7,11 @@
 - A **warp** = 32 threads that execute in **lockstep** on NVIDIA GPUs.
 - All threads in a warp issue memory instructions together.
 
-### 🔍 What Is Memory Coalescing?
+### What Is Memory Coalescing?
 
 When threads in a warp access **consecutive and properly aligned** memory addresses, the memory controller can **coalesce** (combine) those individual memory accesses into a **single memory transaction**.
 
-#### ✔️ Example: Coalesced Access
+#### Example: Coalesced Access
 
 ```cpp
 // Each thread i accesses A[i]
@@ -31,7 +31,7 @@ float value = A[idx * 7];  // Irregular stride
 
 This leads to **non-coalesced** (scattered) accesses → **multiple slow transactions**.
 
-### 💡 Why Is It Important?
+### Why Is It Important?
 
 - **Global memory is slow** compared to shared or register memory.
 - Coalesced access uses fewer memory transactions → **higher bandwidth utilization**.
@@ -42,7 +42,7 @@ This leads to **non-coalesced** (scattered) accesses → **multiple slow transac
   - Lower throughput
   - Poor occupancy and performance
 
-### 🎯 Best Practices for Coalescing
+### Best Practices for Coalescing
 
 - Ensure **thread i accesses memory location i** (or i + constant stride).
 - Use **Structure of Arrays (SoA)** instead of **Array of Structures (AoS)** to enable linear access.

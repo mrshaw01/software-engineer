@@ -2,7 +2,7 @@
 
 Lambda functions are small anonymous functions defined using the `lambda` keyword. They are most often used as arguments to higher-order functions such as `map()`, `filter()`, and `reduce()`.
 
-## 📂 Files
+## Files
 
 - `lambda_basics.py` – Syntax and basic usage
 - `lambda_higher_order.py` – Lambda inside other functions
@@ -11,7 +11,7 @@ Lambda functions are small anonymous functions defined using the `lambda` keywor
 - `lambda_filter.py` – Filter elements with `filter()`
 - `lambda_reduce.py` – Reduce elements to a single result with `reduce()`
 
-## ▶️ Run Examples
+## Run Examples
 
 ```bash
 python lambda_basics.py
