@@ -3,12 +3,12 @@ class SimpleDescriptor:
         self.__set__(self, value)
 
     def __get__(self, instance, owner):
-        print("Getting value:", self.val)
-        return self.val
+        print("Getting value:", self.value)
+        return self.value
 
     def __set__(self, instance, value):
         print("Setting value:", value)
-        self.val = value
+        self.value = value
 
 
 class MyClass:
