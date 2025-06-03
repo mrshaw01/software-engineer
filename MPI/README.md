@@ -948,3 +948,59 @@ Implement an MPI program demonstrating point-to-point communication between two 
 
 - Synchronizes all processes in communicator
 - Signature: `MPI_Barrier(MPI_Comm comm)`
+
+# MPI Advanced Collective Communication
+
+## In-Place Operations
+
+- **MPI_IN_PLACE** allows reusing buffers for memory efficiency
+- Usage example for MPI_Reduce:
+  ```c
+  MPI_Reduce((rank == root) ? MPI_IN_PLACE : sendbuf,
+             recvbuf, count, datatype, op, root, comm);
+  ```
+- Benefits:
+  - Avoids extra memory allocation
+  - Reduces memory copies
+  - Particularly useful for root process in reduction operations
+
+## Variable-Length Data Operations
+
+### Scatterv/Gatherv
+
+- Handle uneven data distributions across processes
+- **MPI_Scatterv** parameters:
+
+  - `sendcounts[]`: Array specifying how many elements to send to each process
+  - `displs[]`: Array of displacements indicating where each process's data begins
+  - `recvcount`: Number of elements to receive (must match corresponding sendcount)
+
+- **MPI_Gatherv** parameters:
+  - `recvcounts[]`: Array specifying how many elements to receive from each process
+  - `displs[]`: Array of displacements for placement in receive buffer
+
+### Usage Example
+
+```c
+// Scatterv example
+int sendcounts[4] = {10, 20, 30, 40};  // Different amounts for 4 processes
+int displs[4] = {0, 10, 30, 60};       // Starting offsets in send buffer
+MPI_Scatterv(sendbuf, sendcounts, displs, MPI_INT,
+             recvbuf, recvcount, MPI_INT, root, comm);
+```
+
+## Key Differences from Regular Collectives
+
+| Feature        | Regular (Scatter/Gather) | Vector (Scatterv/Gatherv) |
+| -------------- | ------------------------ | ------------------------- |
+| Data Size      | Uniform per process      | Variable per process      |
+| Buffer Control | Simple                   | Requires offsets/counts   |
+| Flexibility    | Limited                  | High                      |
+| Memory Usage   | Predictable              | More complex management   |
+
+## Best Practices
+
+1. Use `MPI_IN_PLACE` for memory-critical applications
+2. Prefer vector versions when data distribution is irregular
+3. Always verify displacement arrays to prevent buffer overflows
+4. Consider using derived datatypes for complex non-contiguous data patterns
