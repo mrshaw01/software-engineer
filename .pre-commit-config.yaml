@@ -23,3 +23,11 @@ repos:
       - id: prettier
         name: Format YAML files
         files: \.(yaml|yml)$
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.6
+    hooks:
+      - id: clang-format
+        name: Format C/C++ code
+        files: \.(c|cpp|h|hpp|cc|cxx)$
+        args: [--style=file]
