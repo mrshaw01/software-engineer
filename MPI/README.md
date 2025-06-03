@@ -663,3 +663,193 @@ Be careful to avoid deadlocks.
 
   - Behavior is implementation-dependent
   - Typically, a system buffer holds data in transit
+
+# MPI Send and Receive Modes
+
+## Send Modes
+
+### Standard Send
+
+```c
+int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+```
+
+### Synchronous Send
+
+```c
+int MPI_Ssend(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+```
+
+- Completes only when matching receive is posted and has started receiving.
+- Ensures synchronization without extra primitives like barriers.
+- Guarantees order: code after `MPI_Ssend` executes only after matching receive begins.
+
+### Buffered Send
+
+```c
+int MPI_Bsend(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+```
+
+- Completion is independent of a matching receive.
+- Local operation; user must explicitly allocate a buffer.
+
+Example:
+
+```c
+int pack_size;
+MPI_Pack_size(count, MPI_FLOAT, MPI_COMM_WORLD, &pack_size);
+int buffer_size = pack_size + MPI_BSEND_OVERHEAD;
+float* buf = (float*)malloc(buffer_size);
+MPI_Buffer_attach(buf, buffer_size);
+
+MPI_Bsend(A, count, MPI_FLOAT, 1, 1234, MPI_COMM_WORLD);
+```
+
+### Ready Send
+
+```c
+int MPI_Rsend(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+```
+
+- Requires that the matching receive is already posted.
+- No handshake; may perform better in some cases.
+- If posted before the receive, results in undefined behavior.
+
+Synchronization example:
+
+```c
+MPI_Barrier(MPI_COMM_WORLD);
+MPI_Rsend(...);
+```
+
+## Receive Mode
+
+Only one mode:
+
+```c
+int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status);
+```
+
+## Delivery Order
+
+- If a sender sends two messages to the same destination that match the same receive, the first message will be received.
+- If a receiver posts two receives matching the same message, the first posted will receive it.
+- If a receive matches two sends from different sources, it may receive either.
+
+Example:
+
+```c
+if (rank == 0) {
+    MPI_Bsend(buf1, count, MPI_DOUBLE, 1, tag, comm);
+    MPI_Bsend(buf2, count, MPI_DOUBLE, 1, tag, comm);
+} else if (rank == 1) {
+    MPI_Recv(buf1, count, MPI_DOUBLE, 0, MPI_ANY_TAG, comm, &status);
+    MPI_Recv(buf2, count, MPI_DOUBLE, 0, tag, comm, &status);
+}
+```
+
+## Sendrecv
+
+- Avoids deadlock by combining send and receive in one call.
+- Implements non-blocking send and recv internally, then waits.
+
+```c
+int MPI_Sendrecv(
+    void *sendbuf, int sendcount, MPI_Datatype sendtype, int dest, int sendtag,
+    void *recvbuf, int recvcount, MPI_Datatype recvtype, int source, int recvtag,
+    MPI_Comm comm, MPI_Status *status);
+```
+
+## Non-blocking Communication
+
+### Overview
+
+- **Blocking send/recv**: returns after operation completes.
+- **Non-blocking send/recv**: returns immediately; must use `MPI_Wait` or `MPI_Test`.
+
+### Prefixes
+
+- Non-blocking versions use `I` prefix:
+
+  - `MPI_Isend`, `MPI_Issend`, `MPI_Ibsend`, `MPI_Irsend`, `MPI_Irecv`
+
+- Can mix blocking and non-blocking (e.g. `MPI_Send` with `MPI_Irecv`).
+
+### Benefits
+
+- Avoids idle time and some deadlocks.
+- Enables overlapping computation with communication.
+
+### Non-blocking Communication Example
+
+#### Send
+
+```c
+MPI_Isend(buf, count, type, dest, tag, comm, &request);
+MPI_Wait(&request, &status);
+```
+
+#### Receive
+
+```c
+MPI_Irecv(buf, count, type, dest, tag, comm, &request);
+MPI_Wait(&request, &status);
+```
+
+### Completion Check
+
+#### Using `MPI_Test`
+
+```c
+MPI_Test(MPI_Request *request, int *flag, MPI_Status *status);
+```
+
+- Sets `flag = true` if complete, false otherwise.
+
+Other variants:
+
+- `MPI_TestAll`, `MPI_TestAny`, `MPI_TestSome`
+
+#### Using `MPI_Wait`
+
+```c
+MPI_Wait(MPI_Request *request, MPI_Status *status);
+```
+
+- Blocks until complete.
+
+Other variants:
+
+- `MPI_WaitAll`, `MPI_WaitAny`, `MPI_WaitSome`
+
+### Non-blocking Example with Work Overlap
+
+#### Rank 0
+
+```c
+int count = 10000;
+float *buf = (float*)malloc(count * sizeof(float));
+
+MPI_Request request;
+MPI_Isend(buf, count, MPI_FLOAT, 1, 1234, MPI_COMM_WORLD, &request);
+
+// Useful work can be done here
+
+MPI_Status status = {0};
+MPI_Wait(&request, &status);
+```
+
+#### Rank 1
+
+```c
+int count = 10000;
+float *buf = (float*)malloc(count * sizeof(float));
+
+MPI_Request request;
+MPI_Irecv(buf, count, MPI_FLOAT, 0, 1234, MPI_COMM_WORLD, &request);
+
+// Useful work can be done here
+
+MPI_Status status = {0};
+MPI_Wait(&request, &status);
+```
