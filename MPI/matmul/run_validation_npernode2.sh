@@ -19,7 +19,7 @@ salloc -N 2 --exclusive                              \
 salloc -N 2 --exclusive                              \
   mpirun --bind-to none -mca btl ^openib -npernode 2 \
   ./main -v -t 32 -n 3 323 429 111
-  
+
 salloc -N 2 --exclusive                              \
   mpirun --bind-to none -mca btl ^openib -npernode 2 \
   ./main -v -t 32 -n 3 1 2000 2000
@@ -39,4 +39,3 @@ salloc -N 2 --exclusive                              \
 salloc -N 2 --exclusive                              \
   mpirun --bind-to none -mca btl ^openib -npernode 2 \
   ./main -v -t 32 -n 3 256 256 256
-

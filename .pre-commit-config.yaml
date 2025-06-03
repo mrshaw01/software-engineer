@@ -31,3 +31,11 @@ repos:
         name: Format C/C++ code
         files: \.(c|cpp|h|hpp|cc|cxx)$
         args: [--style=file]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end-of-file newline
