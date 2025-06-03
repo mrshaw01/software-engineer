@@ -853,3 +853,98 @@ MPI_Irecv(buf, count, MPI_FLOAT, 0, 1234, MPI_COMM_WORLD, &request);
 MPI_Status status = {0};
 MPI_Wait(&request, &status);
 ```
+
+# MPI Point-to-Point Communication Practice
+
+## Objective
+
+Implement an MPI program demonstrating point-to-point communication between two ranks:
+
+- Rank 0 creates and initializes an array (a[i] = i)
+- Rank 1 receives and verifies the array
+- Use blocking `MPI_Send` and `MPI_Recv`
+
+## Performance Measurement
+
+- Time the communication using `MPI_Wtime` or `get_time()` from util.cpp
+- Calculate network bandwidth:
+  ```
+  bandwidth = data size (bytes) / communication time (seconds)
+  ```
+
+## Advanced Tasks
+
+1. Experiment with different send modes:
+
+   - Standard (`MPI_Send`)
+   - Synchronous (`MPI_Ssend`)
+   - Buffered (`MPI_Bsend`)
+   - Ready (`MPI_Rsend`)
+
+2. Implement non-blocking communication:
+   - `MPI_Isend` and `MPI_Irecv`
+   - Use `MPI_Wait` or `MPI_Test` for completion checks
+
+## Key Concepts
+
+- Blocking vs. non-blocking communication
+- Different send mode semantics
+- Performance measurement techniques
+- Bandwidth calculation for network assessment
+
+# MPI Collective Communication
+
+## Overview
+
+- Cooperative communication among all processes in a communicator
+- Must be called by all processes in the communicator
+- Provides optimized patterns for common parallel operations
+- Available in both blocking and non-blocking versions
+
+## Key Operations
+
+### Broadcast (MPI_Bcast)
+
+- One-to-all data distribution from root process
+- Signature: `MPI_Bcast(void *buf, int count, MPI_Datatype datatype, int root, MPI_Comm comm)`
+
+### Reduction (MPI_Reduce)
+
+- Combines data from all processes to one target
+- Supports operations: MPI_SUM, MPI_MAX, MPI_MIN, etc.
+- Signature: `MPI_Reduce(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm)`
+
+### All-Reduce (MPI_Allreduce)
+
+- Combines values and distributes result to all processes
+- Signature: `MPI_Allreduce(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)`
+
+### Gather (MPI_Gather)
+
+- Collects data from all processes to root
+- Signature: `MPI_Gather(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)`
+
+### Scatter (MPI_Scatter)
+
+- Distributes data from root to all processes
+- Signature: `MPI_Scatter(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)`
+
+### All-to-All (MPI_Alltoall)
+
+- Each process sends distinct data to every other process
+- Signature: `MPI_Alltoall(void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm)`
+
+### Reduce-Scatter (MPI_Reduce_scatter)
+
+- Combines reduction followed by scatter operation
+- Signature: `MPI_Reduce_scatter(const void *sendbuf, void *recvbuf, const int recvcounts[], MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)`
+
+### Scan (MPI_Scan)
+
+- Computes inclusive prefix reduction
+- Signature: `MPI_Scan(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)`
+
+### Barrier (MPI_Barrier)
+
+- Synchronizes all processes in communicator
+- Signature: `MPI_Barrier(MPI_Comm comm)`
