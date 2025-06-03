@@ -370,3 +370,296 @@ $ salloc -N 1 mpirun -mca btl ^openib -npernode 1 ./hello_world
 # Allocate 2 nodes, 2 processes per node
 $ salloc -N 2 mpirun -mca btl ^openib -npernode 2 ./hello_world
 ```
+
+## Error Handling Macro
+
+- Always check error codes returned by MPI functions
+
+  - Time for debugging will dramatically decrease
+
+- `MPI_Error_string` returns a description for the error code
+
+```c
+#include <mpi.h>
+#include <stdio.h>
+
+#define CHECK_MPI(call)                                \
+  do {                                                 \
+    int code = call;                                   \
+    if (code != MPI_SUCCESS) {                         \
+      char estr[MPI_MAX_ERROR_STRING];                 \
+      int elen;                                        \
+      MPI_Error_string(code, estr, &elen);             \
+      fprintf(stderr, "MPI error (%s:%d): %s\n",       \
+              __FILE__, __LINE__, estr);               \
+      MPI_Abort(MPI_COMM_WORLD, code);                 \
+    }                                                  \
+  } while (0)
+
+int main(int argc, char **argv) {
+  int my_rank, size;
+  CHECK_MPI(MPI_Init(&argc, &argv));
+  CHECK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
+  CHECK_MPI(MPI_Comm_size(MPI_COMM_WORLD, &size));
+  printf("Hello, I am %d of %d\n", my_rank, size);
+  CHECK_MPI(MPI_Finalize());
+  return 0;
+}
+```
+
+## Common Misconceptions: Threads vs. Processes
+
+- Threads within the same process share the address space
+- Processes do not share the address space
+- Threads can access values written by another thread if the address is known
+
+```c
+// pthread example
+A[i] = i;
+pthread_create(..., thread_func, ...);
+s += A[i];
+
+// OpenMP example
+A[i] = i;
+#pragma omp parallel
+{
+  s += A[i];
+}
+```
+
+- In MPI, communication is required if passing data between processes
+
+```c
+// Rank 0 process
+A[i] = i;
+MPI_Barrier();
+// Rank 0 process can access A
+```
+
+```c
+// Rank 1 process
+MPI_Barrier();
+// Rank 1 process cannot access A
+```
+
+## Common Misconceptions: SPMD
+
+- MPI follows SPMD (Single Program, Multiple Data) model
+
+  - This does not mean all processes do the same work
+  - You can implement MPI programs in MPMD style
+
+```c
+int rank;
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+if (rank == 0) {
+  // Program 1
+}
+
+if (rank == 1) {
+  // Program 2
+}
+```
+
+## Practice: MPI Hello World
+
+- Implement MPI Hello World program
+
+  - Print host names of each node the process executes on
+  - Do error handling
+
+- Write Makefile by yourself
+
+- Try launching processes in different configurations with `salloc`:
+
+  - Multiple processes in a single node
+  - Multiple processes in multiple nodes
+
+## MPI Communications
+
+- **Point-to-point communications**
+
+  - Involves a sender and a receiver (one process to another)
+
+- **Collective communications**
+
+  - All processes within a communicator participate
+  - Examples: Barrier, reduction operations, gather, ...
+
+## MPI Data Types
+
+- Recursively defined:
+
+  - Predefined types (e.g., `MPI_INT`, `MPI_DOUBLE_PRECISION`)
+  - Contiguous array of MPI datatypes
+  - Strided block of datatypes
+  - Indexed array of blocks of datatypes
+  - Arbitrary structure of datatypes
+
+- MPI functions to construct custom datatypes:
+
+  - Array of (int, float) pairs
+  - Row of a matrix stored column-wise
+
+## Basic MPI Data Types
+
+| MPI datatype       | C datatype        |
+| ------------------ | ----------------- |
+| MPI_CHAR           | signed char       |
+| MPI_SHORT          | signed short      |
+| MPI_INT            | signed int        |
+| MPI_LONG           | signed long       |
+| MPI_UNSIGNED_CHAR  | unsigned char     |
+| MPI_UNSIGNED_SHORT | unsigned short    |
+| MPI_UNSIGNED       | unsigned int      |
+| MPI_UNSIGNED_LONG  | unsigned long int |
+| MPI_DOUBLE         | double            |
+| MPI_FLOAT          | float             |
+| MPI_LONG_DOUBLE    | long double       |
+| MPI_BYTE           |                   |
+| MPI_PACKED         |                   |
+
+## MPI Tags
+
+- Messages are sent with a user-defined integer tag
+
+  - Assists the receiving process in identifying the message
+  - Messages can be screened using specific tags
+  - Not screened when specifying `MPI_ANY_TAG`
+
+## Blocking Send
+
+```c
+int MPI_Send(void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+```
+
+- `buf`: address of send buffer (where the message is)
+- `count`: number of data items
+- `datatype`: type of data items
+- `dest`: rank of destination process
+- `tag`: message tag
+- `comm`: communicator, usually `MPI_COMM_WORLD`
+
+### Behavior
+
+- `MPI_Send()` is blocking
+
+  - When it returns, data has been delivered to the system
+  - The user can safely access or overwrite the send buffer
+  - The message may not have been received yet by the destination process
+
+## Blocking Receive
+
+```c
+int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
+```
+
+- `buf`: address of receive buffer
+- `count`: number of elements in the receive buffer
+- `datatype`: data type of receive buffer elements
+- `source`: rank of source process or `MPI_ANY_SOURCE`
+- `tag`: message tag or `MPI_ANY_TAG`
+- `status`: status object containing additional information about the received message or `MPI_STATUS_IGNORE`
+
+### Behavior
+
+- `MPI_Recv()` is blocking
+
+  - Waits until a matching message is received
+  - After it returns, data is in the buffer and ready for use
+
+- Receiving fewer than `count` items is OK; receiving more is an error
+
+## MPI_Recv Status
+
+- `MPI_Status` structure has 3 members:
+
+  - `status.MPI_TAG`: tag of received message
+  - `status.MPI_SOURCE`: source rank of message
+  - `status.MPI_ERROR`: error code
+
+```c
+int MPI_Get_count(MPI_Status *status, MPI_Datatype datatype, int *count)
+```
+
+- Returns the length of the received message
+
+### Example
+
+```c
+MPI_Status status = {0}; // MPI_ERROR is not set when there is no error
+MPI_Recv(buf, count, MPI_FLOAT, 0, 1234, MPI_COMM_WORLD, &status);
+printf("Source = %d, Tag = %d, Error = %d\n",
+    status.MPI_SOURCE,
+    status.MPI_TAG,
+    status.MPI_ERROR);
+```
+
+## Send-Recv Example
+
+### Separate Programs
+
+**Rank 0**
+
+```c
+int count = 10000;
+float *buf = (float*)malloc(count * sizeof(float));
+
+MPI_Send(buf, count, MPI_FLOAT, 1, 1234, MPI_COMM_WORLD);
+```
+
+**Rank 1**
+
+```c
+int count = 10000;
+float *buf = (float*)malloc(count * sizeof(float));
+MPI_Status status;
+
+MPI_Recv(buf, count, MPI_FLOAT, 0, 1234, MPI_COMM_WORLD, &status);
+```
+
+### Combined Program
+
+```c
+int count = 10000;
+float *buf = (float*)malloc(count * sizeof(float));
+
+if (rank == 0) {
+    MPI_Send(buf, count, MPI_FLOAT, 1, 1234, MPI_COMM_WORLD);
+}
+
+if (rank == 1) {
+    MPI_Status status;
+    MPI_Recv(buf, count, MPI_FLOAT, 0, 1234, MPI_COMM_WORLD, &status);
+}
+```
+
+## MPI is Simple
+
+Many parallel programs can be written using just six functions:
+
+- `MPI_Init()`
+- `MPI_Finalize()`
+- `MPI_Comm_size()`
+- `MPI_Comm_rank()`
+- `MPI_Send()`
+- `MPI_Recv()`
+
+## Deadlocks
+
+Be careful to avoid deadlocks.
+
+- Carefully sequence all messages
+
+**Example of Potential Deadlocks**
+
+- Both processes calling `MPI_Send()` before `MPI_Recv()`
+- Mismatched message order (tags or send/recv order)
+
+## Buffering
+
+- Send and matching receive operations may not be synchronized in reality
+
+  - Behavior is implementation-dependent
+  - Typically, a system buffer holds data in transit
