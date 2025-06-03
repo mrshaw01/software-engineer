@@ -2,7 +2,7 @@
 
 A curated, high-quality collection of learning resources focused on **Python** and soon **C/C++**, designed to build strong software engineering foundations and system-level understanding.
 
-## 🗂️ Repository Structure
+## Repository Structure
 
 ```text
 .
@@ -13,7 +13,7 @@ A curated, high-quality collection of learning resources focused on **Python** a
 └── README.md               # Project overview (this file)
 ```
 
-## 🚀 How to Use
+## How to Use
 
 Each numbered folder contains a `README.md` explaining the concepts, along with runnable `.py` files. For example:
 
@@ -26,18 +26,18 @@ Some scripts require third-party libraries (e.g., `numpy`, `scipy`, `torch`).
 
 All code is compatible with **Python 3.7+** and written to be **minimal, focused, and testable**.
 
-## 📘 Highlights
+## Highlights
 
 - **OOP Mastery**: From basic classes to metaclasses and descriptors (`python-OOP`)
 - **Advanced Python**: Covers generators, decorators, `itertools`, JSON, threading, context managers
 - **HPC & GPU Programming**: Deep-dive into performance, GIL, CUDA cores, memory, and Python-C++ interop (`docs/`)
 
-## 🎯 Learning Philosophy
+## Learning Philosophy
 
-- ✅ Small, modular examples — no cluttered notebooks
-- ✅ Clear separation between concept, code, and commentary
-- ✅ Emphasis on design, performance, and maintainability
-- ✅ Builds knowledge progressively — ideal for serious learners and professionals
+- Small, modular examples — no cluttered notebooks
+- Clear separation between concept, code, and commentary
+- Emphasis on design, performance, and maintainability
+- Builds knowledge progressively — ideal for serious learners and professionals
 
 ## 🔧 Upcoming Work
 
