@@ -19,7 +19,6 @@ repos:
       - id: prettier
         name: Format Markdown files
         files: \.md$
-
       - id: prettier
         name: Format YAML files
         files: \.(yaml|yml)$
@@ -28,8 +27,8 @@ repos:
     rev: v17.0.6
     hooks:
       - id: clang-format
-        name: Format C/C++ code
-        files: \.(c|cpp|h|hpp|cc|cxx)$
+        name: Format C/C++/CUDA code
+        files: \.(c|cpp|h|hpp|cc|cxx|cu|cuh)$
         args: [--style=file]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
