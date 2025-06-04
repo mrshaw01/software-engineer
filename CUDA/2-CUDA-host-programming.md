@@ -206,3 +206,203 @@ if (device != 0)
 my_kernel<<<...>>>(...);
 cudaDeviceSynchronize();
 ```
+
+## Memory Management
+
+- Host process calls CUDA APIs to allocate device memory
+
+  - Similar to `malloc()` for heap memory
+  - Host must reclaim allocated memory (e.g., `cudaFree()`)
+  - Example: `cudaMalloc()`, `cudaFree()`
+
+- Device memory and host memory are in **separate address spaces**
+
+  - Host cannot access device memory
+  - Kernel cannot access host memory
+
+| Function Type   | Host Memory | Device Memory |
+| --------------- | ----------- | ------------- |
+| Host function   | O           | X             |
+| Kernel function | X           | O             |
+
+- Communication between host and device memory requires CUDA APIs
+
+  - Example: `cudaMemcpy()`
+
+## Device Memory
+
+- Device memory = global memory + constant memory
+- Used as an argument for CUDA API functions or kernels
+- Data transfer to/from device memory is done using CUDA APIs
+
+**Typical Data Flow**
+
+1. Memory allocation
+2. Host to Device (H2D) transfer (`cudaMemcpy`)
+3. Argument passed to kernel
+4. Kernel accesses memory like array
+5. Device to Host (D2H) transfer (`cudaMemcpy`)
+
+## Memory Management APIs
+
+```cpp
+cudaError_t cudaMalloc(void **devPtr, size_t size)
+```
+
+- Allocates device memory of `size` bytes and sets `*devPtr`
+- Uses current device (`cudaGetDevice()`)
+
+```cpp
+cudaError_t cudaFree(void *devPtr)
+```
+
+- Frees the memory pointed to by `devPtr`
+
+```cpp
+cudaError_t cudaMemcpy(void *dst, const void *src, size_t size, cudaMemcpyKind kind)
+```
+
+- Copies `size` bytes of data from `src` to `dst`
+- `cudaMemcpyKind` specifies direction:
+
+  - `cudaMemcpyHostToDevice`: Host → Device
+  - `cudaMemcpyDeviceToHost`: Device → Host
+
+## Usage of Device Memory
+
+```cpp
+int *ptr;
+int *devPtr;
+
+ptr = (int *) malloc(sizeof(int) * 1024);
+cudaMalloc(&devPtr, sizeof(int) * 1024);
+
+/* Do something with ptr */
+
+cudaMemcpy(devPtr, ptr, sizeof(int) * 1024, cudaMemcpyHostToDevice);
+my_kernel<<<...>>>(devPtr, ...);
+cudaMemcpy(ptr, devPtr, sizeof(int) * 1024, cudaMemcpyDeviceToHost);
+
+cudaFree(devPtr);
+free(ptr);
+```
+
+## Execution Control - Kernel Launch
+
+```cpp
+kernel_name<<<gridDim, blockDim, sharedMem, stream>>>(...params);
+```
+
+- **Parameters**:
+
+  - `dim3 gridDim`: Grid dimensions
+  - `dim3 blockDim`: Block dimensions
+  - `size_t sharedMem` (optional): Shared memory size (default: 0)
+  - `cudaStream_t stream` (optional): Stream to use (default: 0)
+
+- **No return value**
+
+  - Check errors with `cudaGetLastError()`
+
+- **Asynchronous**
+
+  - Use `cudaDeviceSynchronize()` to ensure completion
+
+## Thread Hierarchy
+
+- **Thread**: Basic software unit (\~CPU thread)
+- **Warp**: Basic hardware unit
+
+  - 1 warp = 32 threads
+  - Threads in a warp execute in lockstep
+
+- **Thread Block**: Group of cooperating threads
+- **Grid**: Group of thread blocks
+
+## Size of Thread Blocks and Grids
+
+```cpp
+kernel_name<<<gridDim, blockDim, sharedMem, stream>>>(...params);
+```
+
+```cpp
+struct dim3 {
+    int x;
+    int y;
+    int z;
+};
+```
+
+- Grids and blocks define thread space
+- Use `dim3` for both `gridDim` and `blockDim`
+- Thread space is 3D (can use 1D or 2D by setting others to 1)
+- Example use cases:
+
+  - 1D: Vector addition
+  - 2D: Matrix multiplication
+  - 3D: Image processing
+
+## Example of Thread Space Configuration
+
+- **1D Case**: `blockDim = {5}`, `gridDim = {6}`
+
+  - 6 blocks × 5 threads = 30 threads
+
+- **2D Case**: `blockDim = {5, 4}`, `gridDim = {3, 3}`
+
+  - 9 blocks, each with 20 threads = 180 threads
+
+## Example of Kernel Launch
+
+1. `blockDim = {128}`, `gridDim = {4}`
+   → 128 × 4 = 512 threads
+
+   ```cpp
+   dim3 blockDim(128);
+   dim3 gridDim(4);
+   foo<<<gridDim, blockDim>>>();
+   ```
+
+2. `blockDim = {32, 2}`, `gridDim = {2, 8}`
+   → (32×2) × (2×8) = 1024 threads
+
+   ```cpp
+   dim3 blockDim(32, 2);
+   dim3 gridDim(2, 8);
+   foo<<<gridDim, blockDim>>>();
+   ```
+
+3. `blockDim = {4, 4, 4}`, `gridDim = {2, 4, 8}`
+   → (4×4×4) × (2×4×8) = 4096 threads
+
+   ```cpp
+   dim3 blockDim(4, 4, 4);
+   dim3 gridDim(2, 4, 8);
+   foo<<<gridDim, blockDim>>>();
+   ```
+
+## How to Set up the Thread Space?
+
+1. **Determine total threads**
+
+   - 1 thread per output element
+   - Can loop to process multiple outputs
+   - Avoid multiple threads per output (complex reduction)
+
+2. **Choose thread block size**
+
+   - `blockDim`: Number of threads per block
+   - Prefer multiples of warp size (32)
+
+3. **Choose grid size**
+
+   - `gridDim`: Number of blocks
+   - Total threads = `gridDim * blockDim`
+
+**Example**:
+
+```cpp
+blockDim = {16, 16}
+gridDim.x = W / 16
+gridDim.y = H / 16
+```
