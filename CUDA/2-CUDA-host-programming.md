@@ -406,3 +406,93 @@ blockDim = {16, 16}
 gridDim.x = W / 16
 gridDim.y = H / 16
 ```
+
+## Asynchronous APIs
+
+- **Two modes** in CUDA APIs:
+
+  - **Synchronous APIs**
+
+    - **Guarantee** the API has completed before returning
+    - Safe to re-use arguments after the function returns
+    - Example: `cudaMemcpy()`
+
+  - **Asynchronous APIs**
+
+    - **Do not guarantee** completion before return
+    - Unsafe to re-use arguments immediately
+    - Require **explicit synchronization**
+
+      - e.g., `cudaDeviceSynchronize()`, `cudaStreamSynchronize()`
+
+    - Function names include `"Async"` suffix
+
+      - Examples: kernel launch, `cudaMemcpyAsync()`
+
+- **No guarantee** that an API has finished upon return
+
+  - Can lead to **data race**
+
+**Synchronous Example**
+
+```cpp
+...
+cudaMemcpy(&c, ...);
+printf("%d\n", c);
+...
+```
+
+Output:
+
+```
+$ ./main
+100
+$ ./main
+100
+$ ./main
+100
+```
+
+**Asynchronous Example**
+
+```cpp
+...
+cudaMemcpyAsync(&c, ...);
+// cudaDeviceSynchronize();
+printf("%d\n", c);
+...
+```
+
+Output:
+
+```
+$ ./main
+100
+$ ./main
+0
+$ ./main
+100
+```
+
+## Error Handling in Asynchronous APIs
+
+- **Difficult** because failure may occur **after** the function returns
+- CUDA **returns the error code** on the **next API call**
+
+  - This can hide the actual source of the error
+
+**Wrong Example**
+
+```cpp
+cudaMemcpyAsync(&c_illegal, ...);  // returns cudaSuccess
+
+cudaMemcpyAsync(&d, ...);          // failure occurred, returns cudaErrorUnknown
+// No error check
+
+CHECK_CUDA(cudaDeviceSynchronize()); // ???
+```
+
+- **Recommendation**:
+
+  - Always **check error code** for **every API call**
+  - Applies to both synchronous and asynchronous calls
