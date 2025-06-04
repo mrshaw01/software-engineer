@@ -331,3 +331,212 @@ $ ./hello_parallel_world
 ### On Device (GPU)
 
 - Execute the launched kernel(s) in parallel
+
+## CUDA Application Example - Addition
+
+### CUDA Application for simple addition
+
+```cpp
+__global__ void kernel_add(const int *a, const int *b, int *c) {
+    *c = *a + *b;
+}
+
+int main() {
+    int a = 1, b = 2, c;
+    int *d_a, *d_b, *d_c;
+
+    // 1. Allocate device memory
+    cudaMalloc(&d_a, sizeof(int));
+    cudaMalloc(&d_b, sizeof(int));
+    cudaMalloc(&d_c, sizeof(int));
+
+    // 2. Transfer input data to device memory
+    cudaMemcpy(d_a, &a, sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, &b, sizeof(int), cudaMemcpyHostToDevice);
+
+    // 3. Execute kernel
+    kernel_add<<<1,1>>>(d_a, d_b, d_c);
+
+    // 4. Transfer output data to host memory
+    cudaMemcpy(&c, d_c, sizeof(int), cudaMemcpyDeviceToHost);
+    printf("c: %d\n", c);
+}
+```
+
+## Compilation Process in CUDA
+
+- **Separate compilation**
+  Compile twice for GPU code (kernels) and CPU code (host functions)
+
+```text
+GPU compile                              CPU compile
+------------                            -------------
+.cu                                     .cu
+ ↓                                        ↓
+C++ Preprocessor                        C++ Preprocessor
+ ↓ .cpp1.i                                ↓ .cpp4.ii
+cicc                                    cudafe++
+ ↓ .ptx (IR)                              ↓ .cudafe1.cpp
+ptxas                                   C++ Compiler
+ ↓ .cubin (binary)                        ↓ .o / .obj
+fatbinary
+```
+
+- **CUDA C/C++ kernel → ptx assembly → cubin → fatbin**
+
+### ptx (Parallel Thread Execution)
+
+- Assembly for GPU
+- Specify a virtual GPU architecture at the ISA level
+- Example:
+  `nvcc --gpu-architecture=compute_70`
+
+### cubin (CUDA Binary)
+
+- Object file for GPU
+- Specify a real GPU architecture
+- Example:
+  `nvcc --gpu-code=sm_70`
+
+### fatbin
+
+- Collection of cubin and ptx files
+- Save multiple versions using fatbin
+- Supports multiple GPU architectures in a single binary
+
+## Practice 1: Figuring Out Device Information
+
+### 1. Identify GPUs on the Practice Server
+
+Use the following commands to check GPU types and counts:
+
+```bash
+nvidia-smi
+nvidia-smi -q
+```
+
+### 2. Submit Commands via `srun`
+
+Use `srun` to execute the same commands on compute nodes:
+
+```bash
+srun nvidia-smi
+srun nvidia-smi -q
+```
+
+### 3. Analyze Theoretical GPU Performance
+
+Check the following hardware specifications:
+
+- **Number of SMs** (Streaming Multiprocessors)
+- **Number of CUDA cores**
+- **FP16 / FP32 / FP64 performance** (Theoretical peak FLOPS)
+- **Memory capacity** (in GB)
+- **Memory bandwidth** (in GB/s)
+
+### 4. Reference Architecture Documentation
+
+Look up detailed specs in the official whitepaper:
+
+> Search for: `"V100 whitepaper"`
+> URL: [https://www.nvidia.com/en-us/data-center/v100/](https://www.nvidia.com/en-us/data-center/v100/)
+
+## Practice 2: Hello, World!
+
+Run “Hello, World!” programs on both CPU and GPU to understand basic CUDA compilation and execution.
+
+### Skeleton Path
+
+```bash
+/home/scratch/getp/hello_world
+```
+
+> ⚠️ Copy the files to your home directory before compiling.
+
+### Compilation
+
+```bash
+nvcc -o hello_world hello_world.cu
+nvcc -o hello_parallel_world hello_parallel_world.cu
+```
+
+### Execution
+
+```bash
+srun ./hello_world
+srun ./hello_parallel_world
+```
+
+### Sample Output
+
+```bash
+$ srun ./hello_world
+Host(CPU): Hello World!
+
+$ srun ./hello_parallel_world
+Device(GPU) Thread 4: Hello, World!
+Device(GPU) Thread 5: Hello, World!
+Device(GPU) Thread 6: Hello, World!
+Device(GPU) Thread 7: Hello, World!
+Device(GPU) Thread 0: Hello, World!
+Device(GPU) Thread 1: Hello, World!
+Device(GPU) Thread 2: Hello, World!
+Device(GPU) Thread 3: Hello, World!
+```
+
+### Discussion
+
+- **Why is the output not in order?**
+  CUDA threads execute in parallel and independently. Output order depends on thread scheduling, which is nondeterministic.
+
+- **What happens if `cudaDeviceSynchronize()` is not called?**
+  The host may exit before the GPU completes execution, causing incomplete or missing output.
+
+### Optional Exploration
+
+- Vary the **number of threads**
+
+  - Change the block size
+  - Adjust the number of threads per block
+
+- Observe output patterns and thread execution order
+
+## Practice 3: Compile and Linking
+
+Compile a mixed-source program with both C++ and CUDA code.
+
+### Skeleton Path
+
+```bash
+/home/scratch/getp/compile_and_linking
+```
+
+> Contains `file1.cpp`, `file2.cu`, and `compile.sh`
+
+### Steps
+
+```bash
+$ ./compile.sh
+$ srun ./main
+```
+
+### Expected Output
+
+```
+(Host) Welcome to GETP!
+(Device) Welcome to GETP!
+```
+
+### Follow-Up Questions (With Answers)
+
+- **Where is the fatbin stored?**
+  The fatbin (fat binary) is embedded inside the final executable by `nvcc`. You can inspect it with `cuobjdump --dump-fatbin`.
+
+- **How is kernel code linked during runtime?**
+  The CUDA runtime uses the fatbin section to load and launch device code on the GPU. The device code is dynamically linked into the GPU context during kernel launch.
+
+- **What is `nvlink`?**
+  `nvlink` is **not** a dynamic linker.
+
+  > It is a high-speed **interconnect** developed by NVIDIA that allows fast data transfer between GPUs or between CPU and GPU.
+  > For dynamic linking in CUDA, `cuModuleLoad()` and `cuModuleGetFunction()` are used instead.
