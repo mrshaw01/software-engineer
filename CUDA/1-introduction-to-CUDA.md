@@ -143,3 +143,191 @@
 - All threads in a warp execute the same instruction simultaneously
 
   - Share the same fetch-decode unit
+
+## CUDA Programming Model
+
+- **CUDA programming model**
+
+  - Defines kernels, threads, execution, and memory models
+  - Required to write programs for NVIDIA GPUs
+
+- **CUDA API**
+
+  - C/C++ based API (Fortran is also supported)
+  - Interfaces for memory management, streams, and device control
+
+- **CUDA runtime**
+
+  - Execution environment for CUDA
+  - Provided by NVIDIA as a runtime library
+
+## Key Terms in CUDA Programming
+
+- **Host**
+
+  - Processor running the main program (typically CPU)
+
+- **Device**
+
+  - Hardware that runs CUDA kernels (typically NVIDIA GPU)
+
+- **Kernel**
+
+  - Function executed on the device
+  - Written in CUDA C/C++
+  - Executed in parallel by many CUDA threads
+
+## CUDA Applications
+
+- **Structure**
+
+  - Host Program (runs on CPU)
+  - CUDA Kernel (runs on GPU)
+
+```cpp
+// Host Program
+int main() {
+  cudaMalloc(...);
+  cudaMemcpy(...);
+  kernel_1<<<...>>>();
+  kernel_2<<<...>>>();
+  cudaMemcpy(...);
+}
+```
+
+```cpp
+// CUDA Kernels
+__global__ void kernel_1(...) { ... }
+__global__ void kernel_2(...) { ... }
+```
+
+- **Host Program**
+
+  - Written in C/C++
+  - Requests tasks (computation, data transfer, sync) via CUDA APIs
+
+- **Kernel**
+
+  - Basic device-executable code unit
+  - Also written in CUDA C/C++
+
+- **Execution**
+
+  - Host and kernels can run in parallel
+  - Multiple GPUs can also operate in parallel
+
+## CUDA Toolkit
+
+- Development tools for CUDA programming
+
+  - Free to download
+
+- **Compiler (nvcc)**
+
+  - NVIDIA Compiler Collection
+  - Includes compiler and linker
+  - Interface similar to gcc/clang
+
+- **Debugger**
+
+  - `cuda-memcheck`, `cuda-gdb`
+
+- **Profiler**
+
+  - `nsys` (Nsight Systems), `ncu` (Nsight Compute)
+
+- **Other tools**
+
+  - Various utilities bundled in the toolkit
+
+## CUDA C/C++
+
+- **Programming language for CUDA kernels**
+
+  - Based on ISO C++ (C++14, C++17) with some extensions
+  - Standard Template Library (STL) not supported in device code
+
+    - Use libraries like `thrust` instead
+
+- **Language Extensions**
+
+  - Vector types: `char2`, `int4`, `float4`, ...
+  - Function/memory qualifiers: `__global__`, `__device__`, `__host__`, `__constant__`, ...
+  - Synchronization: `__syncthreads()`, `__thread_fence()`
+  - Built-in functions: `threadIdx`, `sin()`, `atomicAdd()`, `printf()`, ...
+
+## CUDA C/C++ Program
+
+- **Ordinary C/C++ Program**
+
+  - Defines functions
+  - Main function runs first, calls other functions
+
+- **CUDA C/C++ Program**
+
+  - Regular C/C++ with kernel functions
+  - Host function launches kernels
+
+    ```cpp
+    kernel<<<...>>>(...);
+    ```
+
+  - Multiple threads run the kernel in parallel
+
+## Hello, World! Example
+
+```cpp
+// hello_world.cu
+#include <cstdio>
+
+int main() {
+  printf("Hello, World!\n");
+  return 0;
+}
+```
+
+```sh
+$ nvcc -o hello_world hello_world.cu
+$ ./hello_world
+```
+
+## Hello, Parallel World!
+
+- Define a kernel to print "Hello, World!" from GPU threads
+
+```cpp
+__global__ void hello_world() {
+  int tidx = threadIdx.x + blockIdx.x * blockDim.x;
+  printf("Device(GPU) Thread %d: Hello, World!\n", tidx);
+}
+
+int main() {
+  hello_world<<<2, 4>>>();
+  cudaDeviceSynchronize();
+  return 0;
+}
+```
+
+```sh
+$ nvcc -o hello_parallel_world hello_parallel_world.cu
+$ ./hello_parallel_world
+```
+
+## How CUDA Applications Work
+
+### On Host (CPU)
+
+1. Create objects for kernel execution
+
+   - Stream creation
+   - Device memory allocation
+
+2. Execute kernel functions
+
+   - Transfer input data to device memory
+   - Launch kernel(s)
+   - Transfer output back to host memory
+
+### On Device (GPU)
+
+- Execute the launched kernel(s) in parallel
