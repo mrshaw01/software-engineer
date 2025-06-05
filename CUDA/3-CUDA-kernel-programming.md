@@ -440,3 +440,242 @@ __global__ void diff(int *in1, int *in2, int *out) {
     out[idx] = fabs((double)(in1[idx] - in2[idx]));
 }
 ```
+
+## Atomic Operation
+
+- **Atomic operation**
+
+  - An operation that is completed entirely or not at all
+  - No partial updates – all or nothing
+
+#### Example: `x = x + 4;`
+
+### Non-Atomic Scenario (Race Condition)
+
+#### Thread 0
+
+- Load from memory `x = 0`
+- Compute `x + 4` → `4`
+- Store result `x = 4`
+
+#### Thread 1
+
+- Load from memory `x = 0`
+- Compute `x + 4` → `4`
+- Store result `x = 4`
+
+**Expected:** `x = 8`
+**Actual:** `x = 4`
+
+#### Example: `atomicAdd(&x, 4);`
+
+#### Thread 0
+
+- `atomicAdd(&x, 4)`
+  `x = 0 + 4`
+
+#### Thread 1
+
+- `atomicAdd(&x, 4)`
+  `x = 4 + 4`
+
+**Expected:** `x = 8`
+**Actual:** `x = 8`
+
+## Atomic Operation in CUDA
+
+- CUDA supports atomic operations as built-in functions
+- Can atomically update variables in **global** or **shared** memory
+- **Atomic update propagates immediately to other threads**
+
+  - Includes threads in other blocks
+
+- No guarantee of **execution order** among atomic operations in different threads
+
+## List of Atomic Operations in CUDA
+
+### `atomicAdd`
+
+```cpp
+int atomicAdd(int* address, int val);
+unsigned int atomicAdd(unsigned int* address, unsigned int val);
+unsigned long long int atomicAdd(unsigned long long int* address, unsigned long long int val);
+float atomicAdd(float* address, float val);
+double atomicAdd(double* address, double val);
+__half2 atomicAdd(__half2 *address, __half2 val);
+__half atomicAdd(__half *address, __half val);
+__nv_bfloat162 atomicAdd(__nv_bfloat162 *address, __nv_bfloat162 val);
+__nv_bfloat16 atomicAdd(__nv_bfloat16 *address, __nv_bfloat16 val);
+```
+
+```cpp
+// Description
+old = *address;
+*address = old + val;
+return old;
+```
+
+### `atomicSub`
+
+```cpp
+int atomicSub(int* address, int val);
+unsigned int atomicSub(unsigned int* address, unsigned int val);
+```
+
+```cpp
+old = *address;
+*address = old - val;
+return old;
+```
+
+### `atomicExch`
+
+```cpp
+int atomicExch(int* address, int val);
+unsigned int atomicExch(unsigned int* address, unsigned int val);
+unsigned long long int atomicExch(unsigned long long int* address, unsigned long long int val);
+float atomicExch(float* address, float val);
+```
+
+```cpp
+old = *address;
+*address = val;
+return old;
+```
+
+### `atomicMin`
+
+```cpp
+int atomicMin(int* address, int val);
+unsigned int atomicMin(unsigned int* address, unsigned int val);
+unsigned long long int atomicMin(unsigned long long int* address, unsigned long long int val);
+long long int atomicMin(long long int* address, long long int val);
+```
+
+```cpp
+old = *address;
+*address = min(old, val);
+return old;
+```
+
+### `atomicMax`
+
+```cpp
+int atomicMax(int* address, int val);
+unsigned int atomicMax(unsigned int* address, unsigned int val);
+unsigned long long int atomicMax(unsigned long long int* address, unsigned long long int val);
+long long int atomicMax(long long int* address, long long int val);
+```
+
+```cpp
+old = *address;
+*address = max(old, val);
+return old;
+```
+
+### `atomicInc`
+
+```cpp
+unsigned int atomicInc(unsigned int* address, unsigned int val);
+```
+
+```cpp
+old = *address;
+*address = ((old >= val) ? 0 : (old + 1));
+return old;
+```
+
+### `atomicDec`
+
+```cpp
+unsigned int atomicDec(unsigned int* address, unsigned int val);
+```
+
+```cpp
+old = *address;
+*address = ((old == 0) || (old > val)) ? val : (old - 1);
+return old;
+```
+
+### `atomicCAS` (Compare and Swap)
+
+```cpp
+int atomicCAS(int* address, int compare, int val);
+unsigned int atomicCAS(unsigned int* address, unsigned int compare, unsigned int val);
+unsigned long long int atomicCAS(unsigned long long int* address, unsigned long long int compare, unsigned long long int val);
+unsigned short int atomicCAS(unsigned short int* address, unsigned short int compare, unsigned short int val);
+```
+
+```cpp
+old = *address;
+*address = ((old == compare) ? val : old);
+return old;
+```
+
+### `atomicAnd`
+
+```cpp
+int atomicAnd(int* address, int val);
+unsigned int atomicAnd(unsigned int* address, unsigned int val);
+unsigned long long int atomicAnd(unsigned long long int* address, unsigned long long int val);
+```
+
+```cpp
+old = *address;
+*address = old & val;
+return old;
+```
+
+### `atomicOr`
+
+```cpp
+int atomicOr(int* address, int val);
+unsigned int atomicOr(unsigned int* address, unsigned int val);
+unsigned long long int atomicOr(unsigned long long int* address, unsigned long long int val);
+```
+
+```cpp
+old = *address;
+*address = old | val;
+return old;
+```
+
+### `atomicXor`
+
+```cpp
+int atomicXor(int* address, int val);
+unsigned int atomicXor(unsigned int* address, unsigned int val);
+unsigned long long int atomicXor(unsigned long long int* address, unsigned long long int val);
+```
+
+```cpp
+old = *address;
+*address = old ^ val;
+return old;
+```
+
+## Kernel Attributes
+
+- **Metadata for kernel functions**
+
+  - Help compiler optimization
+  - Used for controlling grid and block configuration
+
+- **Runtime errors** occur if specified attributes conflict with runtime conditions
+
+### `__launch_bounds__` syntax
+
+```cpp
+__launch_bounds__(maxThreadsPerBlock, minBlocksPerMultiprocessor)
+```
+
+- `maxThreadsPerBlock`: Maximum number of threads per block
+- `minBlocksPerMultiprocessor`: Minimum number of blocks per SM (optional)
+
+### Example usage
+
+```cpp
+__global__ void __launch_bounds__(256, 4) kernel_name(...params) {
+    ...
+}
+```
