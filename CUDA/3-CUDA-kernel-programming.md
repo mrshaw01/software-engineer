@@ -176,8 +176,6 @@ void function(...) {
 
   - Each thread has up to 3 coordinates: `(x, y, z)`
 
-### Thread Space in Kernels (continued)
-
 #### Built-in Thread Coordinate Variables
 
 - `dim3 threadIdx, blockIdx, blockDim, gridDim`
@@ -303,3 +301,142 @@ For `<<<2, 32>>>`:
 | 33        | 1           | 1          |
 | ...       | ...         | ...        |
 | 63        | 31          | 1          |
+
+## Scalar Type
+
+- CUDA supports scalar types similar to ordinary C/C++.
+
+| Type                       | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `bool`                     | true or false                                        |
+| `char`                     | Signed 8-bit integer                                 |
+| `unsigned char`, `uchar`   | Unsigned 8-bit integer                               |
+| `short`                    | Signed 16-bit integer                                |
+| `unsigned short`, `ushort` | Unsigned 16-bit integer                              |
+| `int`                      | Signed 32-bit integer                                |
+| `unsigned int`, `uint`     | Unsigned 32-bit integer                              |
+| `long`                     | Signed 64-bit integer                                |
+| `unsigned long`, `ulong`   | Unsigned 64-bit integer                              |
+| `float`                    | IEEE754 32-bit floating point                        |
+| `double`                   | IEEE754 64-bit floating point                        |
+| `half`                     | IEEE754-2008 16-bit floating point                   |
+| `size_t`                   | Type of `sizeof`; 64-bit or 32-bit depending on arch |
+| `void`                     | Void type                                            |
+
+## Vector Type
+
+- CUDA supports vector types.
+- Format: `typeN`, where:
+
+  - `type` = `char`, `uchar`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `longlong`, `ulonglong`, `float`, `double`
+  - `N` = 1, 2, 3, or 4
+
+| CUDA Vector Type |
+| ---------------- |
+| `charn`          |
+| `ucharn`         |
+| `shortn`         |
+| `ushortn`        |
+| `intn`           |
+| `uintn`          |
+| `longn`          |
+| `ulongn`         |
+| `floatn`         |
+| `doublen`        |
+
+### Vector Variables and Pointers
+
+```cpp
+float4 a, b, c;
+float4 *p;
+```
+
+### Core Vector Operations
+
+| Operation Type   | Example                                            |
+| ---------------- | -------------------------------------------------- |
+| Creation         | `float4 make_float4(x, y, z, w);`                  |
+| Assignment       | `a = b;`, `a = p[i];`, `p[i] = a;`                 |
+| Vector Literals  | `a = {1.0f, 2.0f, 3.0f, 4.0f};`                    |
+| Component Access | `a.x = t;`, `t = a.x;` (components: x → y → z → w) |
+| Arithmetics      | `c.x = a.x + b.x;`, `c.y = a.y + b.y;`, ...        |
+
+## Usage of Vector Type
+
+**Copy Kernel Using Vector Types (e.g., `int4`)**
+
+```cpp
+__global__ void device_copy_vector4_kernel(int* d_in, int* d_out, int N) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    for (int i = idx; i < N/4; i += blockDim.x * gridDim.x) {
+        reinterpret_cast<int4*>(d_out)[i] = reinterpret_cast<int4*>(d_in)[i];
+    }
+}
+```
+
+## Struct Type
+
+- CUDA supports C/C++ structs and classes.
+- **Recommendation**: use simple structs.
+- To call a member function from a kernel, use `__device__` specifier.
+- Use both `__host__` and `__device__` for dual-usage functions.
+
+```cpp
+struct S {
+    char c; int i;
+    __host__ __device__ void setCharacter(char c) { this->c = c; }
+    __host__ __device__ void setInteger(int i) { this->i = i; }
+};
+
+__global__ void kernel_function(S *var, char c) {
+    var->setCharacter(c);
+    ...
+}
+
+void host_function(S *var, int i) {
+    var->setInteger(i);
+    ...
+}
+```
+
+## Built-in Device Functions
+
+CUDA provides built-in functions callable from kernel/device functions:
+
+- `printf`
+- Math functions
+- Atomic functions
+- Synchronization functions
+- Memory fences
+- Warp functions
+- Image functions
+- No explicit include is needed
+
+## Built-in Device Functions: `printf`
+
+- `printf` is available from CUDA 4.0
+- Useful for debugging
+- **Caution**:
+
+  - No guaranteed order of output
+  - Possible data races
+  - Can hinder compiler optimization
+
+```cpp
+__global__ void kernel() {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    printf("Hello from CUDA thread %d\n", tid);
+}
+```
+
+## Built-in Device Functions: Math Functions
+
+- Math functions from `math.h` are usable in kernels.
+- Be mindful of type correctness.
+
+```cpp
+__global__ void diff(int *in1, int *in2, int *out) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    out[idx] = fabs((double)(in1[idx] - in2[idx]));
+}
+```
