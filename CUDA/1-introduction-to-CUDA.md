@@ -90,7 +90,7 @@
 
 ## GPU System Architecture
 
-- Typical system: 1~2 CPUs and 1~8 GPUs
+- Typical system: 1-2 CPUs and 1-8 GPUs
 - Connected via PCIe interconnect
 - CPUs use GPUs as co-processors
 
