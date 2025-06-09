@@ -1,3 +1,16 @@
+<div align="center">
+  <h1>Software Engineer</h1>
+  <p>
+    <img src="https://img.shields.io/github/actions/workflow/status/mrshaw01/software-engineer/pre-commit.yml?branch=main&label=pre-commit&logo=pre-commit&logoColor=white" alt="pre-commit status">
+  </p>
+
+  <p>
+    <img src="https://img.shields.io/github/last-commit/mrshaw01/software-engineer" alt="Last Commit">
+    <img src="https://img.shields.io/github/issues/mrshaw01/software-engineer" alt="Issues">
+    <img src="https://img.shields.io/github/issues-pr/mrshaw01/software-engineer" alt="Pull Requests">
+  </p>
+</div>
+
 # Software Engineer
 
 A curated, high-quality collection of learning resources focused on **Python** and soon **C/C++**, designed to build strong software engineering foundations and system-level understanding.
