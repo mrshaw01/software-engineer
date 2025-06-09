@@ -51,19 +51,9 @@ int x = 10;
 x += 5; // x is now 15
 ```
 
-| Operator | Example   | Equivalent     |       |         |     |
-| -------- | --------- | -------------- | ----- | ------- | --- |
-| `=`      | `x = 5`   | Assigns 5 to x |       |         |     |
-| `+=`     | `x += 3`  | `x = x + 3`    |       |         |     |
-| `-=`     | `x -= 3`  | `x = x - 3`    |       |         |     |
-| `*=`     | `x *= 3`  | `x = x * 3`    |       |         |     |
-| `/=`     | `x /= 3`  | `x = x / 3`    |       |         |     |
-| `%=`     | `x %= 3`  | `x = x % 3`    |       |         |     |
-| `&=`     | `x &= 3`  | `x = x & 3`    |       |         |     |
-| \`       | =\`       | \`x            | = 3\` | \`x = x | 3\` |
-| `^=`     | `x ^= 3`  | `x = x ^ 3`    |       |         |     |
-| `>>=`    | `x >>= 3` | `x = x >> 3`   |       |         |     |
-| `<<=`    | `x <<= 3` | `x = x << 3`   |       |         |     |
+```cpp
+    =   +=   -=   *=   /=   %=   &=   |=   ^=   >>=   <<=
+```
 
 ## 4. Comparison Operators
 
@@ -90,8 +80,6 @@ cout << (x > y); // Outputs 1 (true)
 
 Logical operators test Boolean logic and are often used in conditional expressions.
 
-| Operator | Name        | Description                              | Example              |                                        |         |     |         |
-| -------- | ----------- | ---------------------------------------- | -------------------- | -------------------------------------- | ------- | --- | ------- |
-| `&&`     | Logical AND | True if both conditions are true         | `x < 5 && x < 10`    |                                        |         |     |         |
-| \`       |             | \`                                       | Logical OR           | True if at least one condition is true | \`x < 5 |     | x < 4\` |
-| `!`      | Logical NOT | Reverses the result (true becomes false) | `!(x < 5 && x < 10)` |                                        |         |     |         |
+```cpp
+    &&   ||   !
+```
