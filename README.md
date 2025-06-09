@@ -11,8 +11,6 @@
   </p>
 </div>
 
-# Software Engineer
-
 A curated, high-quality collection of learning resources focused on **Python** and soon **C/C++**, designed to build strong software engineering foundations and system-level understanding.
 
 ## Repository Structure
