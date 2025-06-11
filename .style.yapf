@@ -2,7 +2,3 @@
 based_on_style = google
 column_limit = 120
 indent_width = 4
-allow_multiline_lambdas = false
-allow_multiline_dictionary_keys = true
-blank_line_before_nested_class_or_def = true
-indent_dictionary_value = true
