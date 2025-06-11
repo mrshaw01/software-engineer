@@ -11,6 +11,7 @@ def encode_complex(z):
 
 
 class ComplexEncoder(JSONEncoder):
+
     def default(self, o):
         if isinstance(o, complex):
             return {"complex": True, "real": o.real, "imag": o.imag}

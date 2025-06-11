@@ -41,6 +41,7 @@ class Product:
 
 
 class Products:
+
     def __init__(self):
         self.product_list = []
 

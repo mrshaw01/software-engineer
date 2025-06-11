@@ -2,8 +2,8 @@
 Threads are ideal for overlapping wait times, e.g., network or file I/O.
 """
 
-import time
 from threading import Thread
+import time
 
 
 def simulated_io_task(name):

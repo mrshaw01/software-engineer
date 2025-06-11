@@ -5,6 +5,7 @@ class FuncCallCounter(type):
 
     @staticmethod
     def call_counter(func):
+
         def helper(*args, **kwargs):
             helper.calls += 1
             return func(*args, **kwargs)

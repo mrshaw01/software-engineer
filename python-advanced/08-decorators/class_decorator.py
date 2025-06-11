@@ -4,6 +4,7 @@ import functools
 
 
 class CountCalls:
+
     def __init__(self, func):
         functools.update_wrapper(self, func)
         self.func = func

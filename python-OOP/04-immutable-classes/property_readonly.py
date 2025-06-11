@@ -2,6 +2,7 @@
 
 
 class ImmutableRobot:
+
     def __init__(self, name, brandname):
         self.__name = name
         self.__brandname = brandname

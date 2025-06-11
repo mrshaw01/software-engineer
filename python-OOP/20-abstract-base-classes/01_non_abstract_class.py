@@ -2,6 +2,7 @@
 
 
 class AbstractClass:
+
     def do_something(self):
         pass
 

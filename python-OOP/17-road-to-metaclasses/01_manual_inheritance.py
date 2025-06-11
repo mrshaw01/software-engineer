@@ -1,4 +1,5 @@
 class Answers:
+
     def the_answer(self, *args):
         return 42
 

@@ -5,6 +5,7 @@ from fuzzy_triangle_area import FuzzyTriangleArea
 
 
 class MergeExperts:
+
     def __init__(self, mode, *experts):
         self.mode, self.experts = mode, experts
 

@@ -11,6 +11,7 @@ def singleton(cls):
 
 @singleton
 class SingletonClass:
+
     def __init__(self, data):
         self.data = data
 

@@ -1,6 +1,7 @@
 import random
 
-from product import Product, Products
+from product import Product
+from product import Products
 
 fantasy_names = [
     "Elixir of Eternal Youth",

@@ -2,6 +2,7 @@
 
 
 class OurClass:
+
     def __init__(self, a):
         self.OurAtt = a
 

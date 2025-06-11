@@ -1,4 +1,5 @@
 class LittleMeta(type):
+
     def __new__(cls, clsname, superclasses, attributedict):
         print("clsname:", clsname)
         print("superclasses:", superclasses)

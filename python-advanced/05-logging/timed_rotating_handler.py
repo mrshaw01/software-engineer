@@ -1,6 +1,6 @@
 import logging
-import time
 from logging.handlers import TimedRotatingFileHandler
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -18,6 +18,7 @@ def camel_case_to_underscore(cls):
 
 @camel_case_to_underscore
 class CamelCaseClass:
+
     def processData(self):
         print("Processing data...")
 

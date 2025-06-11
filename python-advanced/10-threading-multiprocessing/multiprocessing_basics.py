@@ -7,9 +7,14 @@ Demonstrates foundational multiprocessing concepts in Python:
 - Using a Pool for parallel mapping
 """
 
+from multiprocessing import Array
+from multiprocessing import Lock
+from multiprocessing import Pool
+from multiprocessing import Process
+from multiprocessing import Queue
+from multiprocessing import Value
 import os
 import time
-from multiprocessing import Array, Lock, Pool, Process, Queue, Value
 
 
 def add_100(number, lock):

@@ -2,6 +2,7 @@ import re
 
 
 class CamelCaseToUnderscoreMeta(type):
+
     def __new__(cls, name, bases, dct):
         modified_items = {}
         for key, value in dct.items():
@@ -14,6 +15,7 @@ class CamelCaseToUnderscoreMeta(type):
 
 
 class CamelCaseClass(metaclass=CamelCaseToUnderscoreMeta):
+
     def processData(self):
         print("Processing data...")
 

@@ -1,4 +1,6 @@
-from itertools import count, cycle, repeat
+from itertools import count
+from itertools import cycle
+from itertools import repeat
 
 # count
 for i in count(10):

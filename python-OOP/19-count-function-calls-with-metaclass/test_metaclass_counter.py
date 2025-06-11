@@ -2,6 +2,7 @@ from metaclass_counter import FuncCallCounter
 
 
 class A(metaclass=FuncCallCounter):
+
     def foo(self):
         pass
 

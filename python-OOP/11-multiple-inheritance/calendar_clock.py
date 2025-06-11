@@ -1,4 +1,5 @@
 class Clock:
+
     def __init__(self, hours, minutes, seconds):
         self.set_Clock(hours, minutes, seconds)
 
@@ -71,6 +72,7 @@ class Calendar:
 
 
 class CalendarClock(Clock, Calendar):
+
     def __init__(self, d, m, y, h, min, s):
         Clock.__init__(self, h, min, s)
         Calendar.__init__(self, d, m, y)

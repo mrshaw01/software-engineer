@@ -4,6 +4,7 @@ import json
 
 
 class User:
+
     def __init__(self, name, age, active, balance, friends):
         self.name = name
         self.age = age
@@ -13,6 +14,7 @@ class User:
 
 
 class Player:
+
     def __init__(self, name, nickname, level):
         self.name = name
         self.nickname = nickname

@@ -2,7 +2,8 @@
 This approach achieves parallel execution and bypasses the GIL.
 """
 
-from multiprocessing import Process, cpu_count
+from multiprocessing import cpu_count
+from multiprocessing import Process
 
 
 def compute_squares():

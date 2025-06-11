@@ -1,4 +1,5 @@
 class Polynomial:
+
     def __init__(self, *coefficients):
         self.coefficients = list(coefficients)
 
@@ -6,6 +7,7 @@ class Polynomial:
         return "Polynomial" + str(tuple(self.coefficients))
 
     def __str__(self):
+
         def x_expr(degree):
             return "" if degree == 0 else "x" if degree == 1 else f"x^{degree}"
 

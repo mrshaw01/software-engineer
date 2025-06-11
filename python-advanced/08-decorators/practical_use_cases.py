@@ -5,6 +5,7 @@ import time
 
 
 def timer(func):
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()

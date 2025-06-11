@@ -2,12 +2,14 @@ import random
 
 
 class Robot:
+
     def __init__(self, name, health_level, **kwargs):
         self.name = name
         self.health_level = health_level
 
 
 class HealingRobot(Robot):
+
     def __init__(self, healing_power, **kwargs):
         super().__init__(**kwargs)
         self.healing_power = healing_power
@@ -18,6 +20,7 @@ class HealingRobot(Robot):
 
 
 class FightingRobot(Robot):
+
     def __init__(self, fighting_power=1, **kwargs):
         super().__init__(**kwargs)
         self.fighting_power = fighting_power
@@ -28,11 +31,14 @@ class FightingRobot(Robot):
 
 
 class FightingHealingRobot(HealingRobot, FightingRobot):
+
     def __init__(self, name, health_level, healing_power, fighting_power, mode="healing", **kw):
         self.mode = mode
-        super().__init__(
-            name=name, health_level=health_level, healing_power=healing_power, fighting_power=fighting_power, **kw
-        )
+        super().__init__(name=name,
+                         health_level=health_level,
+                         healing_power=healing_power,
+                         fighting_power=fighting_power,
+                         **kw)
 
     def say_hi(self):
         if self.mode == "fighting":

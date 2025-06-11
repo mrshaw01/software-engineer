@@ -1,4 +1,5 @@
-from itertools import combinations, combinations_with_replacement
+from itertools import combinations
+from itertools import combinations_with_replacement
 
 comb = combinations([1, 2, 3, 4], 2)
 print(list(comb))

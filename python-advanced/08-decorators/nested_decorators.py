@@ -4,6 +4,7 @@ import functools
 
 
 def debug(func):
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         print(f"Calling {func.__name__} with {args}, {kwargs}")
@@ -15,6 +16,7 @@ def debug(func):
 
 
 def start_end(func):
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         print("Start")

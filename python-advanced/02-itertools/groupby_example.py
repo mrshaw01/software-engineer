@@ -14,10 +14,22 @@ for key, group in group_obj:
     print(key, list(group))
 
 persons = [
-    {"name": "Tim", "age": 25},
-    {"name": "Dan", "age": 25},
-    {"name": "Lisa", "age": 27},
-    {"name": "Claire", "age": 28},
+    {
+        "name": "Tim",
+        "age": 25
+    },
+    {
+        "name": "Dan",
+        "age": 25
+    },
+    {
+        "name": "Lisa",
+        "age": 27
+    },
+    {
+        "name": "Claire",
+        "age": 28
+    },
 ]
 
 for key, group in groupby(persons, key=lambda x: x["age"]):

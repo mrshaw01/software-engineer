@@ -3,6 +3,7 @@ import numpy as np
 
 
 class StraightLines:
+
     def __init__(self, m, c):
         self.slope = m
         self.y_intercept = c

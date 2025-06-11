@@ -1,4 +1,5 @@
 def Robot(name, city):
+
     def self():
         return None
 

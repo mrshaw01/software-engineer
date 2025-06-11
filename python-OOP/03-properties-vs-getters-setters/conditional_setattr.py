@@ -2,6 +2,7 @@
 
 
 class Robot:
+
     def __init__(self, name, build_year, city):
         self.name = name
         self.build_year = build_year

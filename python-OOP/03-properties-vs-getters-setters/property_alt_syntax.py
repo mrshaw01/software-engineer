@@ -2,6 +2,7 @@
 
 
 class P:
+
     def __init__(self, x):
         self.__set_x(x)
 

@@ -2,6 +2,7 @@ import math
 
 
 class Shape:
+
     def __init__(self, color):
         self.color = color
 
@@ -10,6 +11,7 @@ class Shape:
 
 
 class Circle(Shape):
+
     def __init__(self, color, radius):
         super().__init__(color)
         self.radius = radius
@@ -19,6 +21,7 @@ class Circle(Shape):
 
 
 class Rectangle(Shape):
+
     def __init__(self, color, width, height):
         super().__init__(color)
         self.width = width
@@ -29,6 +32,7 @@ class Rectangle(Shape):
 
 
 class Triangle(Shape):
+
     def __init__(self, color, base, height):
         super().__init__(color)
         self.base = base

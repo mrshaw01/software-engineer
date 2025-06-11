@@ -7,6 +7,7 @@ def the_answer(self, *args):
 
 
 class EssentialAnswers(type):
+
     def __init__(cls, clsname, superclasses, attributedict):
         if required:
             cls.the_answer = the_answer

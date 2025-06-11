@@ -6,9 +6,11 @@ Demonstrates basic and intermediate threading patterns in Python, including:
 - Using Queue for thread-safe communication
 """
 
-import time
 from queue import Queue
-from threading import Lock, Thread, current_thread
+from threading import current_thread
+from threading import Lock
+from threading import Thread
+import time
 
 # Shared variable across threads
 database_value = 0

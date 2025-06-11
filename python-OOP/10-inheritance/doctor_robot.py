@@ -2,6 +2,7 @@ import random
 
 
 class Robot:
+
     def __init__(self, name):
         self.name = name
         self.health_level = random.random()
@@ -14,6 +15,7 @@ class Robot:
 
 
 class PhysicianRobot(Robot):
+
     def say_hi(self):
         print("Everything will be okay!")
         print(f"{self.name} takes care of you!")

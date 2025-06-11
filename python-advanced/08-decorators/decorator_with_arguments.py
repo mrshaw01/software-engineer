@@ -4,7 +4,9 @@ import functools
 
 
 def repeat(n):
+
     def decorator_repeat(func):
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             for _ in range(n):

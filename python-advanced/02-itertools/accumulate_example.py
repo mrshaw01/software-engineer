@@ -1,5 +1,5 @@
-import operator
 from itertools import accumulate
+import operator
 
 print(list(accumulate([1, 2, 3, 4])))
 

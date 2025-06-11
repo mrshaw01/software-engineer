@@ -1,4 +1,5 @@
 class Animal:
+
     def __init__(self, name, age, sound):
         self.name = name
         self.age = age
@@ -9,6 +10,7 @@ class Animal:
 
 
 class Mammal(Animal):
+
     def __init__(self, name, age, sound, fur_color, number_of_legs):
         super().__init__(name, age, sound)
         self.fur_color = fur_color
@@ -22,6 +24,7 @@ class Mammal(Animal):
 
 
 class Bird(Animal):
+
     def __init__(self, name, age, sound, wingspan):
         super().__init__(name, age, sound)
         self.wingspan = wingspan
@@ -31,6 +34,7 @@ class Bird(Animal):
 
 
 class Reptile(Animal):
+
     def __init__(self, name, age, sound, scale_color):
         super().__init__(name, age, sound)
         self.scale_color = scale_color

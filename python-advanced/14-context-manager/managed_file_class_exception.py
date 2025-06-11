@@ -2,6 +2,7 @@
 
 
 class ManagedFile:
+
     def __init__(self, filename):
         print("init", filename)
         self.filename = filename

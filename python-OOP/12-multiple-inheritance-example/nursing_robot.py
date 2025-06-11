@@ -4,6 +4,7 @@ from robot_base import Robot
 
 
 class NursingRobot(Robot):
+
     def __init__(self, name="Hubert", healing_power=None):
         super().__init__(name)
         self.healing_power = healing_power or random.uniform(0.8, 1)

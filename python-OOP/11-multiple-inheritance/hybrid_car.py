@@ -1,4 +1,5 @@
 class ElectricVehicle:
+
     def __init__(self, battery_capacity, charging_time):
         self.battery_capacity = battery_capacity
         self.charging_time = charging_time
@@ -8,6 +9,7 @@ class ElectricVehicle:
 
 
 class GasolineVehicle:
+
     def __init__(self, fuel_tank_capacity, fuel_efficiency):
         self.fuel_tank_capacity = fuel_tank_capacity
         self.fuel_efficiency = fuel_efficiency
@@ -17,6 +19,7 @@ class GasolineVehicle:
 
 
 class HybridCar(ElectricVehicle, GasolineVehicle):
+
     def __init__(self, battery_capacity, charging_time, fuel_tank_capacity, fuel_efficiency):
         ElectricVehicle.__init__(self, battery_capacity, charging_time)
         GasolineVehicle.__init__(self, fuel_tank_capacity, fuel_efficiency)

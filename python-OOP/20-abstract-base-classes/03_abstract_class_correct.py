@@ -1,7 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 
 class AbstractClassExample(ABC):
+
     def __init__(self, value):
         self.value = value
 
@@ -11,11 +13,13 @@ class AbstractClassExample(ABC):
 
 
 class DoAdd42(AbstractClassExample):
+
     def do_something(self):
         return self.value + 42
 
 
 class DoMul42(AbstractClassExample):
+
     def do_something(self):
         return self.value * 42
 

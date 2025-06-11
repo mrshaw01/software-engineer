@@ -1,4 +1,5 @@
 class Robot:
+
     def __init__(self, name):
         self.name = name
 
@@ -7,6 +8,7 @@ class Robot:
 
 
 class PhysicianRobot(Robot):
+
     def say_hi(self):
         super().say_hi()
         print("and I am a physician!")

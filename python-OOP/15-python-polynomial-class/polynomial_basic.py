@@ -1,4 +1,5 @@
 class Polynomial:
+
     def __init__(self, *coefficients):
         self.coefficients = list(coefficients)
 

@@ -2,6 +2,7 @@
 
 
 class our_property:
+
     def __init__(self, fget=None, fset=None, fdel=None, doc=None):
         self.fget = fget
         self.fset = fset
@@ -38,6 +39,7 @@ class our_property:
 
 
 class Robot:
+
     def __init__(self, city):
         self.city = city
 

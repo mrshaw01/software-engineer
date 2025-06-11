@@ -3,6 +3,7 @@ from nursing_robot import NursingRobot
 
 
 class FightingNurseRobot(NursingRobot, FightingRobot):
+
     def __init__(self, name, mode="nursing"):
         super().__init__(name)
         self.mode = mode

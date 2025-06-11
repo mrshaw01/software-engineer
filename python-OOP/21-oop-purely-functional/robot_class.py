@@ -1,4 +1,5 @@
 class Robot:
+
     def __init__(self, name, city):
         self._name = name
         self._city = city
