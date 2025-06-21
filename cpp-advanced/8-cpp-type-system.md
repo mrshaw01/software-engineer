@@ -139,14 +139,14 @@ typedef unsigned long DWORD;
 typedef void* LPVOID;
 ```
 
-✅ Use fundamental types unless a Windows type adds semantic clarity (e.g., `HRESULT`).
+- Use fundamental types unless a Windows type adds semantic clarity (e.g., `HRESULT`).
 
 ## Best Practices
 
-✅ Use `auto` for type inference when it improves readability
-✅ Prefer `const` to enforce immutability
-✅ Initialize all variables before use
-✅ Avoid raw pointers for ownership; use smart pointers
-✅ Favor `std::string` over C-style strings
-✅ Avoid casting unless absolutely necessary; use `static_cast` or `reinterpret_cast` judiciously
-✅ Understand the lifetime and size of your types to avoid undefined behavior
+- Use `auto` for type inference when it improves readability
+- Prefer `const` to enforce immutability
+- Initialize all variables before use
+- Avoid raw pointers for ownership; use smart pointers
+- Favor `std::string` over C-style strings
+- Avoid casting unless absolutely necessary; use `static_cast` or `reinterpret_cast` judiciously
+- Understand the lifetime and size of your types to avoid undefined behavior
