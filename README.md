@@ -17,10 +17,15 @@ A curated, high-quality collection of learning resources focused on **Python** a
 
 ```text
 .
-├── docs/                   # High-performance computing, GPU, and system-level insights
-├── python-basic/           # Essential Python data types and syntax
-├── python-advanced/        # Deeper Python topics and standard libraries
-├── python-OOP/             # Object-Oriented Programming in Python — beginner to advanced
+├── python-basic/           # Essential Python syntax, data types, and operations
+├── python-advanced/        # Decorators, threading, logging, JSON, and more
+├── python-OOP/             # Deep dive into Python's object-oriented programming
+├── cpp-basic/              # Fundamentals of C++: syntax, memory, pointers, etc.
+├── cpp-advanced/           # Advanced C++: RAII, noexcept, smart pointers, RVO, etc.
+├── cpp-OOP/                # Object-oriented programming in C++
+├── CUDA/                   # GPU programming with CUDA (host & device code)
+├── MPI/                    # Message Passing Interface programming and demos
+├── docs/                   # System-level notes on performance, Python-C++ interop, mixed precision, etc.
 └── README.md               # Project overview (this file)
 ```
 
@@ -39,9 +44,23 @@ All code is compatible with **Python 3.7+** and written to be **minimal, focused
 
 ## Highlights
 
-- **OOP Mastery**: From basic classes to metaclasses and descriptors (`python-OOP`)
-- **Advanced Python**: Covers generators, decorators, `itertools`, JSON, threading, context managers
-- **HPC & GPU Programming**: Deep-dive into performance, GIL, CUDA cores, memory, and Python-C++ interop (`docs/`)
+### Python
+
+- **OOP Mastery**: Classes, inheritance, metaclasses, descriptors (`python-OOP/`)
+- **Advanced Topics**: Decorators, context managers, function caching, concurrency
+- **Data Structures**: Lists, tuples, dicts, sets with practical usage
+
+### C++
+
+- **C++ Basics**: Syntax, functions, pointers, structs, scope, enums (`cpp-basic/`)
+- **Modern C++**: RAII, smart pointers, move semantics, alignment, RVO (`cpp-advanced/`)
+- **C++ OOP**: Classes, access specifiers, inheritance, polymorphism, templates
+
+### Systems & Performance
+
+- **CUDA Programming**: Host/device model, kernel launch, memory management (`CUDA/`)
+- **MPI Programming**: Practical distributed programs, matrix ops, and validation runs (`MPI/`)
+- **Docs**: Python-C++ interfacing, GIL handling, CUDA tuning, mixed precision training (`docs/`)
 
 ## Learning Philosophy
 
@@ -50,13 +69,15 @@ All code is compatible with **Python 3.7+** and written to be **minimal, focused
 - Emphasis on design, performance, and maintainability
 - Builds knowledge progressively — ideal for serious learners and professionals
 
-## 🔧 Upcoming Work
+## Upcoming Work
 
 Future modules will include:
 
-- **C/C++ for Pythonists**: Deep dive into system-level design, memory, and cross-language integration
-- **Compiler Internals & Optimization**
-- **Concurrency and Parallelism with Native Threads and MPI**
+- 📌 **System-level C/C++ for Python Developers**
+- 📌 **Compiler Optimizations and ABI Analysis**
+- 📌 **Distributed Memory with MPI & OpenMP**
+- 📌 **Advanced Descriptor Patterns in Python**
+- 📌 **Case Studies in Python ↔ C++ Interoperability**
 
 Stay tuned!
 
