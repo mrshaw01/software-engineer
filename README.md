@@ -69,6 +69,16 @@ All code is compatible with **Python 3.7+** and written to be **minimal, focused
 - Emphasis on design, performance, and maintainability
 - Builds knowledge progressively — ideal for serious learners and professionals
 
+## Star History
+
+<a href="https://www.star-history.com/#mrshaw01/software-engineer&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date" />
+ </picture>
+</a>
+
 ## Upcoming Work
 
 Future modules will include:
