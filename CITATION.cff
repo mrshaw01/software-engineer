@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this repository for learning or reference, please cite it as below."
+title: "software-engineer"
+version: "0.1.0"
+date-released: "2025-06-23"
+authors:
+  - given-names: "Shaw"
+    family-names: "Nguyen"
+    affiliation: "Moreh"
+type: software
+repository-code: "https://github.com/mrshaw01/software-engineer"
+url: "https://github.com/mrshaw01/software-engineer"
+abstract: >
+  A curated learning repository focused on High-Performance Computing (HPC) — covering fundamentals to advanced topics in CUDA, MPI, C++, and Python-C++ interoperability.
+license: "MIT"
+keywords:
+  - python
+  - cpp
+  - cuda
+  - high-performance-computing
+  - hip
