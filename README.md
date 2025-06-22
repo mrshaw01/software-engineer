@@ -64,6 +64,12 @@ Stay tuned!
 
 Found a bug, typo, or want to extend something? Open a PR — all contributions are welcome.
 
+<p align="center">
+  <a href="https://github.com/mrshaw01/software-engineer/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=mrshaw01/software-engineer" />
+  </a>
+</p>
+
 ## 📄 License
 
 MIT License — free to use, adapt, and share for learning and teaching.
