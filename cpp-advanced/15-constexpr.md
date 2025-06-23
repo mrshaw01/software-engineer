@@ -78,7 +78,7 @@ This guards correctness during compilation—useful in template libraries and co
 
 ## Summary
 
-As a principal engineer, I advocate for thoughtful use of `constexpr` to:
+I advocate for thoughtful use of `constexpr` to:
 
 - Encode invariants at compile time
 - Replace macros with type-safe constants

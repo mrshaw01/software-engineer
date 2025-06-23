@@ -1,6 +1,6 @@
 ## `alignas` in C++
 
-As a principal software engineer working with systems-level C++, understanding memory alignment is fundamental for writing performant and portable code. The `alignas` specifier—introduced in C++11—provides a standardized, portable way to control the memory alignment of types and objects, superseding compiler-specific extensions like `__declspec(align(...))` or `__attribute__((aligned(...)))`.
+Understanding memory alignment is fundamental for writing performant and portable code. The `alignas` specifier—introduced in C++11—provides a standardized, portable way to control the memory alignment of types and objects, superseding compiler-specific extensions like `__declspec(align(...))` or `__attribute__((aligned(...)))`.
 
 ## Purpose of `alignas`
 
