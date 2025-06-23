@@ -79,18 +79,6 @@ All code is compatible with **Python 3.7+** and written to be **minimal, focused
  </picture>
 </a>
 
-## Upcoming Work
-
-Future modules will include:
-
-- 📌 **System-level C/C++ for Python Developers**
-- 📌 **Compiler Optimizations and ABI Analysis**
-- 📌 **Distributed Memory with MPI & OpenMP**
-- 📌 **Advanced Descriptor Patterns in Python**
-- 📌 **Case Studies in Python ↔ C++ Interoperability**
-
-Stay tuned!
-
 ## 🤝 Contributions
 
 Found a bug, typo, or want to extend something? Open a PR — all contributions are welcome.
