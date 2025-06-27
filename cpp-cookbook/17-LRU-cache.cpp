@@ -2,7 +2,7 @@
  * Assignment: Implement an LRU Cache using STL Containers
  *
  * Implement an LRU cache with fixed capacity supporting:
- * - `get(key)`: returns value if present (marks as recently used), else returns -1.
+ * - `get(key)`: returns value if present (marks as recently used), else returns std::nullopt.
  * - `put(key, value)`: inserts key-value pair or updates existing key.
  *   Evicts least-recently used item if capacity exceeded.
  *
@@ -19,27 +19,25 @@
 
 #include <iostream>
 #include <list>
+#include <optional>
 #include <unordered_map>
 
-class LRUCache {
+template <typename Key, typename Value> class LRUCache {
   private:
-    using Key = int;
-    using Value = int;
-    using ListIt = std::list<std::pair<Key, Value>>::iterator;
+    using ListIt = typename std::list<std::pair<Key, Value>>::iterator;
 
     size_t capacity;
     std::list<std::pair<Key, Value>> itemList;
     std::unordered_map<Key, ListIt> itemMap;
 
   public:
-    explicit LRUCache(size_t cap) : capacity(cap) {}
+    explicit LRUCache(size_t capacity) : capacity(capacity) {}
 
-    int get(Key key) {
+    std::optional<Value> get(Key key) {
         auto it = itemMap.find(key);
         if (it == itemMap.end()) {
-            return -1;
+            return std::nullopt;
         }
-        // Move the accessed item to the front
         itemList.splice(itemList.begin(), itemList, it->second);
         return it->second->second;
     }
@@ -47,17 +45,12 @@ class LRUCache {
     void put(Key key, Value value) {
         auto it = itemMap.find(key);
         if (it != itemMap.end()) {
-            // Update value and move to front
             it->second->second = value;
             itemList.splice(itemList.begin(), itemList, it->second);
             return;
         }
-
-        // Insert new key-value pair
         itemList.emplace_front(key, value);
         itemMap[key] = itemList.begin();
-
-        // Evict if over capacity
         if (itemMap.size() > capacity) {
             auto lru = itemList.back();
             itemMap.erase(lru.first);
@@ -75,7 +68,7 @@ class LRUCache {
 };
 
 int main() {
-    LRUCache cache(3);
+    LRUCache<int, int> cache(3);
 
     cache.put(1, 10);
     cache.put(2, 20);
@@ -88,8 +81,19 @@ int main() {
     cache.put(4, 40); // Evict LRU (1)
     cache.printCache();
 
-    std::cout << "Get key 1: " << cache.get(1) << "\n"; // -1 (not found)
-    std::cout << "Get key 2: " << cache.get(2) << "\n"; // 20
+    auto res1 = cache.get(1);
+    if (res1) {
+        std::cout << "Get key 1: " << *res1 << "\n";
+    } else {
+        std::cout << "Get key 1: Not found\n";
+    }
+
+    auto res2 = cache.get(2);
+    if (res2) {
+        std::cout << "Get key 2: " << *res2 << "\n";
+    } else {
+        std::cout << "Get key 2: Not found\n";
+    }
 
     return 0;
 }
@@ -98,6 +102,6 @@ int main() {
 Cache: [3:30] [2:20] [1:10]
 Cache: [2:20] [3:30] [1:10]
 Cache: [4:40] [2:20] [3:30]
-Get key 1: -1
+Get key 1: Not found
 Get key 2: 20
 */
