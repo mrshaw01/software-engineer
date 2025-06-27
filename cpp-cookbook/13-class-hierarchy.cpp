@@ -37,11 +37,8 @@ class Circle : public Shape, public Printable {
 
   public:
     explicit Circle(double r) : radius(r) {}
-
     double area() const override { return M_PI * radius * radius; }
-
     void print() const override { std::cout << "Circle with radius " << radius << ", area = " << area() << "\n"; }
-
     ~Circle() override { std::cout << "Circle destroyed\n"; }
 };
 
@@ -51,14 +48,11 @@ class Rectangle : public Shape, public Printable {
     double width, height;
 
   public:
-    Rectangle(double w, double h) : width(w), height(h) {}
-
+    explicit Rectangle(double w, double h) : width(w), height(h) {}
     double area() const override { return width * height; }
-
     void print() const override {
         std::cout << "Rectangle with width " << width << " and height " << height << ", area = " << area() << "\n";
     }
-
     ~Rectangle() override { std::cout << "Rectangle destroyed\n"; }
 };
 
