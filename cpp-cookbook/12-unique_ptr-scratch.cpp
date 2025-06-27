@@ -24,14 +24,10 @@ template <typename T, typename Deleter = std::default_delete<T>> class UniquePtr
 
   public:
     explicit UniquePtr(T *p = nullptr, Deleter d = Deleter()) noexcept : ptr(p), deleter(d) {}
-
     ~UniquePtr() { reset(); }
-
     UniquePtr(const UniquePtr &) = delete;
     UniquePtr &operator=(const UniquePtr &) = delete;
-
     UniquePtr(UniquePtr &&other) noexcept : ptr(other.ptr), deleter(std::move(other.deleter)) { other.ptr = nullptr; }
-
     UniquePtr &operator=(UniquePtr &&other) noexcept {
         if (this != &other) {
             reset();
@@ -41,25 +37,19 @@ template <typename T, typename Deleter = std::default_delete<T>> class UniquePtr
         }
         return *this;
     }
-
     T &operator*() const noexcept { return *ptr; }
-
     T *operator->() const noexcept { return ptr; }
-
     T *get() const noexcept { return ptr; }
-
     T *release() noexcept {
         T *temp = ptr;
         ptr = nullptr;
         return temp;
     }
-
     void reset(T *p = nullptr) noexcept {
         if (ptr)
             deleter(ptr);
         ptr = p;
     }
-
     explicit operator bool() const noexcept { return ptr != nullptr; }
 };
 
