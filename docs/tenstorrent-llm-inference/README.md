@@ -148,3 +148,77 @@ While Tenstorrent’s LLM inference platform is highly advanced, it’s importan
 For engineers and technical leads evaluating Tenstorrent, the key takeaways are: you’ll get an _unprecedented level of visibility and control_ over the inference process (down to writing kernels if desired), you can deploy popular models like LLaMA, Qwen, etc. on the hardware today with near state-of-the-art speed, but you should be prepared for a learning curve and an active partnership with Tenstorrent’s fast-evolving software. The company’s roadmap is encouraging – with hardware improvements and unified software on the horizon, the gap between Tenstorrent and more established solutions is closing rapidly. In some niches (like multi-model ensembles, or strictly on-prem open-source requirements), Tenstorrent may already be the superior choice. Risks around software maturity are being addressed with each release, and the open-source model means any critical issue can theoretically be fixed by the user or community if needed (no black boxes).
 
 In conclusion, Tenstorrent’s LLM inference platform is **one to watch (and experiment with) for any organization aiming to deploy large AI models at scale**. It offers a compelling blend of performance, openness, and cost-efficiency. The technical depth we explored – from Tensix core design to TT-Metal code – shows that this is a serious engineering effort, not just repackaging of standard IP. If Tenstorrent continues to execute well, they could significantly reshape the LLM infrastructure landscape, providing a viable alternative to GPU-centric inference with unique advantages for those willing to embrace a new paradigm.
+
+## References
+
+1. **EE Times: Tenstorrent Engineers Talk Open-Sourced Bare-Metal Stack**
+   [https://www.eetimes.com/tenstorrent-engineers-talk-open-sourced-bare-metal-stack/](https://www.eetimes.com/tenstorrent-engineers-talk-open-sourced-bare-metal-stack/)
+   Overview of Tenstorrent’s open-source strategy, Metalium programming model, Tensix core architecture, and Galaxy multi-chip systems.
+
+2. **EE Times: Tenstorrent Shows Off Single-User LLM Speed For Workstation**
+   [https://www.eetimes.com/tenstorrent-shows-off-single-user-llm-speed-for-workstation/](https://www.eetimes.com/tenstorrent-shows-off-single-user-llm-speed-for-workstation/)
+   Details on Loud Box demo with LLaMA-70B, single-user token speed benchmarks, and Tenstorrent’s competitive positioning against Nvidia H100.
+
+3. **Tenstorrent/tt-metal GitHub Repository**
+   [https://github.com/tenstorrent/tt-metal](https://github.com/tenstorrent/tt-metal)
+   Main software stack for neural network runtime, operators, kernels, and performance benchmarks on Tenstorrent hardware.
+
+4. **Tenstorrent/tt-inference-server GitHub Repository**
+   [https://github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server)
+   Repository providing LLM model serving APIs, vLLM integration, supported models table, and deployment examples.
+
+5. **Tenstorrent Wormhole Product Page**
+   [https://tenstorrent.com/products/wormhole/](https://tenstorrent.com/products/wormhole/)
+   Specifications for Wormhole PCIe AI cards including Tensix core counts, memory, networking, and inference use cases.
+
+6. **Tenstorrent/tt-forge GitHub Repository**
+   [https://github.com/tenstorrent/tt-forge](https://github.com/tenstorrent/tt-forge)
+   MLIR-based compiler stack for lowering models from PyTorch, ONNX, or TensorFlow to Tenstorrent executable kernels.
+
+7. **Meta LLaMA-3.3-70B Model Card (Hugging Face)**
+   [https://huggingface.co/meta-llama/Llama-3-70b](https://huggingface.co/meta-llama/Llama-3-70b)
+   Official description of model architecture, parameters, and intended use cases.
+
+8. **Alibaba Qwen2.5-72B Model Card (Hugging Face)**
+   [https://huggingface.co/Qwen/Qwen2.5-72B](https://huggingface.co/Qwen/Qwen2.5-72B)
+   Overview of Qwen bilingual LLM with 128K context support, training data sources, and performance claims.
+
+9. **DeepSeek R1 Model Card**
+   [https://huggingface.co/deepseek-ai/DeepSeek-V2](https://huggingface.co/deepseek-ai/DeepSeek-V2)
+   Technical description of DeepSeek R1 and distilled variants, focusing on reasoning abilities and scaling benchmarks.
+
+10. **Tenstorrent Developer Documentation – TT-Metal and Metalium Programming Guides**
+    [https://tenstorrent-metal.readthedocs.io/](https://tenstorrent-metal.readthedocs.io/)
+    Detailed API references, kernel programming model, data layout specifications, and hardware interfacing instructions.
+
+11. **Tenstorrent/tt-tvm GitHub Repository**
+    [https://github.com/tenstorrent/tt-tvm](https://github.com/tenstorrent/tt-tvm)
+    Integration for TVM compiler stack, enabling model deployment on Tenstorrent via TVM lowering.
+
+12. **Tenstorrent/tt-xla GitHub Repository**
+    [https://github.com/tenstorrent/tt-xla](https://github.com/tenstorrent/tt-xla)
+    PJRT device backend for XLA/JAX models targeting Tenstorrent accelerators.
+
+13. **Tenstorrent/tt-buda GitHub Repository (deprecated)**
+    [https://github.com/tenstorrent/tt-buda](https://github.com/tenstorrent/tt-buda)
+    Earlier compiler stack now replaced by TT-Forge, included for historical context.
+
+14. **Tenstorrent/tt-topology GitHub Repository**
+    [https://github.com/tenstorrent/tt-topology](https://github.com/tenstorrent/tt-topology)
+    Tools for configuring multi-card Ethernet topology in Galaxy and multi-node setups.
+
+15. **Tenstorrent/tt-flash GitHub Repository**
+    [https://github.com/tenstorrent/tt-flash](https://github.com/tenstorrent/tt-flash)
+    Firmware flashing tools for Tenstorrent PCIe cards.
+
+16. **Tenstorrent/tt-smi GitHub Repository**
+    [https://github.com/tenstorrent/tt-smi](https://github.com/tenstorrent/tt-smi)
+    Command-line monitoring tool for card health, utilization, and debugging (similar to NVIDIA’s nvidia-smi).
+
+17. **Tenstorrent Performance Tables (TT-Metal README)**
+    [https://github.com/tenstorrent/tt-metal#performance](https://github.com/tenstorrent/tt-metal#performance)
+    Token-per-second benchmarks, multi-device scaling results, and precision configuration data for LLM inference.
+
+18. **Tenstorrent YouTube Developer Day (2024)**
+    [https://www.youtube.com/@Tenstorrent](https://www.youtube.com/@Tenstorrent)
+    Recorded demos and talks explaining Metalium programming, compiler internals, and real-time model inference showcases.
