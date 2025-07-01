@@ -83,3 +83,49 @@ Drilling into the repository, several files and components stand out as key to h
   - `tests/` – likely contains test cases for basic functionality of the server and maybe sanity tests for each model (ensuring a simple prompt returns an expected output, for example).
 
 All these pieces work in concert to provide a smooth experience where, for a given model, you run the setup, launch the server, and get a working endpoint accelerated by Tenstorrent silicon.
+
+## Deployment and Usage
+
+TT-Inference-Server is designed to be deployed in a couple of ways, primarily focusing on **Docker-based deployment** for ease of use, but also supporting bare-metal operation for developers on Tenstorrent systems.
+
+- **Pre-built Docker Images:** Tenstorrent provides ready-to-use Docker images for each supported model and version. These images are hosted on GitHub’s Container Registry (ghcr.io) under the `tenstorrent/tt-inference-server` namespace. In the model table, a **“Docker Image”** tag is listed for every model, corresponding to a specific image version. For example, an image tag might be `ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-20.04-amd64:0.0.4-v0.56.0-rc47-e2e0002ac7dc` (this was one used for Llama-3.2-1B in a guide). The tag encodes the TT-Inference-Server version (0.0.4), the TT-Metal version (v0.56.0-rc47), and the vLLM commit (e2e0002ac7dc) in a single string – ensuring you pull the exact environment tested for that model.
+
+  Using these images is straightforward: you supply two key environment variables to the container – `HF_TOKEN` (your Hugging Face token, if the model is behind authentication or to avoid rate limits) and `HF_MODEL_REPO_ID` (the HuggingFace model identifier, e.g. `"meta-llama/Llama-3.2-1B-Instruct"`) – and then run the container. The container’s entrypoint will take care of downloading the model weights (if not already cached), setting up the runtime, and launching the server. For instance, a docker run command (or a `dstack` service as shown in an example) will ultimately execute something like:
+
+  ```bash
+  docker run -p 7000:7000 -e HF_TOKEN=<your_token> -e HF_MODEL_REPO_ID=meta-llama/Llama-3.2-1B-Instruct \
+    ghcr.io/tenstorrent/tt-inference-server/vllm-tt-metal-src-release-ubuntu-20.04-amd64:0.0.4-...
+  ```
+
+  Internally this triggers `huggingface-cli download` for that model and then `python run_vllm_api_server.py`. Within seconds (depending on model size and download speed), the model will be loaded onto the Tenstorrent accelerator and the server will be listening on port 7000 (configurable).
+
+  The Tenstorrent inference server speaks a REST API that mirrors the OpenAI format. So to query the model, you would POST to the `/v1/chat/completions` or `/v1/completions` endpoint of the server. In a local deployment, for example, you could run:
+
+  ```bash
+  curl http://localhost:7000/v1/chat/completions \
+       -H "Content-Type: application/json" \
+       -d '{
+             "model": "meta-llama/Llama-3.2-1B-Instruct",
+             "messages": [ {"role": "user", "content": "What is Deep Learning?"} ],
+             "max_tokens": 512,
+             "stream": true
+           }'
+  ```
+
+  and the server would stream back a completion for the prompt. (When using these images via an orchestrator like `dstack` or Kubernetes, the URL might be proxied – but the idea is the same; you get an HTTP endpoint for completions.)
+
+- **Bare-Metal Deployment:** For users who are developing on a system with Tenstorrent cards (such as a dev rig with an n150 card or a Wormhole server), the repository allows running outside of Docker too. In this case, you’d clone the repository on that machine, run `setup.sh` with the appropriate parameters to install dependencies and download the model, and then execute `python run_vllm_api_server.py` (or use `run.py` with arguments) to start the server. The setup script will ensure that **TT-Metal/TT-NN is installed** (either via pip if available or by pointing to the correct commit) and that all Python requirements are satisfied. You’ll need to have done the one-time system prep: installing the Tenstorrent driver and runtime per Tenstorrent’s docs (which includes enabling hugepages, installing the kernel driver, and the `tt-smi` tool). Once that’s in place, running TT-Inference-Server on bare metal is similar to Docker, minus the container – it uses the host’s Python environment. The advantage here is easier debugging and possibly slightly better performance (no container overhead), which is useful for development or if you want to integrate the server tightly with other processes on the machine.
+
+- **Deployment Use-Cases:** TT-Inference-Server can be used in both **interactive** scenarios and **production** scenarios:
+
+  - For testing or development, you might run a Jupyter notebook on the same machine and query the local server to get model outputs, or use it to benchmark model speed on your Tenstorrent card.
+  - In a production or demo environment, one could host the server as a long-running Docker container. Because it supports the OpenAI API schema, you can plug it into existing applications or model inference pipelines with minimal changes – just point the API URL to this server instead of OpenAI. This is great for companies or researchers who have Tenstorrent hardware and want to serve an LLM to their internal users or even external via a controlled API.
+  - The server currently focuses on single-model hosting (one model per process/container). If you want multiple models simultaneously, you would run multiple containers on the same machine (provided you have enough hardware resources, or split the accelerators among them). Tenstorrent’s roadmap might include a multi-model server in the future, but for now, one model = one server instance, which aligns with vLLM’s design.
+
+- **Scaling and Management:** In terms of scaling up, since vLLM (and by extension TT-Inference-Server) can handle multiple concurrent requests by dynamic batching, a single instance can service many users up to the limits of the hardware. The “max_concurrency_map” in config ensures you don’t overload the device. If more throughput is needed, you can of course deploy more instances on additional hardware (or use multiple Tenstorrent cards: the server can possibly utilize more than one card for a single model via tensor parallel, although the exact command for multi-card usage isn’t explicitly described in the docs we saw – it might be automatic if TT-metal sees multiple devices, or via config).
+
+- **Docker vs. Source:** Most users will prefer the Docker method because it encapsulates all dependencies (especially since TT-metal has specific version requirements and system packages). The Docker images are based on Ubuntu 20.04 (per the tag) and likely include all needed binaries. For advanced users who want to run from source, it’s certainly possible – the repo provides a `pyproject.toml` and `requirements-dev.txt` for pip setup. After installing the right version of `tt-metal` (which might be a pip wheel provided by Tenstorrent or built from source) and the Tenstorrent fork of `vllm`, one can operate directly in a Python environment. This might be done for integration with other Python code (where you don’t want a separate process and instead want to import and call the model in-process). The codebase is flexible enough to allow that, though the primary design is as a server.
+
+- **Deployment Examples:** The repository’s **Model Readiness Workflows User Guide** (linked in the README) likely provides step-by-step examples of deploying each model, including sample commands and expected outputs. Community videos (like Tenstorrent’s YouTube “Running LLMs using TT-Inference-Server”) also demonstrate the two methods: one, using Docker to quickly bring up a model on a **TT-LoudBox** machine; and two, manually setting up on a dev board for more control. These resources confirm that with just a few commands, one can have a powerful model like a 70B LLaMA running on Tenstorrent hardware, ready to answer queries.
+
+In summary, **TT-Inference-Server’s deployment is user-friendly**: pull the image (or code), provide model info, and run. It abstracts away the intricate steps of device configuration, so you don’t need to manually compile kernels or manage device memory – the server and TT-metal runtime handle that internally. This lowers the barrier for organizations to utilize Tenstorrent hardware in their AI inference workflows, by providing a familiar serving interface (mirroring industry-standard APIs) packaged in an easily deployable form.
