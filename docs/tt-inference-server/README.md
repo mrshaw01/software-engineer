@@ -147,3 +147,45 @@ TT-Inference-Server is an **actively developed project** within Tenstorrent’s 
 - **Frequency of Updates:** Judging by release timestamps and repository activity, updates are frequent. For example, between v0.0.3 and v0.0.4 there were roughly 6 weeks, with many issues closed in that span. And even after v0.0.4 (March 2024), we see commits related to newer TT-metal versions (v0.56, v0.59, etc. in the trendshift data) going into the code. By mid-2025, TT-Inference-Server likely has a v0.0.5 or similar, aligning with TT-Metal v0.60. The exact version isn’t listed in the sources, but the continuous alignment with TT-metal’s release cycle (almost monthly minor releases) means TT-Inference-Server gets attention at least every few weeks.
 
 In conclusion, TT-Inference-Server is under **active maintenance** by Tenstorrent, showing healthy development signals. It’s a critical piece of Tenstorrent’s strategy to foster an open, user-friendly ecosystem around their AI accelerators. For our upcoming inference architecture reviews and integration work, this means we can count on TT-Inference-Server to be a stable yet evolving platform – one where we can integrate our own models (provided they’re transformer-based) and where improvements from Tenstorrent (in throughput, compatibility, etc.) will continuously flow in. It will be important for us to track the repository for new releases and updates (e.g., join their Discord or watch the GitHub repo) so that our integration remains compatible. Given Tenstorrent’s openness and responsiveness, we can also propose changes or raise issues as we work with it, and expect collaborative support. In summary, TT-Inference-Server provides a clear window into Tenstorrent’s LLM serving stack: it shows what’s implemented, how it ties into their hardware, and it’s actively growing – a solid foundation for any projects aiming to leverage Tenstorrent’s inference capabilities.
+
+## References
+
+1. **Tenstorrent/tt-inference-server GitHub Repository – README**
+   [https://github.com/tenstorrent/tt-inference-server](https://github.com/tenstorrent/tt-inference-server)
+   Describes the purpose, architecture, supported models, deployment methods, and current roadmap of TT-Inference-Server.
+
+2. **Tenstorrent/tt-inference-server – Model Table**
+   [https://github.com/tenstorrent/tt-inference-server#supported-models](https://github.com/tenstorrent/tt-inference-server#supported-models)
+   Lists all supported models, their hardware requirements, TT-metal and vLLM version compatibility, and Docker image tags.
+
+3. **Tenstorrent/tt-inference-server – Commit History**
+   [https://github.com/tenstorrent/tt-inference-server/commits/main](https://github.com/tenstorrent/tt-inference-server/commits/main)
+   Shows recent updates, bug fixes, feature additions, and maintenance activity frequency.
+
+4. **Tenstorrent/tt-metal GitHub Repository**
+   [https://github.com/tenstorrent/tt-metal](https://github.com/tenstorrent/tt-metal)
+   Provides the underlying runtime, kernels, and device APIs that TT-Inference-Server uses via TT-NN for hardware acceleration.
+
+5. **Tenstorrent TT-Metal Documentation**
+   [https://tenstorrent-metal.readthedocs.io/](https://tenstorrent-metal.readthedocs.io/)
+   Details the Metalium programming model, kernel APIs, device setup requirements, and integration considerations for inference.
+
+6. **Tenstorrent vLLM Fork Repository**
+   (Private or internal fork not publicly listed, but referenced in TT-Inference-Server commits)
+   Contains Tenstorrent-specific extensions enabling vLLM to run on TT-Metal.
+
+7. **dstack.ai Guide – Deploying Tenstorrent Inference Server**
+   [https://dstack.ai/](https://dstack.ai/) (example deployment guide using TT-Inference-Server)
+   Demonstrates Docker deployment, environment setup, and sample API calls to the server.
+
+8. **Tenstorrent YouTube Channel – Inference Demos and Developer Day Talks**
+   [https://www.youtube.com/@Tenstorrent](https://www.youtube.com/@Tenstorrent)
+   Includes live demos of TT-Inference-Server running LLaMA-70B and Qwen models on Tenstorrent hardware.
+
+9. **Tenstorrent/tt-inference-server – Workflow Scripts and Model Setup**
+   [https://github.com/tenstorrent/tt-inference-server/tree/main/scripts](https://github.com/tenstorrent/tt-inference-server/tree/main/scripts)
+   Contains setup.sh, run.py, and workflow automation scripts for model readiness and server startup.
+
+10. **Tenstorrent/tt-inference-server – Issues Tracker**
+    [https://github.com/tenstorrent/tt-inference-server/issues](https://github.com/tenstorrent/tt-inference-server/issues)
+    Shows active issues, user questions, and team responsiveness, indicating current maintenance status.
