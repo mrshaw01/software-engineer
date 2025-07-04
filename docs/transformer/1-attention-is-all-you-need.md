@@ -47,3 +47,22 @@ The Transformer adopts this encoder-decoder framework, but replaces recurrence a
 </div>
 
 The left half of the diagram shows the encoder, while the right half shows the decoder. Both are composed of multiple layers. The encoder uses self-attention and feed-forward layers, while the decoder includes masked self-attention, encoder-decoder attention, and feed-forward layers. Positional encoding is added to the input embeddings to inject order information. The final output is passed through a linear layer and a softmax to produce probabilities over the target vocabulary.
+
+### 3.1 Encoder and Decoder Stacks
+
+**Encoder:**
+According to the authors, the encoder consists of a stack of $N = 6$ identical layers. Each layer has two main sub-layers:
+
+1. A multi-head self-attention mechanism.
+2. A position-wise fully connected feed-forward network.
+
+They use residual connections around each of these sub-layers, followed by layer normalization. Specifically, the output of each sub-layer is computed as `LayerNorm(x + Sublayer(x))`, where `Sublayer(x)` refers to the function implemented by the sub-layer. All sub-layers and the embedding layers output vectors of size $d_{model} = 512$, which makes it easier to use residual connections throughout the model.
+
+**Decoder:**
+The decoder is also a stack of $N = 6$ identical layers, but each decoder layer contains three sub-layers:
+
+1. A masked multi-head self-attention mechanism (to prevent a position from attending to subsequent positions).
+2. A multi-head attention layer over the encoder’s output.
+3. A position-wise fully connected feed-forward network.
+
+Just like the encoder, residual connections and layer normalization are applied around each sub-layer. The masking in the first sub-layer, combined with offset output embeddings, ensures that predictions for position $i$ depend only on the known outputs at positions less than $i$.
