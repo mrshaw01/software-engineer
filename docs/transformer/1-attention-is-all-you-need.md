@@ -34,3 +34,16 @@ The authors also discuss **self-attention** (or intra-attention), which relates 
 Another related architecture is the end-to-end memory network, which uses a recurrent attention mechanism (rather than standard sequence-aligned recurrence) and has performed well in question answering and language modeling.
 
 According to the authors, the Transformer is the first transduction model to rely entirely on self-attention for computing input and output representations, without using any sequence-aligned RNNs or convolutions. In the following sections, they go on to describe the Transformer architecture in detail, explain the motivation behind self-attention, and discuss the advantages of this approach over previous models like ConvS2S and ByteNet.
+
+## 3. Model Architecture
+
+The authors explain that most competitive sequence transduction models use an encoder-decoder structure. In this setup, the encoder takes an input sequence of symbols $(x_1, ..., x_n)$ and maps it to a sequence of continuous representations $\mathbf{z} = (z_1, ..., z_n)$. The decoder then generates an output sequence $(y_1, ..., y_m)$, producing one symbol at a time. The process is auto-regressive: at each decoding step, the model conditions on all previously generated outputs.
+
+The Transformer adopts this encoder-decoder framework, but replaces recurrence and convolutions with **stacked self-attention** and **point-wise, fully connected layers** for both the encoder and decoder. The figure below, reproduced from the paper, illustrates the overall architecture:
+
+<div align="center">
+    <img src="images/transformer.png" alt="Transformer Model Architecture" title="Transformer Model Architecture"/>
+    <p><em>Transformer Model Architecture</em></p>
+</div>
+
+The left half of the diagram shows the encoder, while the right half shows the decoder. Both are composed of multiple layers. The encoder uses self-attention and feed-forward layers, while the decoder includes masked self-attention, encoder-decoder attention, and feed-forward layers. Positional encoding is added to the input embeddings to inject order information. The final output is passed through a linear layer and a softmax to produce probabilities over the target vocabulary.
