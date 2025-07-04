@@ -13,7 +13,7 @@ Their experiments on two machine translation tasks show that the Transformer ach
 
 The authors also report that the Transformer generalizes well to other tasks, such as English constituency parsing, with both large and small datasets.
 
-## Introduction
+## 1. Introduction
 
 The authors start by noting that recurrent neural networks (RNNs), particularly LSTMs and GRUs, have been the dominant approach for sequence modeling and transduction problems like language modeling and machine translation. Many advances have been made by improving these recurrent models and encoder-decoder frameworks.
 
