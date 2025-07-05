@@ -98,3 +98,30 @@ An attention function can be described as mapping a query and a set of key-value
   - _Additive attention_ uses a feed-forward network to compute the compatibility function.
   - _Dot-product attention_ is computationally faster and more space-efficient, especially when optimized with matrix multiplication libraries.
   - For small $d_k$, both mechanisms perform similarly, but additive attention may be better. For large $d_k$, unscaled dot products push softmax into regions with small gradients, so scaling by $\frac{1}{\sqrt{d_k}}$ is crucial for stable training.
+
+#### 3.2.2 Multi-Head Attention
+
+<div align="center">
+    <img src="images/MultiHeadAttention.png" alt="Multi-Head Attention" title="Multi-Head Attention"/>
+    <p><em>Multi-Head Attention</em></p>
+</div>
+
+Instead of using a single attention function with $d_{model}$-dimensional queries, keys, and values, the authors propose **multi-head attention**. This approach involves projecting the queries, keys, and values $h$ times with different learned linear projections to dimensions $d_k$ and $d_v$. Each set of projected vectors is then fed into the attention mechanism in parallel (i.e., as separate "heads"). Each head produces output values, which are concatenated and projected again to get the final result.
+
+**Multi-head attention allows the model to attend to information from different representation subspaces at different positions, which is something a single attention head cannot do as effectively.**
+
+$MultiHead(Q, K, V) = Concat(head_1, ..., head_h) W^O$
+
+where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
+
+- $W^Q_i$, $W^K_i$, and $W^V_i$ are the learned projection matrices for the $i$-th head.
+- $W^O$ is the output projection matrix.
+
+**Typical settings:**
+
+- The authors use $h = 8$ parallel attention heads.
+- For each head:
+
+  - $d_k = d_v = d_{model} / h = 64$
+
+- This means the total computation is similar to that of single-head attention with full dimensionality, but with the benefit of richer feature representation.
