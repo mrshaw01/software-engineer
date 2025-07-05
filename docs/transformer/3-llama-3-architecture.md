@@ -95,8 +95,8 @@ Q2 $(x_2, y_2)$: Formed by rotating Q1 clockwise by $\theta_2$, resulting in a n
 By expressing both Q1 and Q2 in polar form and applying standard derivations, we obtain the final result as shown below.
 
 <div align="center">
-    <img src="images/RoPEMatrix.png" alt="RoPEMatrix" title="RoPEMatrix"/>
-    <p><em>RoPEMatrix</em></p>
+    <img src="images/RotationMatrix.png" alt="Rotation Matrix" title="Rotation Matrix"/>
+    <p><em>Rotation Matrix</em></p>
 </div>
 
 In practice:
