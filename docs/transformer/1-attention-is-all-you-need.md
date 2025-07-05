@@ -66,3 +66,35 @@ The decoder is also a stack of $N = 6$ identical layers, but each decoder layer 
 3. A position-wise fully connected feed-forward network.
 
 Just like the encoder, residual connections and layer normalization are applied around each sub-layer. The masking in the first sub-layer, combined with offset output embeddings, ensures that predictions for position $i$ depend only on the known outputs at positions less than $i$.
+
+### 3.2. Attention
+
+An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.
+
+#### 3.2.1 Scaled Dot-Product Attention
+
+<div align="center">
+    <img src="images/ScaledDotProductAttention.png" alt="Scaled Dot-Product Attention" title="Scaled Dot-Product Attention"/>
+    <p><em>Scaled Dot-Product Attention</em></p>
+</div>
+
+- **Inputs:**
+
+  - Queries ($Q$) and keys ($K$) are vectors of dimension $d_k$.
+  - Values ($V$) are vectors of dimension $d_v$.
+
+- **Computation:**
+
+  $\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$
+
+  1. Compute the dot products between the query and all keys.
+  2. Divide each by $\sqrt{d_k}$ (scaling).
+  3. Optionally apply a mask (for tasks like decoding).
+  4. Apply a softmax function to get the weights for the values.
+  5. Output is the weighted sum of the values.
+
+- **Comparison to Other Attention Mechanisms:**
+
+  - _Additive attention_ uses a feed-forward network to compute the compatibility function.
+  - _Dot-product attention_ is computationally faster and more space-efficient, especially when optimized with matrix multiplication libraries.
+  - For small $d_k$, both mechanisms perform similarly, but additive attention may be better. For large $d_k$, unscaled dot products push softmax into regions with small gradients, so scaling by $\frac{1}{\sqrt{d_k}}$ is crucial for stable training.
