@@ -1,4 +1,16 @@
 def precompute_freqs_cis(dim: int, seq_len: int, theta: float = 10000.0):
+    """
+    For each dimension index k (stepping by 2 for pairs) and each position index t:
+        freq_k = 1 / theta^{k / dim}
+        angle_{t,k} = t * freq_k
+
+    The output is:
+        freqs_cis[t, k] = cos(angle_{t,k}) + i * sin(angle_{t,k})
+
+    This is efficiently computed via:
+        freqs = outer(t, freq_k)
+        freqs_cis = polar(1, freqs)
+    """
     device = ModelArgs.device
     freqs = 1.0 / (theta**(torch.arange(0, dim, 2, device=device).float() / dim))
     t = torch.arange(seq_len, dtype=torch.float32, device=device)
@@ -7,6 +19,14 @@ def precompute_freqs_cis(dim: int, seq_len: int, theta: float = 10000.0):
 
 
 def reshape_for_broadcast(freqs_cis, x):
+    """
+    Given:
+        x.shape = [bsz, seq_len, n_heads, head_dim//2]
+        freqs_cis.shape = [seq_len, head_dim//2]
+
+    The function reshapes freqs_cis to:
+        [1, seq_len, 1, head_dim//2]
+    """
     ndim = x.ndim
     assert 0 <= 1 < ndim
     assert freqs_cis.shape == (x.shape[1], x.shape[-1]), "The last two dimensions of freqs_cis and x must match."
@@ -15,6 +35,13 @@ def reshape_for_broadcast(freqs_cis, x):
 
 
 def apply_rotary_emb(xq: torch.Tensor, xk: torch.Tensor, freqs_cis: torch.Tensor):
+    """
+    Let x = x_real + i x_imag be the complex representation of input tensors (from interleaved real tensors).
+    Let freqs_cis = cos(theta) + i sin(theta) be the precomputed complex rotations.
+
+    Then:
+        x_rotated = x * freqs_cis
+    """
     device = ModelArgs.device
 
     # Convert to complex tensors for rotation
