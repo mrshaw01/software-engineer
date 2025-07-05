@@ -230,3 +230,26 @@ For details on the following sections, please refer to the original paper:
   - 6.3 English Constituency Parsing
 
 - **7. Conclusion**
+
+## Attention Visualizations
+
+<div align="center">
+    <img src="images/LongDistanceDependencies.png" alt="Long-Distance Dependencies" title="Long-Distance Dependencies"/>
+    <p><em>Long-Distance Dependencies</em></p>
+</div>
+
+This figure provides an example of the attention mechanism tracking long-distance dependencies in the encoder self-attention of layer 5 out of 6. Many attention heads focus on a distant dependency of the verb “making,” helping to complete the phrase “making...more difficult.” The displayed attentions are only for the word “making.” Different colors represent different attention heads. Best viewed in color.
+
+<div align="center">
+    <img src="images/TwoAttentionHeads.png" alt="Two Attention Heads" title="Two Attention Heads"/>
+    <p><em>Two Attention Heads</em></p>
+</div>
+
+Two attention heads, also in layer 5 of 6, apparently involved in anaphora resolution. Top: Full attentions for head 5. Bottom: Isolated attentions from just the word ‘its’ for attention heads 5 and 6. Note that the attentions are very sharp for this word.
+
+<div align="center">
+    <img src="images/AttentionStructure.png" alt="Attention Structure" title="Attention Structure"/>
+    <p><em>Attention Structure</em></p>
+</div>
+
+Many of the attention heads exhibit behaviour that seems related to the structure of the sentence. We give two such examples above, from two different heads from the encoder self-attention at layer 5 of 6. The heads clearly learned to perform different tasks.
