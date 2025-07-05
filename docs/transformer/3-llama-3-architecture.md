@@ -129,3 +129,28 @@ In practice:
 This efficient positional encoding enables the model to understand token order and relationships without the overhead of traditional positional encodings.
 
 Implementation: [RoPE.py](RoPE.py)
+
+## 2.3 KV Cache (Inference Only)
+
+In Llama 3, **KV Cache** stores previously generated tokens as **Key** and **Value** caches during inference. Only keys and values are cached; **queries are not cached**, hence the name KV Cache.
+
+<div align="center">
+    <img src="images/KVCache.webp" alt="KV Cache" title="KV Cache"/>
+    <p><em>KV Cache</em></p>
+</div>
+
+#### (A) Without KV Cache
+
+- When generating output token 3, the model recomputes outputs for tokens 1 and 2 unnecessarily.
+- This requires computing attention for all tokens, resulting in expensive matrix multiplications (e.g. $3 \times 3$ attention scores).
+
+#### (B) With KV Cache
+
+- Previously generated tokens are stored in the cache.
+- For each new token, only its **query embedding** is processed, using cached keys and values to compute attention efficiently.
+- This reduces computation from a **full sequence attention** ($3 \times 3$) to **single-step attention** ($1 \times 3$) – approximately **66% reduction** in matrix multiplications.
+
+### Key Benefits
+
+- Significant computation savings, especially for long sequences and large batch sizes.
+- Faster generation, as only the **latest output token** is computed at each step.
