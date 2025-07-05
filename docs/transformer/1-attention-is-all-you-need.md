@@ -85,7 +85,7 @@ An attention function can be described as mapping a query and a set of key-value
 
 - **Computation:**
 
-  $\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$
+  $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
   1. Compute the dot products between the query and all keys.
   2. Divide each by $\sqrt{d_k}$ (scaling).
@@ -110,9 +110,9 @@ Instead of using a single attention function with $d_{model}$-dimensional querie
 
 **Multi-head attention allows the model to attend to information from different representation subspaces at different positions, which is something a single attention head cannot do as effectively.**
 
-$MultiHead(Q, K, V) = Concat(head_1, ..., head_h) W^O$
+$$MultiHead(Q, K, V) = Concat(head_1, ..., head_h) W^O$$
 
-where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
+$$\text{where} head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$$
 
 - $W^Q_i$, $W^K_i$, and $W^V_i$ are the learned projection matrices for the $i$-th head.
 - $W^O$ is the output projection matrix.
@@ -122,7 +122,7 @@ where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
 - The authors use $h = 8$ parallel attention heads.
 - For each head:
 
-  - $d_k = d_v = d_{model} / h = 64$
+  $$d_k = d_v = d_{model} / h = 64$$
 
 - This means the total computation is similar to that of single-head attention with full dimensionality, but with the benefit of richer feature representation.
 
@@ -141,7 +141,7 @@ where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
 
 Each layer in both the encoder and decoder contains a **fully connected feed-forward network** applied **independently to each position**. This sub-layer consists of two linear transformations with a ReLU activation in between:
 
-$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$
+$$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$$
 
 - The weights and biases ($W_1, b_1, W_2, b_2$) are different for each layer but **shared across all positions** in the same layer.
 - The dimensionality of the input and output is $d_{model} = 512$; the inner layer has dimensionality $d_{ff} = 2048$.
@@ -171,3 +171,19 @@ The authors provide a table comparing self-attention, recurrent, and convolution
 **Key point:**
 
 - **Self-attention** is highly parallelizable ($O(1)$ sequential operations), allows any position to attend to any other in a single step ($O(1)$ max path length), at the cost of higher per-layer computational complexity.
+
+### 3.5 Positional Encoding
+
+Since the Transformer model does **not use recurrence or convolution**, it needs a way to capture the order of tokens in a sequence. To provide the model with information about token positions, the authors **add positional encodings** to the input embeddings at the bottom of both the encoder and decoder stacks. These positional encodings have the same dimension ($d_{model}$) as the embeddings, so they can be summed together.
+
+There are various ways to create positional encodings (both learned and fixed). In this work, the authors use **sine and cosine functions of different frequencies**:
+
+$$PE(pos, 2i)   = sin(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
+$$PE(pos, 2i+1) = cos(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
+
+- $pos$ is the position in the sequence.
+- $i$ is the dimension.
+- The wavelengths form a geometric progression, covering a wide range of positions.
+- This choice makes it easy for the model to learn to attend by relative positions, since $PE_{pos+k}$ can be represented as a linear function of $PE_{pos}$.
+
+The authors also tried using learned positional embeddings and found that both methods produced nearly identical results. They chose the sinusoidal version because it may help the model **extrapolate to sequence lengths longer than seen during training**.
