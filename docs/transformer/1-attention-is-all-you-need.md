@@ -136,3 +136,38 @@ where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
 
 - **Decoder Self-Attention:**
   The decoder also has self-attention layers, but with a crucial difference: each position in the decoder can only attend to positions up to and including itself (not future positions). This is enforced by masking out (setting to $-\infty$) illegal connections in the softmax, preserving the auto-regressive property needed for sequence generation.
+
+### 3.3 Position-wise Feed-Forward Networks
+
+Each layer in both the encoder and decoder contains a **fully connected feed-forward network** applied **independently to each position**. This sub-layer consists of two linear transformations with a ReLU activation in between:
+
+$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$
+
+- The weights and biases ($W_1, b_1, W_2, b_2$) are different for each layer but **shared across all positions** in the same layer.
+- The dimensionality of the input and output is $d_{model} = 512$; the inner layer has dimensionality $d_{ff} = 2048$.
+- You can think of this as two 1x1 convolutions.
+
+### 3.4 Embeddings and Softmax
+
+- As in other sequence transduction models, the Transformer uses **learned embeddings** to map input and output tokens to vectors of size $d_{model}$.
+- The output of the decoder is converted to token probabilities using a **linear transformation** followed by a **softmax**.
+- The weight matrix is **shared** between the two embedding layers (input and output) and the pre-softmax linear transformation.
+- In the embedding layers, weights are multiplied by $\sqrt{d_{model}}$.
+
+The authors provide a table comparing self-attention, recurrent, and convolutional layers in terms of computational complexity, degree of parallelism, and path length for signal propagation:
+
+| Layer Type                  | Complexity per Layer     | Sequential Operations | Max Path Length |
+| --------------------------- | ------------------------ | --------------------- | --------------- |
+| Self-Attention              | $O(n^2 \cdot d)$         | $O(1)$                | $O(1)$          |
+| Recurrent                   | $O(n \cdot d^2)$         | $O(n)$                | $O(n)$          |
+| Convolutional               | $O(k \cdot n \cdot d^2)$ | $O(1)$                | $O(\log_k(n))$  |
+| Self-Attention (restricted) | $O(r \cdot n \cdot d)$   | $O(1)$                | $O(n/r)$        |
+
+- $n$: sequence length
+- $d$: representation dimension
+- $k$: kernel size (for convolutions)
+- $r$: neighborhood size (for restricted self-attention)
+
+**Key point:**
+
+- **Self-attention** is highly parallelizable ($O(1)$ sequential operations), allows any position to attend to any other in a single step ($O(1)$ max path length), at the cost of higher per-layer computational complexity.
