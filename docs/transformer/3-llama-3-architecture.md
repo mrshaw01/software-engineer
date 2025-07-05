@@ -57,3 +57,75 @@ The diagram illustrates embeddings before and after applying RMSNorm, showing re
 Unlike LayerNorm, RMSNorm does not compute the mean, reducing computational overhead. According to its authors, RMSNorm achieves similar accuracy while being more efficient.
 
 Implementation: [RMSNorm.py](RMSNorm.py)
+
+Here is your **professional, concise, and LaTeX-enhanced Markdown rewrite**:
+
+### 2.2 Rotary Positional Encoding (RoPE)
+
+#### Why do we need RoPE?
+
+So far, we have converted input texts into embeddings and applied RMSNorm. However, without positional encoding, sentences like “I love apple” and “apple love I” would appear identical to the model, as embeddings alone lack order information. For language models, understanding token order is crucial.
+
+In Llama 3, **Rotary Positional Encoding (RoPE)** is used to embed positional information, ensuring the model captures both **absolute** and **relative** token positions within a sequence.
+
+#### What is RoPE and how does it work?
+
+RoPE encodes token positions by **rotating embedding vectors** using a rotation matrix. This approach:
+
+- Adds absolute positional information.
+- Encodes relative position relationships between tokens.
+
+Mathematically, RoPE applies a rotation transformation to each embedding dimension pair:
+
+$$x' = R(\theta) x$$
+
+where:
+
+- $x$ is the embedding vector.
+- $R(\theta)$ is the rotation matrix parameterized by $\theta$, derived based on token position.
+
+<div align="center">
+    <img src="images/RoPE.png" alt="RoPE" title="RoPE"/>
+    <p><em>RoPE</em></p>
+</div>
+
+Q1 $(x_1, y_1)$: A 2D Query vector with magnitude $d$ and angle $\theta_1$ relative to the x-axis.
+Q2 $(x_2, y_2)$: Formed by rotating Q1 clockwise by $\theta_2$, resulting in a new coordinate $(x_2, y_2)$ with the same magnitude $d$.
+
+By expressing both Q1 and Q2 in polar form and applying standard derivations, we obtain the final result as shown below.
+
+<div align="center">
+    <img src="images/RoPEMatrix.png" alt="RoPEMatrix" title="RoPEMatrix"/>
+    <p><em>RoPEMatrix</em></p>
+</div>
+
+In practice:
+
+1. **Embeddings are converted to complex form** for rotation.
+2. **Rotation is applied**, encoding position information.
+3. **Rotated embeddings are converted back to real form** before attention operations.
+
+<div align="center">
+    <img src="images/Rotation.png" alt="Rotation" title="Rotation"/>
+    <p><em>Rotation</em></p>
+</div>
+
+- θ = Rotation angle, this is different for each pair of embedding dimension. Total number is equal to dim/2
+- m = Token's position number in sentence. For "apple", it is 1, for "is" it is 2. it will be remain same for each embedding.
+- Dim = 6, this means each embedding rotate 3 times (6 is 3 pair)
+
+**Note:** Even though the working principle is same, for better computation efficiency, the author has advised to perform calculation using the expression below.
+
+<div align="center">
+    <img src="images/RoPECalculation.png" alt="RoPE Calculation" title="RoPE Calculation"/>
+    <p><em>RoPE Calculation</em></p>
+</div>
+
+**Note:**
+
+- RoPE is applied only to **Query** and **Key** embeddings, not to **Value** embeddings.
+- While the diagram shows a 2D example, in Llama 3 RoPE operates over high-dimensional embeddings (e.g. 4096 dimensions).
+
+This efficient positional encoding enables the model to understand token order and relationships without the overhead of traditional positional encodings.
+
+Implementation: [RoPE.py](RoPE.py)
