@@ -211,3 +211,22 @@ A single convolutional layer with kernel width $k < n$ cannot connect all pairs 
 
 **Interpretability benefit:**
 As a side benefit, self-attention layers can yield more interpretable models. The authors analyze the attention distributions learned by their models and discuss examples in the appendix. They observe that individual attention heads can specialize in different roles; many heads show behavior aligned with syntactic and semantic structure in sentences.
+
+## 5. 6. 7.
+
+For details on the following sections, please refer to the original paper:
+
+- **5. Training**
+
+  - 5.1 Training Data and Batching
+  - 5.2 Hardware and Schedule
+  - 5.3 Optimizer
+  - 5.4 Regularization
+
+- **6. Results**
+
+  - 6.1 Machine Translation
+  - 6.2 Model Variations
+  - 6.3 English Constituency Parsing
+
+- **7. Conclusion**
