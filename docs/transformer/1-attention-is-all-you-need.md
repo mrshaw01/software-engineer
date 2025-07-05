@@ -125,3 +125,14 @@ where $head_i = Attention(Q W^Q_i, K W^K_i, V W^V_i)$
   - $d_k = d_v = d_{model} / h = 64$
 
 - This means the total computation is similar to that of single-head attention with full dimensionality, but with the benefit of richer feature representation.
+
+#### 3.2.3 Applications of Attention in Model
+
+- **Encoder-Decoder Attention:**
+  In these layers, the queries come from the previous decoder layer, while the keys and values come from the encoder’s output. This allows every position in the decoder to attend over all positions in the input sequence, similar to standard encoder-decoder attention mechanisms in classic sequence-to-sequence models.
+
+- **Encoder Self-Attention:**
+  The encoder contains self-attention layers, where the queries, keys, and values all come from the same place—the output of the previous encoder layer. This means each position in the encoder can attend to all positions in the previous encoder layer.
+
+- **Decoder Self-Attention:**
+  The decoder also has self-attention layers, but with a crucial difference: each position in the decoder can only attend to positions up to and including itself (not future positions). This is enforced by masking out (setting to $-\infty$) illegal connections in the softmax, preserving the auto-regressive property needed for sequence generation.
