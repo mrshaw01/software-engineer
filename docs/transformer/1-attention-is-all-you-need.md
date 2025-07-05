@@ -154,6 +154,37 @@ $$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$$
 - The weight matrix is **shared** between the two embedding layers (input and output) and the pre-softmax linear transformation.
 - In the embedding layers, weights are multiplied by $\sqrt{d_{model}}$.
 
+### 3.5 Positional Encoding
+
+Since the Transformer model does **not use recurrence or convolution**, it needs a way to capture the order of tokens in a sequence. To provide the model with information about token positions, the authors **add positional encodings** to the input embeddings at the bottom of both the encoder and decoder stacks. These positional encodings have the same dimension ($d_{model}$) as the embeddings, so they can be summed together.
+
+There are various ways to create positional encodings (both learned and fixed). In this work, the authors use **sine and cosine functions of different frequencies**:
+
+$$PE(pos, 2i)   = sin(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
+$$PE(pos, 2i+1) = cos(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
+
+- $pos$ is the position in the sequence.
+- $i$ is the dimension.
+- The wavelengths form a geometric progression, covering a wide range of positions.
+- This choice makes it easy for the model to learn to attend by relative positions, since $PE_{pos+k}$ can be represented as a linear function of $PE_{pos}$.
+
+The authors also tried using learned positional embeddings and found that both methods produced nearly identical results. They chose the sinusoidal version because it may help the model **extrapolate to sequence lengths longer than seen during training**.
+
+## 4. Why Self-Attention
+
+In this section, the authors compare different aspects of self-attention layers with recurrent and convolutional layers—methods commonly used to map one variable-length sequence of symbol representations $(x_1, ..., x_n)$ to another sequence of equal length $(z_1, ..., z_n)$, as in typical sequence transduction models.
+
+The motivation for using self-attention is based on three main considerations:
+
+1. **Total Computational Complexity per Layer:**
+   This measures the overall cost of computation for each layer type.
+
+2. **Parallelizability:**
+   This is assessed by the minimum number of sequential operations required. Highly parallelizable layers can be computed more efficiently.
+
+3. **Path Length Between Long-Range Dependencies:**
+   Learning long-range dependencies is a key challenge in many sequence transduction tasks. One important factor is the length of the paths that forward and backward signals must travel in the network. The shorter these paths between any two positions in the input and output, the easier it is to learn long-range dependencies. Therefore, the maximum path length between any two positions is compared across different architectures.
+
 The authors provide a table comparing self-attention, recurrent, and convolutional layers in terms of computational complexity, degree of parallelism, and path length for signal propagation:
 
 | Layer Type                  | Complexity per Layer     | Sequential Operations | Max Path Length |
@@ -172,18 +203,11 @@ The authors provide a table comparing self-attention, recurrent, and convolution
 
 - **Self-attention** is highly parallelizable ($O(1)$ sequential operations), allows any position to attend to any other in a single step ($O(1)$ max path length), at the cost of higher per-layer computational complexity.
 
-### 3.5 Positional Encoding
+As shown in the table, a **self-attention layer** connects all positions with a constant number of sequential operations, while a recurrent layer requires $O(n)$ sequential operations. In terms of computational complexity, self-attention is faster than recurrent layers when the sequence length $n$ is smaller than the representation dimension $d$—which is typically the case in practice (e.g., with word-piece or byte-pair sentence representations in state-of-the-art machine translation models).
 
-Since the Transformer model does **not use recurrence or convolution**, it needs a way to capture the order of tokens in a sequence. To provide the model with information about token positions, the authors **add positional encodings** to the input embeddings at the bottom of both the encoder and decoder stacks. These positional encodings have the same dimension ($d_{model}$) as the embeddings, so they can be summed together.
+To improve computational efficiency for very long sequences, self-attention could be restricted to consider only a local neighborhood of size $r$ around each position, increasing the maximum path length to $O(n/r)$. The authors note that this is a possible direction for future work.
 
-There are various ways to create positional encodings (both learned and fixed). In this work, the authors use **sine and cosine functions of different frequencies**:
+A single convolutional layer with kernel width $k < n$ cannot connect all pairs of input and output positions. Connecting all positions would require a stack of $O(n/k)$ convolutional layers for contiguous kernels or $O(\log_k(n))$ layers for dilated convolutions, thus increasing the path length for long-range dependencies. Additionally, convolutional layers are generally more expensive than recurrent layers by a factor of $k$. Separable convolutions can decrease this complexity to $O(k \cdot n \cdot d + n \cdot d^2)$. However, even with $k = n$, the complexity of a separable convolution is still equal to that of a self-attention layer plus a point-wise feed-forward layer, which is the approach taken in the Transformer model.
 
-$$PE(pos, 2i)   = sin(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
-$$PE(pos, 2i+1) = cos(\frac{pos}{10000^\frac{2i}{d_{model}}})$$
-
-- $pos$ is the position in the sequence.
-- $i$ is the dimension.
-- The wavelengths form a geometric progression, covering a wide range of positions.
-- This choice makes it easy for the model to learn to attend by relative positions, since $PE_{pos+k}$ can be represented as a linear function of $PE_{pos}$.
-
-The authors also tried using learned positional embeddings and found that both methods produced nearly identical results. They chose the sinusoidal version because it may help the model **extrapolate to sequence lengths longer than seen during training**.
+**Interpretability benefit:**
+As a side benefit, self-attention layers can yield more interpretable models. The authors analyze the attention distributions learned by their models and discuss examples in the appendix. They observe that individual attention heads can specialize in different roles; many heads show behavior aligned with syntactic and semantic structure in sentences.
