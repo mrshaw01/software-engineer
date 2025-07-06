@@ -130,7 +130,7 @@ This efficient positional encoding enables the model to understand token order a
 
 Implementation: [RoPE.py](RoPE.py)
 
-## 2.3 KV Cache (Inference Only)
+### 2.3 KV Cache (Inference Only)
 
 In Llama 3, **KV Cache** stores previously generated tokens as **Key** and **Value** caches during inference. Only keys and values are cached; **queries are not cached**, hence the name KV Cache.
 
@@ -150,7 +150,38 @@ In Llama 3, **KV Cache** stores previously generated tokens as **Key** and **Val
 - For each new token, only its **query embedding** is processed, using cached keys and values to compute attention efficiently.
 - This reduces computation from a **full sequence attention** ($3 \times 3$) to **single-step attention** ($1 \times 3$) – approximately **66% reduction** in matrix multiplications.
 
-### Key Benefits
+#### Key Benefits
 
 - Significant computation savings, especially for long sequences and large batch sizes.
 - Faster generation, as only the **latest output token** is computed at each step.
+
+### 2.4 Grouped Query Attention
+
+Grouped Query Attention is similar to **Multi-Head Attention (MHA)** used in models like Llama 1, with a key difference:
+
+- MHA uses the **same number of heads** for Queries (Q), Keys (K), and Values (V).
+- Grouped Query Attention uses **more heads for Queries** compared to Keys and Values.
+
+<div align="center">
+    <img src="images/GroupedQueryAttention.png" alt="Grouped Query Attention" title="Grouped Query Attention"/>
+    <p><em>Grouped Query Attention</em></p>
+</div>
+
+For example, in the diagram:
+
+- **Multi-Head Attention:**
+
+  $$n_{heads}^{Q} = n_{heads}^{K} = n_{heads}^{V} = 8$$
+
+- **Grouped Query Attention:**
+
+  $$n_{heads}^{Q} = 8, \quad n_{heads}^{K} = n_{heads}^{V} = 4$$
+
+This means Query has twice as many heads as Key/Value.
+
+While Multi-Head Attention is effective, it scales up memory usage significantly when combined with **KV Cache** (which stores all previous Key and Value tokens). As sequence length grows, so does the memory footprint.
+
+**Grouped Query Attention addresses this by:**
+
+- **Reducing the number of K/V heads**, thus lowering the total cached parameters and memory requirements.
+- Maintaining similar accuracy, as validated by empirical results.
