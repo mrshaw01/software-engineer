@@ -220,3 +220,5 @@ Hence, **SiLU is used in practice** for computational efficiency.
 #### **Key takeaway**
 
 SwiGLU enhances the model by allowing negative outputs, improving learning dynamics compared to ReLU, and has been empirically shown to perform better in transformer architectures like Llama 3.
+
+Implementation: [FeedForward.py](FeedForward.py)
