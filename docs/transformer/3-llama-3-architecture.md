@@ -237,7 +237,7 @@ The **Decoder Output** becomes the input to the next decoder block. This process
 
 Implementation: [TransformerBlock.py](TransformerBlock.py)
 
-## 3: The Output Block
+## 3. The Output Block
 
 The **decoder output from the final decoder block** feeds into the output block. The process is:
 
