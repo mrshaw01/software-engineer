@@ -187,3 +187,36 @@ While Multi-Head Attention is effective, it scales up memory usage significantly
 - Maintaining similar accuracy, as validated by empirical results.
 
 Implementation: [Attention.py](Attention.py)
+
+### 2.5 FeedForward Network (SwiGLU Activation)
+
+After attention outputs are normalized by RMSNorm, they are passed into the **FeedForward Network (FFN)**. This network:
+
+- Expands the embeddings to higher dimensions through its hidden layers.
+- Learns more **complex token features** to enhance model representation capacity.
+
+<div align="center">
+    <img src="images/SwiGLU.png" alt="SwiGLU" title="SwiGLU"/>
+    <p><em>SwiGLU</em></p>
+</div>
+
+The diagram shows the difference between ReLU and SwiGLU activations:
+
+- **ReLU:** Outputs zero for negative inputs, potentially losing negative information.
+- **SwiGLU:** Outputs small negative values for negative inputs, enabling richer learning.
+
+$$FFN_{swiGLU}(x, W, V, W_2, \beta) = (Swish(xW) \otimes xV) W_2$$
+
+where:
+
+$$Swish(x) = x \cdot \sigma(\beta x) = \frac{x}{1 + e^{-\beta x}}$$
+
+If $\beta = 1$, Swish simplifies to **SiLU**:
+
+$$SiLU(x) = \frac{x}{1 + e^{-x}}$$
+
+Hence, **SiLU is used in practice** for computational efficiency.
+
+#### **Key takeaway**
+
+SwiGLU enhances the model by allowing negative outputs, improving learning dynamics compared to ReLU, and has been empirically shown to perform better in transformer architectures like Llama 3.
