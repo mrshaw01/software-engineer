@@ -222,3 +222,17 @@ Hence, **SiLU is used in practice** for computational efficiency.
 SwiGLU enhances the model by allowing negative outputs, improving learning dynamics compared to ReLU, and has been empirically shown to perform better in transformer architectures like Llama 3.
 
 Implementation: [FeedForward.py](FeedForward.py)
+
+### 2.6 Decoder Block
+
+As shown in the architecture diagram, the **decoder block** consists of several sub-components described in Sections 2.1–2.5. The operations within each decoder block are as follows:
+
+1. **Input embedding** is passed through the **Attention-RMSNorm block**, then fed into the **Group Query Attention** block.
+2. The **attention output** is **added to the original input embedding** (residual connection).
+3. The result is then passed through **FeedForward-RMSNorm**, followed by the **FeedForward network** block.
+4. The **FeedForward output** is **added to the attention output** (residual connection).
+5. This final result is the **Decoder Output**.
+
+The **Decoder Output** becomes the input to the next decoder block. This process repeats across all **32 decoder blocks**, with the final output from the last block passed to the **Output block** for prediction.
+
+Implementation: [TransformerBlock.py](TransformerBlock.py)
