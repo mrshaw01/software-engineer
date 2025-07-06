@@ -3,7 +3,7 @@
 - https://pub.towardsai.net/build-your-own-llama-3-architecture-from-scratch-using-pytorch-2ce1ecaa901c
 
 <div align="center">
-    <img src="images/Llama3.webp" alt="Llama 3" title="Llama 3"/>
+    <img src="images/Llama3.webp"/>
     <p><em>Llama 3</em></p>
 </div>
 
@@ -12,7 +12,7 @@
 The input block has 3 components: Texts/ Prompts, Tokenizer and Embeddings.
 
 <div align="center">
-    <img src="images/InputBlock.webp" alt="Input Block" title="Input Block"/>
+    <img src="images/InputBlock.webp"/>
     <p><em>Input Block</em></p>
 </div>
 
@@ -46,7 +46,7 @@ $$RMSNorm(x_i) = \frac{x_i}{RMS(x)} \times \gamma_i$$
 where each dimension has its own $\gamma_i$.
 
 <div align="center">
-    <img src="images/RMSNorm.webp" alt="RMSNorm" title="RMSNorm"/>
+    <img src="images/RMSNorm.webp"/>
     <p><em>RMSNorm</em></p>
 </div>
 
@@ -85,7 +85,7 @@ where:
 - $R(\theta)$ is the rotation matrix parameterized by $\theta$, derived based on token position.
 
 <div align="center">
-    <img src="images/RoPE.png" alt="RoPE" title="RoPE"/>
+    <img src="images/RoPE.png"/>
     <p><em>RoPE</em></p>
 </div>
 
@@ -95,7 +95,7 @@ where:
 By expressing both Q1 and Q2 in polar form and applying standard derivations, we obtain the final result as shown below.
 
 <div align="center">
-    <img src="images/RotationMatrix.png" alt="Rotation Matrix" title="Rotation Matrix"/>
+    <img src="images/RotationMatrix.png"/>
     <p><em>Rotation Matrix</em></p>
 </div>
 
@@ -106,7 +106,7 @@ In practice:
 3. **Rotated embeddings are converted back to real form** before attention operations.
 
 <div align="center">
-    <img src="images/Rotation.png" alt="Rotation" title="Rotation"/>
+    <img src="images/Rotation.png"/>
     <p><em>Rotation</em></p>
 </div>
 
@@ -117,7 +117,7 @@ In practice:
 **Note:** Even though the working principle is same, for better computation efficiency, the author has advised to perform calculation using the expression below.
 
 <div align="center">
-    <img src="images/RoPECalculation.png" alt="RoPE Calculation" title="RoPE Calculation"/>
+    <img src="images/RoPECalculation.png"/>
     <p><em>RoPE Calculation</em></p>
 </div>
 
@@ -135,7 +135,7 @@ Implementation: [RoPE.py](RoPE.py)
 In Llama 3, **KV Cache** stores previously generated tokens as **Key** and **Value** caches during inference. Only keys and values are cached; **queries are not cached**, hence the name KV Cache.
 
 <div align="center">
-    <img src="images/KVCache.webp" alt="KV Cache" title="KV Cache"/>
+    <img src="images/KVCache.webp"/>
     <p><em>KV Cache</em></p>
 </div>
 
@@ -163,7 +163,7 @@ Grouped Query Attention is similar to **Multi-Head Attention (MHA)** used in mod
 - Grouped Query Attention uses **more heads for Queries** compared to Keys and Values.
 
 <div align="center">
-    <img src="images/GroupedQueryAttention.png" alt="Grouped Query Attention" title="Grouped Query Attention"/>
+    <img src="images/GroupedQueryAttention.png"/>
     <p><em>Grouped Query Attention</em></p>
 </div>
 
@@ -196,7 +196,7 @@ After attention outputs are normalized by RMSNorm, they are passed into the **Fe
 - Learns more **complex token features** to enhance model representation capacity.
 
 <div align="center">
-    <img src="images/SwiGLU.png" alt="SwiGLU" title="SwiGLU"/>
+    <img src="images/SwiGLU.png"/>
     <p><em>SwiGLU</em></p>
 </div>
 
@@ -247,7 +247,7 @@ The **decoder output from the final decoder block** feeds into the output block.
 - **Inference Mode**
 
 <div align="center">
-    <img src="images/Inference.png" alt="Inference" title="Inference"/>
+    <img src="images/Inference.png"/>
     <p><em>Inference</em></p>
 </div>
 
@@ -258,7 +258,7 @@ The **decoder output from the final decoder block** feeds into the output block.
 - **Training Mode**
 
 <div align="center">
-    <img src="images/Training.png" alt="Training" title="Training"/>
+    <img src="images/Training.png"/>
     <p><em>Training</em></p>
 </div>
 
@@ -278,7 +278,7 @@ The training flow is illustrated in the **Output Block flow diagram (Step 3)**. 
 Implementation: [training.py](training.py)
 
 <div align="center">
-    <img src="images/LossGraph.webp" alt="Loss Graph" title="Loss Graph"/>
+    <img src="images/LossGraph.webp"/>
     <p><em>Loss Graph</em></p>
 </div>
 

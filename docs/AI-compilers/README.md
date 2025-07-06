@@ -1,7 +1,7 @@
 # AI Compilers in PyTorch and AI Frameworks
 
 <div align="center">
-    <img src="images/PyTorchIR.webp" alt="PyTorch Deep Learning Compiler" title="PyTorch Deep Learning Compiler"/>
+    <img src="images/PyTorchIR.webp"/>
     <p><em>PyTorch Deep Learning Compiler</em></p>
 </div>
 
@@ -12,7 +12,7 @@ AI compilers also differ from traditional compilers in their target and optimiza
 ## Why AI Frameworks Need a Compiler
 
 <div align="center">
-    <img src="images/TensorRTFuseConvRelu.jpg" alt="Nividia has achieved a threefold increase in inference performance by fusing conv, bn, and relu into one operator fuse-CBR" title="Nividia has achieved a threefold increase in inference performance by fusing conv, bn, and relu into one operator fuse-CBR"/>
+    <img src="images/TensorRTFuseConvRelu.jpg"/>
     <p><em>Nividia has achieved a threefold increase in inference performance by fusing conv, bn, and relu into one operator fuse-CBR</em></p>
 </div>
 
@@ -43,7 +43,7 @@ The modern PyTorch compiler (since 2.0) centers on **`torch.compile`**, which us
 - **TorchDynamo:** A Python-level JIT-like tracer that intercepts eager execution via CPython’s Frame Evaluation API. Dynamo rewrites Python bytecode on-the-fly to capture sequences of PyTorch ops into an FX graph. It supports dynamic control flow by automatically inserting guards and fallback, effectively mixing compiled subgraphs with normal Python execution.
 
 <div align="center">
-    <img src="images/TorchDynamo.png" alt="How PyTorch works with torch.compile and without it" title="How PyTorch works with torch.compile and without it"/>
+    <img src="images/TorchDynamo.png"/>
     <p><em>How PyTorch works with torch.compile and without it</em></p>
 </div>
 
@@ -53,7 +53,7 @@ The modern PyTorch compiler (since 2.0) centers on **`torch.compile`**, which us
 Additionally, PyTorch still supports **torch.export** (an AOT graph-tracing tool) and the legacy **TorchScript**. `torch.compile()` (JIT) differs from `torch.export()` (AOT) in that the former will fall back to normal Python for untraceable code, whereas the latter aims to export a complete graph for use outside Python. In practice, developers use `torch.compile()` for ease (JIT) and can switch to `torch.export()` or TorchScript for fully static deployment if needed.
 
 <div align="center">
-    <img src="images/flowchart.jpg" alt="_TorchDynamo splits a PyTorch function into compiled subgraphs and guards/fallback logic for dynamic parts_. In this example, the original Python function is broken into sub-functions (`__compiled_fn_0`, resume points, etc.) that a backend compiler can optimize, while a guard function routes execution depending on runtime conditions. This yields an optimized function that is functionally equivalent to the original but runs faster." title="_TorchDynamo splits a PyTorch function into compiled subgraphs and guards/fallback logic for dynamic parts_. In this example, the original Python function is broken into sub-functions (`__compiled_fn_0`, resume points, etc.) that a backend compiler can optimize, while a guard function routes execution depending on runtime conditions. This yields an optimized function that is functionally equivalent to the original but runs faster."/>
+    <img src="images/flowchart.jpg"/>
     <p><em>_TorchDynamo splits a PyTorch function into compiled subgraphs and guards/fallback logic for dynamic parts_. In this example, the original Python function is broken into sub-functions (`__compiled_fn_0`, resume points, etc.) that a backend compiler can optimize, while a guard function routes execution depending on runtime conditions. This yields an optimized function that is functionally equivalent to the original but runs faster.</em></p>
 </div>
 

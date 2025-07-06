@@ -3,7 +3,7 @@
 Tenstorrent is an AI hardware startup building next-generation neural processors, with a strong focus on large language model (LLM) inference. The company’s strategy combines **innovative custom AI chips** (“Wormhole” first-generation PCIe cards) and a **fully open-source software stack** to deliver high-performance, scalable LLM inference. Tenstorrent’s hardware (based on proprietary _Tensix_ cores) has been demonstrated running state-of-the-art models like Meta’s LLaMA-70B and Alibaba’s Qwen-72B, both in single-node workstations and multi-board clusters. By 2025, Tenstorrent has open-sourced major components of its inference stack – from low-level kernel libraries to model serving frameworks – aiming to cultivate an ecosystem that can compete with Nvidia’s CUDA in flexibility and performance. This report provides a comprehensive technical deep dive into Tenstorrent’s LLM inference efforts, covering the hardware architecture, core software repositories, kernel and compiler optimizations, supported models, performance benchmarks, and future roadmap.
 
 <div align="center">
-    <img src="images/Metalium-vs-TTNN.webp" alt="ttnn + tt-metal" title="ttnn + tt-metal"/>
+    <img src="images/Metalium-vs-TTNN.webp"/>
     <p><em>ttnn + tt-metal</em></p>
 </div>
 
@@ -14,7 +14,7 @@ Tenstorrent is an AI hardware startup building next-generation neural processors
 **Scalable Multi-Chip Inference:** A key goal is to run **very large models and many concurrent queries** by scaling across multiple chips. Tenstorrent’s first-gen Wormhole cards were designed for scale-out: each chip includes **16× 100 Gbps interconnect lanes** that allow building multi-card meshes (the 32-chip _Galaxy_ system) without external switches. The inference software supports _tensor parallelism_ to shard giant models across devices and _data parallelism_ to serve many requests in parallel. For example, LLaMA-70B has been run with **tensor-parallel 8-way splitting on 8 cards**, and Falcon-40B was demonstrated on a **32-chip Galaxy** server. This scale-out approach lets Tenstorrent treat a cluster of chips as one large memory and compute resource for LLMs – the Galaxy appliance is essentially pitched as an **LLM inference server** in a box.
 
 <div align="center">
-    <img src="images/Galaxy-system.webp" alt="Tenstorrent’s Galaxy system comprises 32 Wormhole chips connected in a mesh" title="Tenstorrent’s Galaxy system comprises 32 Wormhole chips connected in a mesh"/>
+    <img src="images/Galaxy-system.webp"/>
     <p><em>Tenstorrent’s Galaxy system comprises 32 Wormhole chips connected in a mesh</em></p>
 </div>
 
@@ -27,7 +27,7 @@ Tenstorrent is an AI hardware startup building next-generation neural processors
 Tenstorrent’s LLM inference software stack spans several actively maintained open-source repositories, each addressing different layers of the stack:
 
 <div align="center">
-    <img src="images/tenstorrent_software_stack.webp" alt="Tenstorrent’s software stack" title="Tenstorrent’s software stack"/>
+    <img src="images/tenstorrent_software_stack.webp"/>
     <p><em>Tenstorrent’s software stack</em></p>
 </div>
 
@@ -48,7 +48,7 @@ In summary, Tenstorrent’s inference stack ranges from _low-level (Metalium ISA
 _Hardware Overview:_ Tenstorrent’s LLM inference optimizations are deeply tied to the design of its **Tensix cores** and memory architecture. A Tensix core is a **spatially-programmable compute unit** with independent control, rather than a SIMD lane or fixed-function MAC array. Inside each core are multiple RISC-V micro-cores and specialized engines: _two RISC-V “router” cores_ handle data movement (DMA and NoC transfers), and _three RISC-V “compute” cores_ issue vector and matrix-multiply instructions to the core’s math units. The math units consist of an FPU (which in Tenstorrent terminology is actually a **matrix multiply engine**) and an SFPU (a **vector/SIMD engine** for elementwise ops). Each core also includes a chunk of **SRAM (L1 memory)**, which is tightly coupled. The first-gen chips (_Grayskull_ and _Wormhole_) have on the order of 80–120 Tensix cores and \~100+ MB of total on-chip SRAM. These cores are connected by a high-bandwidth, circuit-switched network-on-chip. Importantly, in the [Wormhole](https://tenstorrent.com/en/hardware/wormhole) design, multiple chips can be directly linked via 100 Gbps Ethernet-style links and **coherent memory networking** – a core on one chip can fetch data from another chip’s SRAM almost as if it were local. This architecture is optimized for **fine-grained parallelism and pipeline parallelism**. Unlike a GPU where hundreds of threads execute in lock-step, Tensix cores run **asynchronously (MIMD)** – each core can be working on a different part of the computation or even on a different layer of the model, communicating via on-chip routers when needed. This affords a lot of flexibility in mapping an LLM’s computation graph onto the hardware.
 
 <div align="center">
-    <img src="images/Tensix-core.webp" alt="Inside a Tenstorrent Tensix core, BRISC and NRISC handle data movement into and out of the core, while TRISC0, TRISC1, and TRISC2 manage the math engines. The FPU serves as a matrix-multiply accelerator (despite its name suggesting a floating-point unit), and the SFPU functions as a vector engine." title="Inside a Tenstorrent Tensix core, BRISC and NRISC handle data movement into and out of the core, while TRISC0, TRISC1, and TRISC2 manage the math engines. The FPU serves as a matrix-multiply accelerator (despite its name suggesting a floating-point unit), and the SFPU functions as a vector engine."/>
+    <img src="images/Tensix-core.webp"/>
     <p><em>Inside a Tenstorrent Tensix core, BRISC and NRISC handle data movement into and out of the core, while TRISC0, TRISC1, and TRISC2 manage the math engines. The FPU serves as a matrix-multiply accelerator (despite its name suggesting a floating-point unit), and the SFPU functions as a vector engine.</em></p>
 </div>
 
@@ -111,7 +111,7 @@ Tenstorrent’s roadmap for LLM inference spans both **next-generation hardware*
 - **Second-Generation Chips (Blackhole & Beyond):** Jim Keller has stated that the upcoming **“Blackhole” chips (2nd-gen)** will _“double or triple performance”_ relative to Wormhole. From Hot Chips disclosures, Blackhole is a [**standalone AI SoC**](https://hc2024.hotchips.org/assets/program/conference/day1/88_HC2024.Tenstorrent.Jasmina.Davor.v7.pdf) with 120 improved Tensix cores on 12nm, on-package memory (100 GB/s LPDDR4), and integrated 400 Gbps Ethernet interfaces. In essence, Blackhole can be thought of as a beefed-up Wormhole with more cores and its own CPU and memory (no host needed). For inference, this means a single Blackhole board could likely replace an 8-card Wormhole system in performance, simplifying deployments. The integration of RISC-V CPU cores to run Linux on the chip (hinted by “standalone”) also opens the door to **embedding the model server directly on the accelerator**, reducing latency and system complexity. Tenstorrent expects Blackhole to significantly improve single-stream latency (with higher clock and core count) and multi-stream efficiency (with its networking enabling larger mesh without external NICs). Blackhole is projected for availability perhaps in late 2025, and Keller is confident in hitting much better numbers on LLM benchmarks with it.
 
 <div align="center">
-    <img src="images/AI-Silicon-Roadmap.png" alt="AI Sillicon Roadmap" title="AI Sillicon Roadmap"/>
+    <img src="images/AI-Silicon-Roadmap.png"/>
     <p><em>AI Sillicon Roadmap</em></p>
 </div>
 

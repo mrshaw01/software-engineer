@@ -42,7 +42,7 @@ The authors explain that most competitive sequence transduction models use an en
 The Transformer adopts this encoder-decoder framework, but replaces recurrence and convolutions with **stacked self-attention** and **point-wise, fully connected layers** for both the encoder and decoder. The figure below, reproduced from the paper, illustrates the overall architecture:
 
 <div align="center">
-    <img src="images/transformer.png" alt="Transformer Model Architecture" title="Transformer Model Architecture"/>
+    <img src="images/transformer.png"/>
     <p><em>Transformer Model Architecture</em></p>
 </div>
 
@@ -74,7 +74,7 @@ An attention function can be described as mapping a query and a set of key-value
 #### 3.2.1 Scaled Dot-Product Attention
 
 <div align="center">
-    <img src="images/ScaledDotProductAttention.png" alt="Scaled Dot-Product Attention" title="Scaled Dot-Product Attention"/>
+    <img src="images/ScaledDotProductAttention.png"/>
     <p><em>Scaled Dot-Product Attention</em></p>
 </div>
 
@@ -102,7 +102,7 @@ An attention function can be described as mapping a query and a set of key-value
 #### 3.2.2 Multi-Head Attention
 
 <div align="center">
-    <img src="images/MultiHeadAttention.png" alt="Multi-Head Attention" title="Multi-Head Attention"/>
+    <img src="images/MultiHeadAttention.png"/>
     <p><em>Multi-Head Attention</em></p>
 </div>
 
@@ -234,7 +234,7 @@ For details on the following sections, please refer to the original paper:
 ## Attention Visualizations
 
 <div align="center">
-    <img src="images/LongDistanceDependencies.png" alt="Long-Distance Dependencies" title="Long-Distance Dependencies"/>
+    <img src="images/LongDistanceDependencies.png"/>
     <p><em>Long-Distance Dependencies</em></p>
 </div>
 

@@ -23,7 +23,7 @@ Multi-query attention (MQA) is a more computationally efficient attention mechan
 This simplification greatly reduces the number of linear projections that the model must calculate and store in high-bandwidth memory. According to the 2019 paper that introduced MQA, MQA allows a 10–100 times smaller key-value pair storage (or KV cache) and 12 times faster decoder inference. MQA’s reduced memory usage also significantly speeds up training by enabling a larger batch size.
 
 <div align="center">
-    <img src="images/MultiQueryAttention.png" alt="Multi-Query Attention" title="Multi-Query Attention"/>
+    <img src="images/MultiQueryAttention.png"/>
     <p><em>Multi-Query Attention</em></p>
 </div>
 
@@ -50,7 +50,7 @@ In theory, GQA can be thought of as a generalization of the spectrum between sta
 In practice, GQA almost always implies some intermediate approach, in which the number of groups is itself an important hyperparameter.
 
 <div align="center">
-    <img src="images/GroupedQueryAttention.png" alt="Grouped Query Attention" title="Grouped Query Attention"/>
+    <img src="images/GroupedQueryAttention.png"/>
     <p><em>Grouped Query Attention</em></p>
 </div>
 
