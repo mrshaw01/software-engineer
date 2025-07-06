@@ -268,3 +268,18 @@ The **decoder output from the final decoder block** feeds into the output block.
 Finally, combining the **Input Block**, **Decoder Blocks**, and **Output Block** forms the complete Llama 3 model.
 
 Implementation: [Transformer.py](Transformer.py)
+
+Here is your **professional, concise rewrite**:
+
+## 4. Training the Llama 3 Model
+
+The training flow is illustrated in the **Output Block flow diagram (Step 3)**. Refer to it for a clear understanding before proceeding.
+
+Implementation: [training.py](training.py)
+
+<div align="center">
+    <img src="images/LossGraph.webp" alt="Loss Graph" title="Loss Graph"/>
+    <p><em>Loss Graph</em></p>
+</div>
+
+The graph above shows the training and validation loss over 2500 epochs. Training was completed in approximately 10 minutes on Google Colab using the default GPU and RAM, which is notably fast. The final validation loss reached 2.19, which is acceptable given the limited training data and number of epochs. To further reduce the loss, we would need a larger dataset, more training epochs, and greater computational resources.
