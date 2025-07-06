@@ -236,3 +236,35 @@ As shown in the architecture diagram, the **decoder block** consists of several 
 The **Decoder Output** becomes the input to the next decoder block. This process repeats across all **32 decoder blocks**, with the final output from the last block passed to the **Output block** for prediction.
 
 Implementation: [TransformerBlock.py](TransformerBlock.py)
+
+## 3: The Output Block
+
+The **decoder output from the final decoder block** feeds into the output block. The process is:
+
+1. The output is first passed through **RMSNorm**.
+2. It is then fed into a **Linear Layer**, producing logits.
+
+- **Inference Mode**
+
+<div align="center">
+    <img src="images/Inference.png" alt="Inference" title="Inference"/>
+    <p><em>Inference</em></p>
+</div>
+
+- The logits are used to calculate **top-p probabilities**.
+- The next token is generated based on these probabilities.
+- Generation continues until either the maximum length is reached or an end-of-sentence token is produced.
+
+- **Training Mode**
+
+<div align="center">
+    <img src="images/Training.png" alt="Training" title="Training"/>
+    <p><em>Training</em></p>
+</div>
+
+- The logits are compared with **target labels** to compute the loss using a cross-entropy function.
+- Training repeats for the defined number of epochs.
+
+Finally, combining the **Input Block**, **Decoder Blocks**, and **Output Block** forms the complete Llama 3 model.
+
+Implementation: [Transformer.py](Transformer.py)
