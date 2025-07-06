@@ -283,3 +283,9 @@ Implementation: [training.py](training.py)
 </div>
 
 The graph above shows the training and validation loss over 2500 epochs. Training was completed in approximately 10 minutes on Google Colab using the default GPU and RAM, which is notably fast. The final validation loss reached 2.19, which is acceptable given the limited training data and number of epochs. To further reduce the loss, we would need a larger dataset, more training epochs, and greater computational resources.
+
+## 5. Inference the Llama 3 Model
+
+Implementation: [inference.py](inference.py)
+
+Our Llama 3 model can now perform inference and generate text for new prompts. While the output quality is limited due to the small training dataset and few epochs, using larger datasets and longer training will significantly improve accuracy.
