@@ -10,7 +10,11 @@ def get_dataset_batch(data, split: str, args: ModelArgs):
 
     # Partition dataset
     n = len(data)
-    split_indices = {"train": (0, int(0.8 * n)), "val": (int(0.8 * n), int(0.9 * n)), "test": (int(0.9 * n), n)}
+    split_indices = {
+        "train": (0, int(0.8 * n)),
+        "val": (int(0.8 * n), int(0.9 * n)),
+        "test": (int(0.9 * n), n),
+    }
     start, end = split_indices[split]
     batch_data = data[start:end]
 
@@ -19,18 +23,9 @@ def get_dataset_batch(data, split: str, args: ModelArgs):
 
     # Compose input (x) and target (y) batches with BOS/EOS if desired
     x = torch.stack([torch.cat([token_bos, batch_data[i:i + seq_len - 1]]) for i in ix]).long().to(device)
-
     y = torch.stack([torch.cat([batch_data[i + 1:i + seq_len], token_eos]) for i in ix]).long().to(device)
 
     return x, y
-
-
-# Example usage and inspection:
-"""
-xs, ys = get_dataset_batch(dataset, split="train", args=ModelArgs)
-for i in range(len(xs)):
-    print(decode(xs[i].tolist()), decode(ys[i].tolist()))
-"""
 
 
 @torch.no_grad()
@@ -72,9 +67,7 @@ def train(model, optimizer, args: ModelArgs):
             print(f"Epoch {epoch:>4} | Val loss: {eval_loss['val']:.4f} | Time: {elapsed:.2f}s")
             start_time = time.time()
 
-    # Final validation loss
     print(f"Final validation loss: {losses[-1]['val']:.4f}")
-    # Plot training and validation loss
     pd.DataFrame(losses).plot()
 
 
