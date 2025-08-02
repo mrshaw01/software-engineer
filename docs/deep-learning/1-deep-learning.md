@@ -77,3 +77,50 @@ Where:
 **Key idea:**
 The gradient indicates the direction of steepest increase in the loss.
 By subtracting the gradient, parameters are updated in the direction that **decreases the loss most quickly**.
+
+### Recap: Gradient
+
+- Defined for a function with:
+
+  - Multiple scalar inputs
+  - One scalar output
+
+- For $f(x_1, x_2, \dots, x_n)$, the gradient of $f$ is defined as
+
+$$
+\nabla f = \left( \frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \dots, \frac{\partial f}{\partial x_n} \right)
+$$
+
+- The result is a vector whose length equals the number of inputs
+
+**Example:**
+$f(x,y,z) = 2x^2 + y^3 + z$
+
+$$
+\nabla f = \left( \frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}, \frac{\partial f}{\partial z} \right) = (4x, 3y^2, 1)
+$$
+
+### Recap: with respect to (w\.r.t.)
+
+- Perform operations on specific variables
+
+  - Treat other variables as constants
+
+**Example:**
+$f(x,y,z) = 2x^2 + y^3 + z$
+
+$$
+\nabla f = \left( \frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}, \frac{\partial f}{\partial z} \right) = (4x, 3y^2, 1)
+$$
+
+$$
+\nabla f_{(x,y)} = \left( \frac{\partial f}{\partial x}, \frac{\partial f}{\partial y} \right) = (4x, 3y^2)
+$$
+
+The gradient of $f$ w\.r.t. $x$ and $y$
+
+$$
+\nabla f_{(y,z)} = \left( \frac{\partial f}{\partial y}, \frac{\partial f}{\partial z} \right) = (3y^2, 1)
+$$
+
+The gradient of $f$ w\.r.t. $y$ and $z$
