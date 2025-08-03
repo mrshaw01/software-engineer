@@ -42,9 +42,7 @@ Megatron-LM is a **large-scale language model framework** based on GPT-2 archite
 
 - Final output:
 
-$$
-Z = Dropout(Z_1 + Z_2)
-$$
+$$Z = Dropout(Z_1 + Z_2)$$
 
 - Aggregation is done using **AllReduce communication**.
 
@@ -63,7 +61,7 @@ $$Z = Dropout(YB) = Dropout(Y_1B_1 + Y_2B_2) = Dropout(Z_1 + Z_2)$$
 ### Setup
 
 - **Input:** `X`
-- **Parameters:** $ W^Q, W^K, W^V, B $
+- **Parameters:** $W^Q, W^K, W^V, B$
 - **Output:** `Z`
 
 ### Execution Phases
@@ -72,26 +70,23 @@ $$Z = Dropout(YB) = Dropout(Y_1B_1 + Y_2B_2) = Dropout(Z_1 + Z_2)$$
    $$Y = \text{Dropout}(\text{Softmax}(QK^T) V)$$
    where:
 
-   - $ Q = XW^Q $
-   - $ K = XW^K $
-   - $ V = XW^V $
+   - $Q = XW^Q$
+   - $K = XW^K$
+   - $V = XW^V$
 
 2. **Phase 2:**
    $$Z = \text{Dropout}(Y B)$$
 
 ### Key Challenge
 
-- $$
-  \text{Softmax}(Q_1 K_1^T + Q_2 K_2^T) \neq
-  \text{Softmax}(Q_1 K_1^T) + \text{Softmax}(Q_2 K_2^T)
-  $$
+- $$\text{Softmax}(Q_1 K_1^T + Q_2 K_2^T) \neq \text{Softmax}(Q_1 K_1^T) + \text{Softmax}(Q_2 K_2^T)$$
 - To parallelize, **Q, K, and V must be partitioned along the head dimension**.
 
 ## Dimension Analysis in MHA
 
-- $ Q, K, V \in \mathbb{R}^{S \times H} $
+- $Q, K, V \in \mathbb{R}^{S \times H}$
 - When there are multiple heads:
-  - Partition columns of $ Q, K, V $ by **head dimension**.
+  - Partition columns of $Q, K, V$ by **head dimension**.
   - Each GPU processes **a subset of heads**.
 
 ## Pitfalls
