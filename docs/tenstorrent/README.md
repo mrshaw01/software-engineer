@@ -14,3 +14,10 @@ https://github.com/tenstorrent/tt-metal/blob/a8856ee9851f29972222b46a2b1726d0955
 - Host-side configuration
 - Kernel-side implementation
 - Distinguishing between matrix and vector engine APIs
+
+# 3. Tiles
+
+https://github.com/tenstorrent/tt-metal/blob/a8856ee9851f29972222b46a2b1726d0955fa818/docs/source/tt-metalium/tt_metal/advanced_topics/tiles.rst
+
+- Internal structure of a Tile
+- Conversion between tiles and row-major format
