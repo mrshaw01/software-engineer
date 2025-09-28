@@ -36,3 +36,22 @@ https://github.com/tenstorrent/tt-metal/blob/a8856ee9851f29972222b46a2b1726d0955
   - Interleaved memory
   - SRAM buffers
   - Sharded tensor
+
+# 5. TT Architecture and Metalium Guide
+
+https://github.com/tenstorrent/tt-metal/blob/471840ed81a36bd3fd8156c8f3b5ab3d193d99fa/METALIUM_GUIDE.md
+
+- Executive Summary
+- Tenstorrent Architecture Overview
+  - SRAM, interleaved and shared buffers
+  - Native tile based computing
+  - Where is the cache hierarchy
+  - Tenstorrent hardware for GPU experts
+  - Tenstorrent hardware for CPU experts
+  - Scaling beyond one chip
+- TT-Metalium
+  - Running code on device
+  - Register control and Data Flow within the Compute Kernels
+  - Compute APIs
+  - Fast dispatch
+  - SPMD in Metalium
