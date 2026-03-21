@@ -325,3 +325,43 @@ The modes are used as follows:
 - **Support mode**: reports backend support coverage for operations.
 
 Overall, GGML’s testing infrastructure combines correctness checks, backend consistency validation, gradient verification, and targeted microbenchmarks, giving the project both regression coverage and performance visibility as backends and kernels evolve.)
+
+## Key Data Structures
+
+### `ggml_tensor`
+
+**Defined in:** `include/ggml.h`
+
+`ggml_tensor` is the core data structure in GGML. It represents both raw tensors and intermediate nodes in a computation graph. The header documentation describes it as storing the tensor’s size, data type, memory buffer, and pointers to its source tensors. It also uses `ne[]` for element counts and `nb[]` for byte strides, which allows GGML to represent non-contiguous layouts such as views, transposes, and permutations. Tensor data is accessed through the `data` pointer.
+
+In practice, this makes `ggml_tensor` more than just a storage object: it is also the unit of graph construction. When an operation such as `ggml_add()` or `ggml_mul_mat()` is created, the result is another `ggml_tensor` whose source links encode the dependency structure of the graph.
+
+### `ggml_backend`
+
+**Defined in:** `include/ggml-backend.h`
+
+`ggml_backend` is the abstract execution handle for a backend. In the public API it appears as an opaque type:
+
+- `typedef struct ggml_backend * ggml_backend_t;`
+
+This means user code interacts with it through API functions rather than by accessing struct fields directly. The backend interface includes functions for naming and freeing a backend, allocating buffers, setting and getting tensor data, synchronizing execution, planning graph execution, and computing graphs synchronously or asynchronously.
+
+Conceptually, `ggml_backend_t` is the runtime object that represents “where and how computation runs,” such as a CPU backend, CUDA backend, Vulkan backend, or another device-specific execution engine.
+
+### `ggml_cgraph`
+
+**Defined in:** `include/ggml.h`
+
+`ggml_cgraph` is the computation-graph object used to hold a graph of tensor operations before execution. The public examples in `ggml.h` show the standard workflow:
+
+1. create a graph with `ggml_new_graph(ctx)`
+2. add nodes with `ggml_build_forward_expand(gf, output_tensor)`
+3. execute the graph later through a compute API
+
+Once built, a `ggml_cgraph` can be executed either through the classic graph compute path or through the backend system. The backend API exposes functions such as `ggml_backend_graph_plan_create()`, `ggml_backend_graph_compute()`, `ggml_backend_graph_compute_async()`, and scheduler-based graph execution APIs that all take a `struct ggml_cgraph *` as input.
+
+So, at a high level:
+
+- `ggml_tensor` is the fundamental tensor and graph-node object
+- `ggml_backend` is the execution backend handle
+- `ggml_cgraph` is the graph container that organizes tensor operations for execution
