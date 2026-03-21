@@ -94,3 +94,66 @@ In `src/ggml-quants.c`, GGML provides the reference implementations for quantiza
 One important detail is that not every type exposes both conversion hooks. Many entries provide both `to_float` and `from_float_ref`, but some formats only provide one side in the core traits table. For example, `IQ2_XXS` and `IQ2_XS` currently expose `to_float` but have `from_float_ref = NULL`, while `Q8_1` has `from_float_ref` but no `to_float` entry in the shown type-traits definition. So it is more accurate to say that GGML supports per-type conversion hooks where they are implemented, rather than saying every type provides both unconditionally.
 
 The CPU-specific quantization layer in `src/ggml-cpu/quants.c` builds on the reference routines and provides execution-oriented kernels for quantization, dequantization, and dot products on quantized blocks. For example, it wraps functions such as `quantize_row_q4_0()` and `quantize_row_q2_K()`, and it also contains specialized dot-product kernels such as `ggml_vec_dot_iq2_xxs_q8_K_generic()` for mixed-format arithmetic on packed blocks. This is where architecture-tuned CPU paths are organized, while other hardware backends can provide their own optimized implementations.
+
+## Backend System
+
+The backend layer lets GGML execute the same computation graph across different devices through a common interface. The public API is defined in `include/ggml-backend.h`, while the core implementation lives in `src/ggml-backend.cpp` and the registry and dynamic-loading logic live in `src/ggml-backend-reg.cpp`.
+
+- `include/ggml-backend.h`
+- `src/ggml-backend.cpp`
+- `src/ggml-backend-reg.cpp`
+
+### Backend Registration
+
+GGML maintains a global backend registry that separates a backend family from the concrete devices it exposes.
+
+The public API includes functions such as:
+
+- `ggml_backend_register()`
+- `ggml_backend_device_register()`
+- `ggml_backend_reg_count()`
+- `ggml_backend_reg_get()`
+- `ggml_backend_dev_count()`
+- `ggml_backend_dev_get()`
+
+In this model:
+
+- `ggml_backend_reg_t` represents a registered backend family
+- `ggml_backend_dev_t` represents a concrete device exposed by that backend
+- `ggml_backend_buffer_type_t` describes a buffer or allocation strategy associated with a backend or device
+- `ggml_backend_dev_init()` creates an executable backend instance from a device
+
+Each backend device can report metadata and capabilities such as:
+
+- device name and description
+- device type
+- free and total memory
+- async execution support
+- host-buffer support
+- buffer-from-host-pointer support
+- event support and synchronization capabilities
+
+GGML also supports dynamic backend loading. When `GGML_BACKEND_DL` is enabled, backend libraries can be discovered and loaded at runtime, and `GGML_BACKEND_DIR` can be used to specify the directory containing those backend libraries. Runtime helpers such as `ggml_backend_load_all()` and `ggml_backend_load_all_from_path()` are used to probe and load available backends.
+
+### Multi-Backend Scheduling
+
+GGML provides a scheduler, `ggml_backend_sched_t`, to coordinate execution across multiple backends. It is created with `ggml_backend_sched_new()`, which takes an ordered list of backends and buffer types. Lower backend indices have higher priority.
+
+At a high level, the scheduler works as follows:
+
+1. **Backend assignment**
+   Assign graph nodes to backends based on existing tensor placement, backend priority, and whether the backend supports the operation.
+
+2. **Graph splitting**
+   Split the full computation graph into backend-specific subgraphs so each split can run on a single backend. In the current implementation, `ggml_backend_sched_split_graph()` performs backend assignment and graph partitioning.
+
+3. **Memory allocation**
+   Use scheduler allocation APIs such as `ggml_backend_sched_reserve()` and related graph-allocation logic to place tensors into appropriate backend buffers.
+
+4. **Cross-backend copies**
+   Insert or manage tensor copies when data must move between backends. GGML exposes backend copy helpers such as `ggml_backend_tensor_copy()` and `ggml_backend_tensor_copy_async()` for this purpose.
+
+5. **Execution and synchronization**
+   Execute each split on its assigned backend, then synchronize through backend or scheduler synchronization primitives, including backend events when supported.
+
+One important nuance is that it is better to describe the scheduler as a **backend-assignment and graph-splitting system** rather than as a fixed “5-pass algorithm.” The current implementation uses multiple internal assignment passes, but the stable architectural idea is: assign nodes, split the graph, allocate buffers, manage copies, and execute across backends.
