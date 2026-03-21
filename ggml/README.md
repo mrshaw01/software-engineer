@@ -200,3 +200,53 @@ Backend targets are created in `src/CMakeLists.txt` through `ggml_add_backend_li
 Each backend library links against `ggml-base`, includes the parent source directory, and, when shared libraries are being built, receives the `GGML_BACKEND_BUILD` and `GGML_BACKEND_SHARED` compile definitions. Backend libraries also inherit version metadata through `VERSION ${GGML_VERSION}` and `SOVERSION ${GGML_VERSION_MAJOR}` where supported.
 
 At runtime, `src/ggml-backend-reg.cpp` registers compiled-in backends such as CUDA, Metal, SYCL, Vulkan, WebGPU, OpenCL, CANN, BLAS, RPC, OpenVINO, and CPU through the backend registry constructor. This is the bridge between the CMake build configuration and the runtime backend discovery system.
+
+## Memory Management
+
+- `include/ggml.h`
+- `include/ggml-alloc.h`
+- `src/ggml-alloc.c`
+
+GGML separates **graph construction** from **physical tensor storage**. A `ggml_context` owns tensor and graph metadata, while the allocator layer decides when and where actual tensor data is placed. The core context setup is defined by `struct ggml_init_params`, which includes `mem_size`, `mem_buffer`, and `no_alloc`. GGML also exposes `ggml_get_no_alloc()` and `ggml_set_no_alloc()` to control this behavior explicitly.
+
+### No-Alloc Context
+
+A common GGML pattern is to create a `ggml_context` with `no_alloc = true` so the program can build tensor objects and the computation graph without immediately allocating backing storage. This lets GGML first determine tensor shapes, graph dependencies, and execution structure, and then allocate memory later through allocator or backend-buffer APIs. That separation is fundamental to how GGML supports graph planning and multi-backend execution.
+
+### Context and Tensor Allocation Helpers
+
+The public allocation API is declared in `include/ggml-alloc.h`. It includes:
+
+- `ggml_tallocr`: a simple tensor allocator over an existing backend buffer
+- `ggml_gallocr_t`: the graph allocator
+- `ggml_backend_alloc_ctx_tensors_from_buft()`: allocate all tensors in a context from a buffer type
+- `ggml_backend_alloc_ctx_tensors()`: allocate all tensors in a context using a backend
+
+`ggml_tallocr` is the simple, linear allocator: it wraps a backend buffer, tracks alignment and the current offset, and allocates tensor storage sequentially inside that buffer.
+
+### Graph Allocator
+
+The main graph allocator is `ggml_gallocr_t`. The public API includes `ggml_gallocr_new()`, `ggml_gallocr_new_n()`, `ggml_gallocr_reserve()`, `ggml_gallocr_reserve_n()`, `ggml_gallocr_alloc_graph()`, and `ggml_gallocr_get_buffer_size()`. The header also documents an important usage pattern: reserve against a worst-case graph first, then allocate concrete graphs later to reduce reallocations. It also documents two special tensor flags used by the allocator: `ggml_set_input()` marks tensors that are allocated at the beginning of the graph in non-overlapping addresses, and `ggml_set_output()` marks tensors that are never freed or overwritten.
+
+Internally, `ggml_gallocr` works by traversing the graph, allocating leaf tensors and explicit inputs early, tracking each tensor’s remaining children and view relationships, and freeing storage once a tensor is no longer needed. In the current implementation, this is driven by counters such as `n_children` and `n_views`, and tensors are released through `ggml_gallocr_free_node()` when those counts drop to zero. So the high-level idea is **lifetime-based reuse**, but it is more accurate to describe the implementation as dependency-count and view-aware reuse rather than a separate explicit “forward pass / backward pass” liveness algorithm.
+
+### Backend Buffers
+
+Actual storage is represented through backend buffer abstractions such as `ggml_backend_buffer_type_t` and `ggml_backend_buffer_t`. The graph allocator can reserve one or more backend buffers, and when storage is materialized it uses backend buffer allocation helpers to create physical buffers and place tensors into them. The helper `ggml_backend_alloc_ctx_tensors_from_buft()` is especially useful when you want a whole context allocated from a specific buffer type.
+
+### Dynamic Allocator
+
+Inside `src/ggml-alloc.c`, GGML also implements an internal dynamic allocator, `ggml_dyn_tallocr`, which is used by the graph allocator’s virtual-buffer machinery. This is **not** the main public API, but it is an important implementation detail. The allocator maintains free-block lists per chunk, with `MAX_FREE_BLOCKS = 256`, and supports up to `GGML_VBUFFER_MAX_CHUNKS = 16`. Allocation uses a best-fitting free block search before falling back to the last block, which may grow the chunk size.
+
+When physical buffers are finally created, GGML builds a virtual buffer object that may span multiple backend buffer chunks. Each chunk is allocated with `ggml_backend_buft_alloc_buffer()`, assigned a usage such as `GGML_BACKEND_BUFFER_USAGE_COMPUTE`, and later used to place tensors at computed chunk-relative offsets.
+
+### Summary
+
+In practice, GGML memory management is built around four layers:
+
+1. **Context metadata** in `ggml_context`
+2. **Simple linear allocation** through `ggml_tallocr`
+3. **Graph-aware lifetime reuse** through `ggml_gallocr`
+4. **Backend-owned physical storage** through backend buffer types and buffers
+
+This design lets GGML build graphs cheaply, delay allocation until execution planning is known, and aggressively reuse memory across graph nodes to reduce peak memory usage.
