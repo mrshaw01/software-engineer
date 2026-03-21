@@ -2,6 +2,8 @@
 
 A knowledge base for understanding GGML, including its architecture, core concepts, and implementation details.
 
+- [Tensor Operations and Computation Graphs](./1_TensorOperationsAndComputationGraphs.md)
+
 # Overview
 
 GGML is a tensor library for machine learning. It provides tensor operations, automatic differentiation, optimization utilities, quantization support, and a backend system for running computation on different devices. The standalone `ggml` repository contains the core library, and the project is under active development.
