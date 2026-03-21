@@ -126,3 +126,65 @@ GGML has explicit support for view-style and layout-style operations. At the ten
 The public API includes `ggml_view_tensor(...)`, and the repo also exposes shaped view helpers such as `ggml_view_1d(...)` and `ggml_view_2d(...)`. In the GPT-2 example, GGML uses `ggml_view_1d`, `ggml_view_2d`, `ggml_reshape_3d`, and `ggml_permute` to slice KV-cache memory and reinterpret layout without rebuilding tensors from scratch.
 
 So the right mental model is: a view operation creates a new tensor object that points back to existing storage through `view_src` and an offset/layout description, while `ne[]` and `nb[]` describe the new logical shape and strides. That is what enables zero-copy or low-copy transformations such as slicing, reshaping, permutation, and transpose-style layout reinterpretation.
+
+## Computation Graph Construction
+
+### Graph Structure
+
+- `include/ggml.h`
+- `src/ggml.c`
+- `src/ggml-opt.cpp`
+
+`ggml_cgraph` is GGML’s computation graph object. The public API exposes graph construction through functions such as `ggml_new_graph(...)`, `ggml_new_graph_custom(...)`, and `ggml_build_forward_expand(...)`. The workflow is: define tensor expressions first, build a graph from the final output tensor, and execute it later.
+
+The graph stores more than a single output pointer. The implementation uses graph fields such as `size`, `n_nodes`, `n_leafs`, `nodes`, `leafs`, `visited_hash_set`, `grads`, and `grad_accs`, which shows that the graph contains ordered execution nodes, leaf tensors, traversal state, and gradient-related bookkeeping.
+
+In GGML, tensor dependencies are represented through each tensor’s `src[]` pointers, while `ggml_cgraph` stores the ordered result of traversing those dependencies so the graph can be executed in dependency order.
+
+### Graph Building Process
+
+- `include/ggml.h`
+- `src/ggml.c`
+
+The main entry point for forward graph construction is `ggml_build_forward_expand(gf, output_tensor)`. The documented usage pattern is:
+
+1. create tensors in a `ggml_context`
+2. compose tensor operations
+3. create a `ggml_cgraph`
+4. expand the graph from the final output tensor
+5. execute the graph later
+
+At a high level, graph construction works like this:
+
+- start from the output tensor
+- follow dependencies through `src[]`
+- collect leaf tensors separately from computed nodes
+- build an ordered node list so dependencies come before the nodes that consume them
+- maintain visited-state and optional gradient mappings inside the graph
+
+This organization ensures that sequential graph execution can process nodes in dependency order.
+
+### Forward and Backward Graphs
+
+GGML supports both forward and backward graph workflows. The public header notes that users can define a function graph once and compute forward or backward graphs multiple times using the same memory buffer. It also documents `ggml_set_param(...)` for marking tensors as optimization parameters.
+
+The implementation also includes gradient-related graph state through `grads` and `grad_accs`, which is used when duplicating graphs and preserving gradient mappings.
+
+### Graph Planning and Execution
+
+- `include/ggml-backend.h`
+
+After construction, a `ggml_cgraph` can be planned and executed through the backend layer. The backend API includes:
+
+- `ggml_backend_graph_plan_create(...)`
+- `ggml_backend_graph_plan_free(...)`
+- `ggml_backend_graph_plan_compute(...)`
+- `ggml_backend_graph_compute(...)`
+- `ggml_backend_graph_compute_async(...)`
+
+So the overall model is:
+
+- `ggml_tensor` objects encode dependencies
+- `ggml_build_forward_expand(...)` collects them into a `ggml_cgraph`
+- the graph stores ordered nodes, leaves, and optional gradient metadata
+- backend APIs plan and execute the graph on one or more devices
