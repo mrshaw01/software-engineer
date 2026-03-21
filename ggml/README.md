@@ -294,3 +294,34 @@ The sync scripts implement a patch-based import workflow that preserves commit a
 ### Architectural Role
 
 This workflow lets `llama.cpp` and `whisper.cpp` evolve quickly in their application context while still feeding shared GGML changes back into the standalone repository. At the same time, the maintainer has noted that GGML is not yet versioned strongly enough to guarantee cross-project binary compatibility, so this sync mechanism should be understood as a practical source-sync workflow rather than a strict release or ABI compatibility system.
+
+## Testing Infrastructure
+
+GGML includes a broad test suite under `tests/`, covering backend behavior, tensor operators, quantization, math kernels, optimizers, and other focused functionality. The current test directory includes files such as `test-backend-ops.cpp`, `test-quantize-fns.cpp`, `test-quantize-perf.cpp`, `test-mul-mat.cpp`, `test-opt.cpp`, and many smaller operator-specific tests.
+
+Key files for the core validation workflow include:
+
+- `tests/test-backend-ops.cpp`
+- `tests/test-quantize-fns.cpp`
+- `tests/test-quantize-perf.cpp`
+
+### Backend Operation Testing
+
+`tests/test-backend-ops.cpp` is the main cross-backend validation driver. The file header states that it checks forward-pass consistency across backends, can validate backward gradients against finite-difference estimates in gradient mode, and can also run in performance mode. The program loads all available backends with `ggml_backend_load_all()`, enumerates backend devices, initializes each backend, and runs the selected test mode against them.
+
+### Quantization Testing
+
+`tests/test-quantize-fns.cpp` is the correctness test for quantization-related routines, while `tests/test-quantize-perf.cpp` is the performance-oriented benchmark for quantization paths. Together, these cover the functional validation and speed measurement of GGML’s quantization code paths.
+
+### Test Modes
+
+`test-backend-ops.cpp` supports several modes through its command-line interface. Internally, these correspond to `MODE_TEST`, `MODE_PERF`, `MODE_GRAD`, and `MODE_SUPPORT`, selected by the commands `test`, `perf`, `grad`, and `support`. It also supports extra options such as `--list-ops`, `--show-coverage`, `--output`, and `--test-file`.
+
+The modes are used as follows:
+
+- **Test mode**: checks correctness by comparing results across backends.
+- **Perf mode**: measures execution performance for supported operations.
+- **Grad mode**: compares backpropagated gradients with gradients estimated by finite differences.
+- **Support mode**: reports backend support coverage for operations.
+
+Overall, GGML’s testing infrastructure combines correctness checks, backend consistency validation, gradient verification, and targeted microbenchmarks, giving the project both regression coverage and performance visibility as backends and kernels evolve.)
