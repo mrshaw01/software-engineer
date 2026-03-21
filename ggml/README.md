@@ -76,3 +76,21 @@ The `ne[]` and `nb[]` arrays are especially important because they let GGML repr
 Tensors are created from a `ggml_context`, which acts as the object arena for tensor and graph metadata. A context is initialized through `ggml_init(struct ggml_init_params)`. The initialization parameters include `mem_size`, `mem_buffer`, and `no_alloc`. When `no_alloc` is enabled, GGML does not allocate memory for tensor data immediately, which is useful when tensor storage will be assigned later by graph allocation logic or backend-managed buffers.
 
 In practice, this means tensor creation and graph construction are separated from final data placement. You can first build the tensor objects and computation graph inside a context, then let allocators or backend buffers decide where the actual tensor data should live. This separation is one of the core design choices that allows GGML to support multiple execution backends efficiently.
+
+### Type System and Quantization
+
+- `src/ggml.c`
+- `src/ggml-quants.c`
+- `src/ggml-cpu/quants.c`
+
+GGML uses a type-traits system to describe both plain numeric types and quantized tensor formats. In `src/ggml.c`, the core table is `type_traits[GGML_TYPE_COUNT]`, and each entry records metadata such as the type name, block size, byte size, whether the type is quantized, and, when available, conversion hooks such as `to_float` and `from_float_ref`. Public helpers such as `ggml_blck_size()`, `ggml_type_size()`, `ggml_is_quantized()`, and `ggml_get_type_traits()` expose this metadata to the rest of the library.
+
+For standard dense types such as `F32`, `F16`, `BF16`, and integer types, the block size is typically 1. For quantized formats, the block size matches the packing format used by that representation. For example, `Q4_0`, `Q4_1`, `Q5_0`, `Q5_1`, and `Q8_0` are registered as quantized types with explicit dequantization and reference quantization functions in the type-traits table.
+
+The repo includes several families of quantized types. The classic block quantization family includes formats such as `Q4_0`, `Q4_1`, `Q5_0`, `Q5_1`, `Q8_0`, and `Q8_1`. The K-quant family includes `Q2_K`, `Q3_K`, `Q4_K`, `Q5_K`, `Q6_K`, and `Q8_K`. The type enum also includes IQ-family formats such as `IQ2_XXS`, `IQ2_XS`, `IQ3_XXS`, `IQ1_S`, `IQ4_NL`, `IQ3_S`, `IQ2_S`, `IQ4_XS`, and `IQ1_M`, as well as newer formats like `TQ1_0`, `TQ2_0`, `MXFP4`, and `NVFP4`.
+
+In `src/ggml-quants.c`, GGML provides the reference implementations for quantization and dequantization. This includes functions such as `quantize_row_q4_0_ref()` for the classic formats and `quantize_row_q2_K_ref()` for K-quant formats. In the CPU quantization file, the K-quant section is explicitly described as “2–6 bit quantization in super-blocks,” which reflects the higher-level packing used by the K-family formats.
+
+One important detail is that not every type exposes both conversion hooks. Many entries provide both `to_float` and `from_float_ref`, but some formats only provide one side in the core traits table. For example, `IQ2_XXS` and `IQ2_XS` currently expose `to_float` but have `from_float_ref = NULL`, while `Q8_1` has `from_float_ref` but no `to_float` entry in the shown type-traits definition. So it is more accurate to say that GGML supports per-type conversion hooks where they are implemented, rather than saying every type provides both unconditionally.
+
+The CPU-specific quantization layer in `src/ggml-cpu/quants.c` builds on the reference routines and provides execution-oriented kernels for quantization, dequantization, and dot products on quantized blocks. For example, it wraps functions such as `quantize_row_q4_0()` and `quantize_row_q2_K()`, and it also contains specialized dot-product kernels such as `ggml_vec_dot_iq2_xxs_q8_K_generic()` for mixed-format arithmetic on packed blocks. This is where architecture-tuned CPU paths are organized, while other hardware backends can provide their own optimized implementations.
