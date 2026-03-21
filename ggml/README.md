@@ -250,3 +250,47 @@ In practice, GGML memory management is built around four layers:
 4. **Backend-owned physical storage** through backend buffer types and buffers
 
 This design lets GGML build graphs cheaply, delay allocation until execution planning is known, and aggressively reuse memory across graph nodes to reduce peak memory usage.
+
+## Synchronization with `llama.cpp` and `whisper.cpp`
+
+- `scripts/sync-llama-am.sh`
+- `scripts/sync-llama.sh`
+- `scripts/sync-llama.last`
+- `scripts/sync-whisper-am.sh`
+- `scripts/sync-whisper.sh`
+- `scripts/sync-whisper.last`
+
+The standalone GGML repository is developed in parallel with downstream projects, especially `llama.cpp` and `whisper.cpp`. The GGML README explicitly notes that some development currently happens in those repos, and the `scripts/` directory contains dedicated sync scripts and last-synced commit markers for both downstream sources. Recent GGML history also includes explicit `sync : llama.cpp` and `sync : whisper.cpp` commits, showing that this workflow is actively used.
+
+### Sync Model
+
+GGML does **not** use a fully automatic continuous synchronization service. According to the maintainer, changes are synced **manually** across `ggml`, `llama.cpp`, and `whisper.cpp` using the Bash scripts in the `scripts` folder, typically every once in a while rather than on every commit.
+
+### How the Sync Scripts Work
+
+The sync scripts implement a patch-based import workflow that preserves commit authorship and history while adapting downstream paths back into the standalone GGML repo. The process works roughly as follows.
+
+1. **Commit tracking**
+   The files `scripts/sync-llama.last` and `scripts/sync-whisper.last` store the last downstream commit that has already been synchronized. Each script reads the corresponding `.last` file before scanning for new commits.
+
+2. **Change detection**
+   The scripts run `git log` from the recorded commit up to `HEAD` in the downstream repo to identify candidate commits for import.
+
+3. **Commit filtering**
+   The scripts exclude commits that already look back-ported. For example, the `whisper` sync script filters out commits tagged like `ggml/<num>` and `llama/<num>`, while the `llama` sync script filters out `ggml/<num>` and `whisper/<num>`. This avoids re-importing changes that were already synchronized through another path.
+
+4. **Patch generation**
+   For each selected commit, the scripts use `git format-patch --stdout` to generate mail-style patches for the GGML-related paths only. This keeps the imported patch focused on the shared GGML code instead of unrelated downstream project files.
+
+5. **Path and metadata rewriting**
+   Since GGML code lives under `ggml/` inside `llama.cpp` and `whisper.cpp` but at the repository root inside standalone `ggml`, the scripts rewrite patch paths with `sed`, for example mapping `ggml/src/...` to `src/...` and `ggml/include/...` to `include/...`. They also rewrite PR references in patch subjects from forms like `(#1234)` to namespaced markers such as `(llama/1234)` or `(whisper/1234)`.
+
+6. **History-preserving application**
+   The transformed patch is applied with `git am`, which preserves commit metadata such as author and commit message structure more faithfully than a manual copy or squash import.
+
+7. **Advance the sync point**
+   After a successful import, the script writes the latest downstream commit hash back into the corresponding `.last` file so the next sync starts from the new boundary.
+
+### Architectural Role
+
+This workflow lets `llama.cpp` and `whisper.cpp` evolve quickly in their application context while still feeding shared GGML changes back into the standalone repository. At the same time, the maintainer has noted that GGML is not yet versioned strongly enough to guarantee cross-project binary compatibility, so this sync mechanism should be understood as a practical source-sync workflow rather than a strict release or ABI compatibility system.
