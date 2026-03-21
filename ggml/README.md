@@ -47,3 +47,32 @@ This layer provides the abstraction that lets GGML target different devices thro
 - other backends such as `ggml-hip`, `ggml-musa`, `ggml-openvino`, `ggml-webgpu`, `ggml-rpc`, `ggml-zdnn`, and `ggml-zendnn`
 
 These directories contain device-specific implementations for CPUs, NVIDIA GPUs, Apple GPUs, Vulkan-capable GPUs, SYCL targets, Huawei accelerators, and other platforms.
+
+## Core Components
+
+### Tensor System
+
+- `include/ggml.h`
+- `src/ggml.c`
+
+GGML represents tensors with `struct ggml_tensor`, the central data structure used for both plain data tensors and nodes in a computation graph. The structure stores the tensor’s element type, shape, byte strides, graph metadata, and data pointer. It also tracks the source tensors that produced the current tensor, which is how GGML encodes graph dependencies.
+
+Key fields in `struct ggml_tensor` include:
+
+- `type`: tensor element type, such as `GGML_TYPE_F32` or a quantized format
+- `buffer`: backend buffer associated with the tensor
+- `ne[GGML_MAX_DIMS]`: number of elements in each dimension
+- `nb[GGML_MAX_DIMS]`: stride in bytes for each dimension
+- `op`: operation that produces this tensor when it is a graph node
+- `op_params`: packed parameters for the operation
+- `flags`: tensor flags such as input, output, parameter, or compute
+- `src[GGML_MAX_SRC]`: source tensors for the operation
+- `view_src` and `view_offs`: metadata for tensor views
+- `data`: pointer to the tensor’s underlying storage
+- `name` and `extra`: optional metadata and backend-specific extra state
+
+The `ne[]` and `nb[]` arrays are especially important because they let GGML represent both contiguous and non-contiguous tensors. This makes views, transposes, and other layout-transforming operations possible without always copying data.
+
+Tensors are created from a `ggml_context`, which acts as the object arena for tensor and graph metadata. A context is initialized through `ggml_init(struct ggml_init_params)`. The initialization parameters include `mem_size`, `mem_buffer`, and `no_alloc`. When `no_alloc` is enabled, GGML does not allocate memory for tensor data immediately, which is useful when tensor storage will be assigned later by graph allocation logic or backend-managed buffers.
+
+In practice, this means tensor creation and graph construction are separated from final data placement. You can first build the tensor objects and computation graph inside a context, then let allocators or backend buffers decide where the actual tensor data should live. This separation is one of the core design choices that allows GGML to support multiple execution backends efficiently.
