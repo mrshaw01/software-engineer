@@ -157,3 +157,46 @@ At a high level, the scheduler works as follows:
    Execute each split on its assigned backend, then synchronize through backend or scheduler synchronization primitives, including backend events when supported.
 
 One important nuance is that it is better to describe the scheduler as a **backend-assignment and graph-splitting system** rather than as a fixed “5-pass algorithm.” The current implementation uses multiple internal assignment passes, but the stable architectural idea is: assign nodes, split the graph, allocate buffers, manage copies, and execute across backends.
+
+## Build System
+
+- `CMakeLists.txt`
+- `src/CMakeLists.txt`
+- `src/ggml-cpu/CMakeLists.txt`
+
+GGML uses CMake as its primary build system. The top-level `CMakeLists.txt` defines the global build options, `src/CMakeLists.txt` builds the core libraries and backend targets, and `src/ggml-cpu/CMakeLists.txt` contains the architecture-specific logic for the CPU backend.
+
+### Configuration Options
+
+The top-level build file exposes a large set of options that control which backends are built, how they are packaged, and which CPU instruction sets are enabled.
+
+Common option groups include:
+
+- **Backend selection**: options such as `GGML_CUDA`, `GGML_VULKAN`, `GGML_METAL`, `GGML_SYCL`, `GGML_RPC`, `GGML_OPENCL`, `GGML_WEBGPU`, `GGML_CANN`, and others enable specific backends.
+- **Dynamic backend loading**: `GGML_BACKEND_DL` enables building backends as dynamic libraries, and `GGML_BACKEND_DIR` specifies the directory used to load them at runtime.
+- **General build optimization**: `GGML_NATIVE`, `GGML_LTO`, and `GGML_CCACHE` control native tuning, link-time optimization, and ccache usage.
+- **CPU ISA features**: options such as `GGML_AVX`, `GGML_AVX2`, `GGML_AVX512`, `GGML_F16C`, `GGML_FMA`, `GGML_AMX_TILE`, `GGML_AMX_INT8`, and `GGML_AMX_BF16` control x86 CPU feature flags.
+- **CPU multi-variant builds**: `GGML_CPU_ALL_VARIANTS` enables building multiple CPU backend variants and explicitly requires `GGML_BACKEND_DL`.
+
+### CPU Backend Variants
+
+The CPU backend build logic is implemented in `src/ggml-cpu/CMakeLists.txt` through `ggml_add_cpu_backend_variant_impl(tag_name)`. This function creates either a default `ggml-cpu` target or a tagged target named `ggml-cpu-<tag>`, then applies architecture-specific source files, compile options, and compile definitions.
+
+When `GGML_CPU_ALL_VARIANTS` is enabled, GGML can build multiple CPU backend variants instead of only one. In the current repo, this is implemented as a feature- and architecture-driven mechanism rather than a small fixed list of hard-coded variants. For example:
+
+- on **x86**, the selected backend variant is shaped by options such as `GGML_AVX2`, `GGML_AVX512`, `GGML_F16C`, `GGML_FMA`, and AMX-related flags;
+- on **ARM**, the build logic raises the target ISA as needed, for example to `armv8.2-a`, `armv8.6-a`, or `armv9.2-a`, depending on enabled features such as dot product, FP16 vector arithmetic, SVE, i8mm, SVE2, and SME;
+- on **s390x**, the `GGML_CPU_ALL_VARIANTS` path can cross-compile a range of machine targets from z15 through z17.
+
+So it is more accurate to describe `GGML_CPU_ALL_VARIANTS` as a **multi-target CPU backend build mode** than as a fixed list like `ggml-cpu-haswell` or `ggml-cpu-skylakex`. The current CMake logic builds tagged CPU backend targets and assigns the appropriate ISA flags for the target architecture.
+
+### Backend Library Registration
+
+Backend targets are created in `src/CMakeLists.txt` through `ggml_add_backend_library(backend)`. That helper switches behavior depending on whether dynamic backend loading is enabled.
+
+- When **`GGML_BACKEND_DL` is ON**, the backend is built as a `MODULE` library, marked with `GGML_BACKEND_DL`, added as a dependency of `ggml`, and installed either to `GGML_BACKEND_DIR` or `CMAKE_INSTALL_BINDIR`.
+- When **`GGML_BACKEND_DL` is OFF**, the backend is added as a regular library target, linked into the main `ggml` target, and installed as part of the normal build.
+
+Each backend library links against `ggml-base`, includes the parent source directory, and, when shared libraries are being built, receives the `GGML_BACKEND_BUILD` and `GGML_BACKEND_SHARED` compile definitions. Backend libraries also inherit version metadata through `VERSION ${GGML_VERSION}` and `SOVERSION ${GGML_VERSION_MAJOR}` where supported.
+
+At runtime, `src/ggml-backend-reg.cpp` registers compiled-in backends such as CUDA, Metal, SYCL, Vulkan, WebGPU, OpenCL, CANN, BLAS, RPC, OpenVINO, and CPU through the backend registry constructor. This is the bridge between the CMake build configuration and the runtime backend discovery system.
