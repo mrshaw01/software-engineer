@@ -598,3 +598,75 @@ struct ggml_tensor * r   = ggml_add(ctx, a_f, b_f32);
 ### Practical Interpretation
 
 In GGML, quantization is mostly a **storage format plus kernel-dispatch choice**, not a separate high-level graph language with dedicated `quantize` and `dequantize` tensor operators. The graph uses normal tensor ops such as `ggml_mul_mat(...)`, `ggml_add(...)`, and `ggml_flash_attn_ext(...)`, while the tensor `type` and backend implementation determine whether packed quantized kernels can be used.
+
+## Quantization Helper Functions
+
+### Block Size and Memory Helpers
+
+GGML exposes a small set of helper APIs for reasoning about quantized storage layout:
+
+- `ggml_blck_size(type)` returns the logical number of elements represented by one stored block.
+- `ggml_type_size(type)` returns the size in bytes of one stored block.
+- `ggml_row_size(type, ne)` returns the number of bytes needed for one row of `ne` elements in that format.
+- `ggml_nbytes(tensor)` returns the total tensor payload size, and `ggml_nbytes_pad(tensor)` returns the padded size.
+- `ggml_validate_row_data(type, data, nbytes)` checks whether packed row data is valid for the given format.
+
+### Low-Level Quantization API
+
+GGML also exposes low-level quantization entry points for row- and chunk-oriented quantization work:
+
+- `ggml_quantize_chunk(...)`
+- `ggml_quantize_init(type)`
+- `ggml_quantize_free()`
+- `ggml_quantize_requires_imatrix(type)`
+
+The declaration notes that `ggml_quantize_requires_imatrix(...)` calls `ggml_quantize_init(...)` internally, so it can allocate memory while determining whether a format depends on importance weighting.
+
+## Testing and Validation
+
+### Quantization Tests
+
+`tests/test-quantize-fns.cpp` initializes per-type quantization with `ggml_quantize_init(ei)`, then checks total quantization error, reference implementation error, and dot-product error. The file defines these main thresholds:
+
+- reference implementation error: `< 0.0001`
+- default total quantization error: `< 0.002`
+- ternary (`TQ1_0`, `TQ2_0`): `< 0.01`
+- 2-bit class (`Q2_K`, `IQ2_S`): `< 0.0075`
+- 3-bit class (`Q3_K`, `IQ3_S`): `< 0.0040`
+- `IQ3_XXS`: `< 0.0050`
+- `NVFP4`: `< 0.0030`
+
+The same test also uses separate dot-product thresholds: `0.02` by default, `0.04` for several very low-bit formats, `0.03` for FP4, and `0.15` for ternary.
+
+### Performance Benchmarks
+
+`tests/test-quantize-perf.cpp` benchmarks the main quantization kernels with selectable operations:
+
+- `quantize_row_q_reference`
+- `quantize_row_q`
+- `dequantize_row_q`
+- `quantize_row_q_dot`
+- `vec_dot_q`
+
+It runs those benchmarks over configurable test sizes and reports both float32 throughput and quantized throughput in GB/s.
+
+## Memory Usage Comparison
+
+The percentages below are relative to FP32 storage:
+
+- `F32`: `100%`
+- `F16`, `BF16`: `50%`
+- `Q8_0`: about `26.6%`
+- `Q6_K`: about `20.5%`
+- `Q5_K`: about `17.2%`
+- `Q4_K`, `Q4_0`, `IQ4_NL`: about `14.1%`
+- `IQ4_XS`, `MXFP4`: about `13.3%`
+- `Q3_K`, `IQ3_S`: about `10.7%`
+- `Q2_K`: about `8.2%`
+- `IQ2_S`: about `8.0%`
+- `IQ2_XXS`, `TQ2_0`: about `6.4%`
+- `IQ1_M`: about `5.5%`
+- `TQ1_0`: about `5.3%`
+- `IQ1_S`: about `4.9%`
+
+These ratios come from the block layouts and effective bits-per-weight comments in `src/ggml-common.h`, together with the FP32 baseline of 32 bits per value.
