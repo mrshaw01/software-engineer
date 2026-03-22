@@ -55,3 +55,87 @@ So, in practical documentation terms, the hierarchy is:
 4. TQ low-bit formats
 5. FP4-style formats
 6. compatibility placeholders for removed legacy encodings
+
+## Quantization Format Details
+
+### Classic 32-Value Block Formats
+
+- `src/ggml-common.h`
+- `src/ggml-quants.c`
+
+The classic GGML quantized formats use fixed 32-value blocks: `QK4_0`, `QK4_1`, `QK5_0`, `QK5_1`, `QK8_0`, and `QK8_1` are all defined as 32 in `src/ggml-common.h`. Their block structs show the exact packed layout: `block_q4_0` stores one FP16 scale plus 16 bytes of packed 4-bit quants, `block_q4_1` adds an FP16 minimum, `block_q5_0` and `block_q5_1` add 4 bytes for the fifth bit plane, `block_q8_0` stores one FP16 scale plus 32 int8 values, and `block_q8_1` stores one FP16 scale plus one FP16 auxiliary sum term `s` and 32 int8 values.
+
+Using those struct sizes, the effective storage cost and FP32 compression ratio are:
+
+| Type   | Bits / value | Block layout                                                                         | FP32 compression ratio |
+| ------ | -----------: | ------------------------------------------------------------------------------------ | ---------------------: |
+| `Q4_0` |          4.5 | 1 × FP16 scale + 16 bytes packed 4-bit quants                                        |                   7.1× |
+| `Q4_1` |          5.0 | 1 × FP16 scale + 1 × FP16 min + 16 bytes packed 4-bit quants                         |                   6.4× |
+| `Q5_0` |          5.5 | 1 × FP16 scale + 4 bytes high bits + 16 bytes packed low 4-bit quants                |                   5.8× |
+| `Q5_1` |          6.0 | 1 × FP16 scale + 1 × FP16 min + 4 bytes high bits + 16 bytes packed low 4-bit quants |                   5.3× |
+| `Q8_0` |          8.5 | 1 × FP16 scale + 32 int8 quants                                                      |                   3.8× |
+| `Q8_1` |          9.0 | 1 × FP16 scale + 1 × FP16 sum term + 32 int8 quants                                  |                   3.6× |
+
+These numbers come directly from the block definitions and their `static_assert(sizeof(...))` checks in `src/ggml-common.h`. The compression ratio is the size of 32 FP32 values divided by the packed block size.
+
+#### Format Semantics
+
+The classic formats split into two main styles:
+
+- **Symmetric-style formats**: `Q4_0`, `Q5_0`, and `Q8_0` store values around zero using a scale factor.
+- **Affine-style formats**: `Q4_1` and `Q5_1` store both a scale and a minimum value, and dequantize with `x = q * d + m`.
+- **Auxiliary-sum format**: `Q8_1` stores `d` and an extra FP16 field `s`, documented in the struct as `d * sum(qs[i])`.
+
+You can see this directly in the dequantization code:
+
+- `Q4_0`: `y = (q - 8) * d`
+- `Q4_1`: `y = q * d + m`
+- `Q5_0`: reconstruct the 5th bit from `qh`, then `y = (q - 16) * d`
+- `Q5_1`: reconstruct the 5th bit from `qh`, then `y = q * d + m`
+- `Q8_0`: `y = q * d`
+
+#### Example: `Q4_0` Quantization
+
+The reference implementation of `quantize_row_q4_0_ref(...)` in `src/ggml-quants.c` works block by block over 32 input floats:
+
+1. scan the 32-value block and track the value with the largest absolute magnitude
+2. set the scale as `d = max / -8`
+3. compute `id = 1.0f / d` when `d != 0`
+4. quantize each value relative to that scale
+5. pack two 4-bit values into each byte of `qs[]`
+
+A repo-aligned pseudocode version is:
+
+```c
+// For one Q4_0 block of 32 floats:
+amax = 0
+max  = 0
+
+for j in 0..31:
+    v = x[j]
+    if abs(v) > amax:
+        amax = abs(v)
+        max  = v
+
+d  = max / -8
+id = (d != 0) ? 1.0f / d : 0.0f
+store_fp16(y.d, d)
+
+for j in 0..15:
+    x0 = x[j]      * id
+    x1 = x[j + 16] * id
+
+    xi0 = min(15, (int8_t)(x0 + 8.5f))
+    xi1 = min(15, (int8_t)(x1 + 8.5f))
+
+    y.qs[j] = xi0 | (xi1 << 4)
+```
+
+That packing scheme matches the corresponding `dequantize_row_q4_0(...)` routine, which unpacks each nibble, subtracts 8, and multiplies by the stored scale `d`.
+
+#### Notes
+
+Two important details are easy to miss:
+
+- `Q4_0` and `Q4_1` still operate on **32 logical values per block**, even though their `qs[]` arrays are only 16 bytes long because each byte stores two 4-bit quants.
+- `Q5_0` and `Q5_1` do not store 32 separate 5-bit integers directly. They store the low 4 bits in `qs[]` and the extra high bit in `qh[]`, then reconstruct the full 5-bit code during dequantization.
