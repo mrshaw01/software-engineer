@@ -139,3 +139,35 @@ Two important details are easy to miss:
 
 - `Q4_0` and `Q4_1` still operate on **32 logical values per block**, even though their `qs[]` arrays are only 16 bytes long because each byte stores two 4-bit quants.
 - `Q5_0` and `Q5_1` do not store 32 separate 5-bit integers directly. They store the low 4 bits in `qs[]` and the extra high bit in `qh[]`, then reconstruct the full 5-bit code during dequantization.
+
+### K-Quants
+
+- `src/ggml-common.h`
+- `src/ggml-quants.c`
+- `src/ggml.c`
+
+K-quant formats use `QK_K = 256`-value super-blocks. Instead of applying one scale to the entire block, they subdivide the super-block into smaller groups and store quantized per-group scale information. In `src/ggml-common.h`, this family is defined through `block_q2_K`, `block_q3_K`, `block_q4_K`, `block_q5_K`, `block_q6_K`, and `block_q8_K`, with comments documenting the grouping strategy and effective bits per weight. The reference quantization and dequantization routines for these formats are implemented in `src/ggml-quants.c`.
+
+| Type   | Effective bits / weight | Super-block structure  | Notes                                                                   |
+| ------ | ----------------------: | ---------------------- | ----------------------------------------------------------------------- |
+| `Q2_K` |                   2.625 | 16 blocks of 16 values | affine form `x = a*q + b`; 4-bit quantized scales and mins              |
+| `Q3_K` |                  3.4375 | 16 blocks of 16 values | scale-only form `x = a*q`; high-bit mask + low 2-bit storage            |
+| `Q4_K` |                     4.5 | 8 blocks of 32 values  | affine form `x = a*q + b`; 6-bit quantized scales and mins              |
+| `Q5_K` |                     5.5 | 8 blocks of 32 values  | affine form `x = a*q + b`; 6-bit quantized scales/mins + high-bit plane |
+| `Q6_K` |                  6.5625 | 16 blocks of 16 values | scale-only form `x = a*q`; 8-bit scales                                 |
+| `Q8_K` |        auxiliary format | 256 values             | used for intermediate quantization and dot products                     |
+
+The block layouts show how each format is packed:
+
+- `Q2_K` stores `scales[QK_K/16]`, `qs[QK_K/4]`, and two FP16 super-block coefficients `d` and `dmin`.
+- `Q3_K` stores a high-bit mask, low 2-bit quants, a 12-byte scale array, and one FP16 super-block scale.
+- `Q4_K` stores FP16 `d` and `dmin`, a 12-byte packed scale/min array, and `qs[QK_K/2]`.
+- `Q5_K` extends `Q4_K` with an additional high-bit array `qh[QK_K/8]`.
+- `Q6_K` stores lower 4 bits, upper 2 bits, 8-bit per-sub-block scales, and one FP16 super-block scale.
+- `Q8_K` stores FP32 `d`, 256 int8 quants, and block sums for groups of 16.
+
+A useful way to read this family is:
+
+- `Q2_K`, `Q4_K`, and `Q5_K` are **affine** formats, where weights are reconstructed as `x = a*q + b`.
+- `Q3_K` and `Q6_K` are **scale-only** formats, where weights are reconstructed as `x = a*q`.
+- `Q8_K` is marked in the code as a helper format for **intermediate quantization and dot products**, not as a general-purpose model storage format.
