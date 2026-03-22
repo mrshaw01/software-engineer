@@ -460,3 +460,56 @@ The quantization flow in GGML is organized around three layers:
 - **reference packing** in `src/ggml-quants.c`
 - **format metadata and conversion hooks** through the core type-traits table
 - **backend-specific execution hooks** through the CPU trait table, especially `from_float` and `vec_dot`
+
+## Vector Dot Products
+
+The most performance-critical quantized operation in GGML is the **direct dot product on packed quantized blocks**. Instead of dequantizing both inputs to FP32 first, GGML uses per-format CPU kernels through the `vec_dot` hook in `struct ggml_type_traits_cpu`. This is the mechanism that lets formats such as `Q4_0`, `Q4_K`, `IQ4_NL`, `MXFP4`, and `TQ1_0` participate in fast low-level arithmetic on packed data.
+
+### `ggml_vec_dot_t`
+
+The CPU dot-product callback type is declared in `include/ggml-cpu.h` as:
+
+```c
+typedef void (*ggml_vec_dot_t)(
+    int n,
+    float * GGML_RESTRICT s,
+    size_t bs,
+    const void * GGML_RESTRICT x,
+    size_t bx,
+    const void * GGML_RESTRICT y,
+    size_t by,
+    int nrc
+);
+```
+
+This interface takes the logical element count `n`, writes the result to `s`, and accepts explicit byte strides for the output and both inputs. The final parameter, `nrc`, is part of the CPU trait interface that supports kernels processing multiple rows together.
+
+### Common Type Pairings
+
+The CPU type-traits table in `src/ggml-cpu/ggml-cpu.c` shows the preferred dot-product partner for each quantized format through `vec_dot_type`. Common patterns include:
+
+- `Q4_0 × Q8_0` via `ggml_vec_dot_q4_0_q8_0`
+- `Q4_1 × Q8_1` via `ggml_vec_dot_q4_1_q8_1`
+- `Q4_K × Q8_K` via `ggml_vec_dot_q4_K_q8_K`
+- `Q5_K × Q8_K` via `ggml_vec_dot_q5_K_q8_K`
+- `Q6_K × Q8_K` via `ggml_vec_dot_q6_K_q8_K`
+- `IQ4_NL × Q8_0` via `ggml_vec_dot_iq4_nl_q8_0`
+- `IQ4_XS × Q8_K` via `ggml_vec_dot_iq4_xs_q8_K`
+- `MXFP4 × Q8_0` via `ggml_vec_dot_mxfp4_q8_0`
+- `NVFP4 × Q8_0` via `ggml_vec_dot_nvfp4_q8_0`
+- `TQ1_0 × Q8_K` via `ggml_vec_dot_tq1_0_q8_K`
+- `TQ2_0 × Q8_K` via `ggml_vec_dot_tq2_0_q8_K`
+
+### Why the Second Operand Uses `Q8_*`
+
+The second operand is commonly stored or converted into a higher-precision quantized partner such as `Q8_0`, `Q8_1`, or `Q8_K`. That pattern is visible directly in the `vec_dot_type` field of the CPU traits table. The idea is to keep one operand in the compact low-bit storage format while using a more accurate partner format for the multiply-accumulate path.
+
+### Role in the Quantization Pipeline
+
+This direct `vec_dot` path is what makes GGML quantization practical for inference workloads. The flow is usually:
+
+1. store weights in a compact quantized format such as `Q4_0`, `Q4_K`, or an `IQ*` format
+2. use the backend’s preferred partner type for the other operand
+3. run the dot product directly on packed blocks through the format-specific `vec_dot` kernel
+
+This avoids a full dequantize-to-FP32 step before every inner-product computation.
