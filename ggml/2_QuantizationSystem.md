@@ -544,4 +544,57 @@ So, for Vulkan, quantized execution is organized around generated compute shader
 
 The Metal backend provides its own Metal shader source in `src/ggml-metal/ggml-metal.metal`. That shader file contains per-format dequantization helpers directly in Metal Shading Language, including routines such as `dequantize_iq2_xs(...)`, which shows that quantized values are unpacked inside the GPU kernel path rather than only on the CPU side.
 
-So the Metal path is best described as a dedicated shader implementation with format-specific unpacking and quantized math helpers embedded in the Metal source, instead of a generic fallback that simply reuses CPU quantization code.0}
+So the Metal path is best described as a dedicated shader implementation with format-specific unpacking and quantized math helpers embedded in the Metal source, instead of a generic fallback that simply reuses CPU quantization code.
+
+## Quantization in Tensor Operations
+
+### Matrix Multiplication
+
+The main place where quantized tensors are used in GGML is matrix multiplication. The public API exposes `ggml_mul_mat(...)`, and the GPT-2 example loads large model weights using `ggml_ftype_to_ggml_type(...)` so tensors such as projection and embedding weights can be stored in a quantized type and then passed directly to `ggml_mul_mat(...)`.
+
+At the kernel level, quantized matrix multiplication is typically implemented through direct packed dot products rather than full dequantization of the weight matrix. The CPU backend expresses this through `vec_dot` and `vec_dot_type` in `struct ggml_type_traits_cpu`; for example, low-bit formats such as `Q4_0` and `Q4_K` use higher-precision partner types such as `Q8_0` or `Q8_K` for the inner-product path.
+
+A repo-aligned summary is:
+
+- quantized model weights are created and stored in their target `ggml_type`
+- activations are passed into `ggml_mul_mat(...)`
+- the backend selects an execution path appropriate for those operand types
+- the output is typically accumulated into floating-point results
+
+```c
+struct ggml_tensor * weight = ...; // e.g. GGML_TYPE_Q4_K
+struct ggml_tensor * input  = ...; // e.g. GGML_TYPE_F32
+struct ggml_tensor * result = ggml_mul_mat(ctx, weight, input);
+```
+
+### Attention Operations
+
+GGML exposes attention operators such as `ggml_flash_attn_ext(...)`, and the operator enum includes `GGML_OP_FLASH_ATTN_EXT`. The public API takes `q`, `k`, `v`, and `mask` as tensors, so the graph representation is type-agnostic at the API level.
+
+That said, the public header does not describe a fixed rule like “always dequantize K and V during attention computation.” Backend support and kernel behavior depend on the implementation chosen for that operator. A safer description is:
+
+- attention is represented in the graph with tensor inputs `q`, `k`, `v`, and `mask`
+- the backend decides how those tensors are processed
+- support for specific quantized combinations is an implementation detail of the backend path
+
+### General Operations
+
+Quantized tensors are **not** automatically retyped by GGML. A maintainer explicitly notes that GGML will not automatically change the type of a tensor; if you want a tensor in a quantized type, you must create a tensor of that type and load quantized data into it.
+
+For type conversion inside the graph, the public API exposes `ggml_cast(...)`. By contrast, the public header does not expose tensor operators named `ggml_dequantize(...)` or `ggml_quantize(...)`.
+
+So for non-matmul-style tensor ops, the practical pattern is:
+
+- keep tensors in the types required by the operator
+- use `ggml_cast(...)` when an explicit type conversion is needed
+- do not assume GGML will silently quantize or dequantize tensors for you
+
+```c
+struct ggml_tensor * a_q = ...;                // quantized tensor
+struct ggml_tensor * a_f = ggml_cast(ctx, a_q, GGML_TYPE_F32);
+struct ggml_tensor * r   = ggml_add(ctx, a_f, b_f32);
+```
+
+### Practical Interpretation
+
+In GGML, quantization is mostly a **storage format plus kernel-dispatch choice**, not a separate high-level graph language with dedicated `quantize` and `dequantize` tensor operators. The graph uses normal tensor ops such as `ggml_mul_mat(...)`, `ggml_add(...)`, and `ggml_flash_attn_ext(...)`, while the tensor `type` and backend implementation determine whether packed quantized kernels can be used.
