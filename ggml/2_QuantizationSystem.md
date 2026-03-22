@@ -276,3 +276,103 @@ A concise summary is:
 | ------- | ---------: | ------------------------------------------------------------------- | ---------------------: |
 | `TQ1_0` |        256 | packed ternary-style codes + auxiliary high-part array + FP16 scale |                 1.6875 |
 | `TQ2_0` |        256 | 2-bit packed codes + FP16 scale                                     |                 2.0625 |
+
+## Type Traits System
+
+GGML uses a type-traits system to describe tensor storage formats and to dispatch quantization-related behavior. There are two parallel layers:
+
+- **core type traits** for format metadata and generic conversion hooks
+- **CPU type traits** for CPU-specific quantization and dot-product kernels :contentReference[oaicite:0]{index=0}
+
+### Core Type Traits
+
+- `include/ggml.h`
+- `src/ggml.c`
+
+The core trait interface is declared in `include/ggml.h` as `struct ggml_type_traits`, and the table itself is populated in `src/ggml.c` as `static const struct ggml_type_traits type_traits[GGML_TYPE_COUNT]`. GGML exposes the lookup function `ggml_get_type_traits(enum ggml_type type)` to retrieve the entry for a given format. :contentReference[oaicite:1]{index=1}
+
+```c
+struct ggml_type_traits {
+    const char * type_name;
+    int64_t      blck_size;
+    int64_t      blck_size_interleave; // interleave elements in blocks
+    size_t       type_size;
+    bool         is_quantized;
+    ggml_to_float_t   to_float;
+    ggml_from_float_t from_float_ref;
+};
+```
+
+Each field has a specific role:
+
+- `type_name` gives the human-readable format name
+- `blck_size` is the logical number of tensor elements represented by one stored block
+- `blck_size_interleave` describes interleaving behavior for formats that use it
+- `type_size` is the size in bytes of one stored block
+- `is_quantized` distinguishes packed quantized formats from dense numeric types
+- `to_float` points to the dequantization routine when one is available
+- `from_float_ref` points to the reference quantization routine when one is available
+
+For example, in `src/ggml.c`, the `GGML_TYPE_Q4_0` entry is registered with:
+
+- `type_name = "q4_0"`
+- `blck_size = QK4_0`
+- `type_size = sizeof(block_q4_0)`
+- `is_quantized = true`
+- `to_float = dequantize_row_q4_0`
+
+A typical access pattern is:
+
+```c
+const struct ggml_type_traits * traits = ggml_get_type_traits(GGML_TYPE_Q4_0);
+```
+
+The public helper APIs `ggml_blck_size(...)`, `ggml_type_size(...)`, `ggml_row_size(...)`, and `ggml_is_quantized(...)` are built around the same type metadata.
+
+### CPU Type Traits
+
+- `include/ggml-cpu.h`
+- `src/ggml-cpu/ggml-cpu.c`
+
+The CPU layer adds `struct ggml_type_traits_cpu`, declared in `include/ggml-cpu.h` and implemented through `static const struct ggml_type_traits_cpu type_traits_cpu[GGML_TYPE_COUNT]` in `src/ggml-cpu/ggml-cpu.c`. GGML exposes this table through `ggml_get_type_traits_cpu(enum ggml_type type)`.
+
+```c
+struct ggml_type_traits_cpu {
+    ggml_from_float_t from_float;
+    ggml_vec_dot_t    vec_dot;
+    enum ggml_type    vec_dot_type;
+    int64_t           nrows; // number of rows to process simultaneously
+};
+```
+
+These fields extend the core traits with CPU execution details:
+
+- `from_float` is the CPU quantization function used by the CPU backend
+- `vec_dot` is the optimized dot-product kernel for that format
+- `vec_dot_type` specifies the preferred type of the second operand for mixed-format dot products
+- `nrows` indicates how many rows can be processed together by the kernel
+
+Examples from `src/ggml-cpu/ggml-cpu.c`:
+
+- `Q4_0` uses `from_float = quantize_row_q4_0`, `vec_dot = ggml_vec_dot_q4_0_q8_0`, and `vec_dot_type = GGML_TYPE_Q8_0`
+- `Q4_K` uses `from_float = quantize_row_q4_K`, `vec_dot = ggml_vec_dot_q4_K_q8_K`, and `vec_dot_type = GGML_TYPE_Q8_K`
+- `MXFP4` uses `from_float = quantize_row_mxfp4`, `vec_dot = ggml_vec_dot_mxfp4_q8_0`, and `vec_dot_type = GGML_TYPE_Q8_0`
+- `TQ1_0` and `TQ2_0` use `Q8_K` as the dot-product partner type
+
+### Relationship Between the Two Trait Tables
+
+The two tables serve different purposes:
+
+- the **core traits** describe what a format is
+- the **CPU traits** describe how the CPU backend quantizes and computes with that format
+
+This separation lets GGML keep storage-format metadata generic while allowing each backend to attach optimized execution behavior. On the CPU backend, quantized matrix and vector kernels rely on `vec_dot` and `vec_dot_type` to operate directly on packed blocks without first expanding everything back to dense FP32.
+
+### Notes
+
+A few details are important when reading the tables:
+
+- not every type provides every hook
+- some formats expose `to_float` in the core traits but have no `from_float_ref`
+- some CPU trait entries provide `vec_dot` without a corresponding CPU `from_float`
+- helper formats such as `Q8_K` can exist mainly as execution partners for other quantized formats rather than as the primary storage format for a model tensor
