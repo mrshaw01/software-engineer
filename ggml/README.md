@@ -5,6 +5,7 @@ A knowledge base for understanding GGML, including its architecture, core concep
 - [Tensor Operations and Computation Graphs](./1_TensorOperationsAndComputationGraphs.md)
 - [Quantization System](./2_QuantizationSystem.md)
 - [Memory Management and Allocation](./3_MemoryManagementAndAllocation.md)
+- [Backend Interface and Abstraction](./4_BackendInterfaceAndAbstraction.md)
 
 # Overview
 
