@@ -3,7 +3,7 @@
 A knowledge base for understanding GGML, including its architecture, core concepts, and implementation details.
 
 - [Tensor Operations and Computation Graphs](./1_TensorOperationsAndComputationGraphs.md)
-- [Quantization System][./2_QuantizationSystem.md]
+- [Quantization System](./2_QuantizationSystem.md)
 
 # Overview
 
