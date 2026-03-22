@@ -296,3 +296,38 @@ This graph has:
 - **output tensor**: `f = a * x2 + b`
 
 The important point is that graph construction and graph execution are separate steps: tensor operations define the graph first, and execution happens only when a compute API is called.
+
+## Testing and Validation
+
+The `tests/` directory contains both broad backend validation and focused operator tests. In addition to `test-backend-ops.cpp`, the suite includes files such as `test-quantize-fns.cpp`, `test-quantize-perf.cpp`, `test-opt.cpp`, `test-conv2d.cpp`, `test-pool.c`, and other operator-specific tests.
+
+### Cross-Backend Validation
+
+`tests/test-backend-ops.cpp` is the main cross-backend validation driver. The file header states that it checks whether multiple backends produce consistent results for the same GGML operations during the forward pass. It also supports an optional gradient-validation path that compares backpropagation results against finite-difference estimates, and a performance mode for benchmarking.
+
+The program supports four main execution modes:
+
+- `test` → correctness checking
+- `perf` → performance measurement
+- `grad` → gradient validation
+- `support` → backend support inspection
+
+It also supports options such as `--list-ops`, `--show-coverage`, `--output`, and `--test-file`.
+
+### Backend Enumeration
+
+The test runner loads and enumerates available backends with `ggml_backend_load_all()`, walks the device list through `ggml_backend_dev_count()` and `ggml_backend_dev_get()`, initializes each backend with `ggml_backend_dev_init()`, and reports status per backend. It also queries backend memory information and, when supported, sets backend thread counts through the backend registry interface.
+
+### Quantization Validation
+
+Quantization is tested separately from general backend operator execution. The `tests/` tree includes `test-quantize-fns.cpp` for quantization-function correctness and `test-quantize-perf.cpp` for quantization performance benchmarking. This keeps quantization validation explicit instead of relying only on the broader backend-op test driver.
+
+### Role in the Development Workflow
+
+Together, these tests provide three complementary checks:
+
+- functional correctness across backends
+- numerical validation for gradients
+- targeted performance measurement for both operators and quantization paths
+
+This makes the test suite useful both for regression checking and for backend bring-up or optimization work.
