@@ -226,3 +226,53 @@ So, in GGML terms, IQ quantization supports **importance-weighted quantization**
 - `IQ4_NL` is called a “non-linear” 4-bit format, but its packed storage cost is 4.5 bits per value because each 32-value block also stores one FP16 scale.
 - `IQ4_XS` uses a 256-value super-block and stores both high and low parts of the scale metadata, which is why its effective storage cost is 4.25 bits per value.
 - The IQ family mixes two block granularities: most IQ formats use `QK_K = 256`, while `IQ4_NL` uses `QK4_NL = 32`.
+
+### Special Formats
+
+- `src/ggml-common.h`
+- `src/ggml-quants.c`
+- `src/ggml.c`
+
+GGML also includes a small set of special-purpose quantization formats that do not fit neatly into the classic `Q*`, `K`, or `IQ` families. These formats are registered in the GGML type-traits table just like the other quantized types, with explicit block sizes, packed sizes, and conversion hooks. `MXFP4` is registered as `mxfp4`, while `TQ1_0` and `TQ2_0` are registered as `tq1_0` and `tq2_0`, each with both `to_float` and `from_float_ref` function pointers.
+
+#### `MXFP4`
+
+`MXFP4` uses `QK_MXFP4 = 32`, so each block represents 32 values. Its packed block is:
+
+- `uint8_t e` — one shared `E8M0` scale/exponent byte
+- `uint8_t qs[QK_MXFP4/2]` — 16 bytes holding 32 packed 4-bit values
+
+That means each 32-value block uses 17 bytes total, or **4.25 bits per value**. The reference quantizer in `src/ggml-quants.c` first finds the maximum absolute value in the 32-value block, derives a shared exponent byte `e`, converts that into a floating-point scale `d`, and then chooses the best 4-bit code for each value using `best_index_mxfp4(...)`. Dequantization reverses this by decoding the 4-bit codes through `kvalues_mxfp4` and multiplying by the shared scale.
+
+So, a repo-aligned summary is:
+
+- **block size**: 32 values
+- **shared metadata**: 1 exponent/scale byte for the whole block
+- **payload**: 32 packed 4-bit values
+- **effective storage**: 4.25 bits/value
+
+#### `TQ1_0` and `TQ2_0`
+
+In `src/ggml-common.h`, these formats appear under the comment `// Ternary quantization`. Both use `QK_K = 256`, so each block represents 256 values rather than 32.
+
+`TQ1_0` is defined as:
+
+- `uint8_t qs[(QK_K - 4 * QK_K / 64) / 5]`
+- `uint8_t qh[QK_K/64]`
+- `ggml_half d`
+
+The code comment says this packs **5 elements per byte** in `qs` because `3^5 = 243 < 256`, and the file labels the format as **1.6875 bpw**. That is the packed representation GGML uses for the lowest-bit ternary-style format in this family.
+
+`TQ2_0` is defined as:
+
+- `uint8_t qs[QK_K/4]` — documented as **2 bits per element**
+- `ggml_half d`
+
+The file labels `TQ2_0` as **2.0625 bpw**. So although it sits under the same “ternary quantization” section as `TQ1_0`, the code describes `TQ2_0` in terms of 2-bit packed elements rather than as a separate named “quaternary” family.
+
+A concise summary is:
+
+| Type    | Block size | Packed structure                                                    | Effective bits / value |
+| ------- | ---------: | ------------------------------------------------------------------- | ---------------------: |
+| `TQ1_0` |        256 | packed ternary-style codes + auxiliary high-part array + FP16 scale |                 1.6875 |
+| `TQ2_0` |        256 | 2-bit packed codes + FP16 scale                                     |                 2.0625 |
