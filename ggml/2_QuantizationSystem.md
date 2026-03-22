@@ -376,3 +376,87 @@ A few details are important when reading the tables:
 - some formats expose `to_float` in the core traits but have no `from_float_ref`
 - some CPU trait entries provide `vec_dot` without a corresponding CPU `from_float`
 - helper formats such as `Q8_K` can exist mainly as execution partners for other quantized formats rather than as the primary storage format for a model tensor
+
+## Quantization Operations Flow
+
+GGML uses three main quantization-related execution patterns:
+
+1. **Quantization**: convert dense floating-point rows into a packed quantized format for storage
+2. **Dequantization**: convert packed quantized blocks back into floating-point values
+3. **Direct quantized arithmetic**: operate on packed quantized data directly, especially through quantized dot-product kernels, without first expanding everything to FP32 :contentReference[oaicite:0]{index=0}
+
+### Quantization (`float` → quantized)
+
+For many quantized formats, GGML separates **reference quantization** from **CPU-optimized quantization**.
+
+#### Reference quantization
+
+Reference quantizers live in `src/ggml-quants.c`. These functions define the canonical packing behavior used for deterministic model conversion and format validation. For example, `quantize_row_q4_0_ref(...)` scans each 32-value block, finds the value with largest absolute magnitude, computes a block scale, and packs two 4-bit quants per byte. The same file provides reference quantizers for many other formats such as `Q5_*`, `Q8_*`, `MXFP4`, and the `K`-quant families. :contentReference[oaicite:1]{index=1}
+
+A representative signature is:
+
+```c
+void quantize_row_q4_0_ref(const float * x, block_q4_0 * y, int64_t k);
+```
+
+For `Q4_0`, the reference flow is:
+
+- divide the input into 32-value blocks
+- find the block’s largest-magnitude value
+- compute the block scale `d = max / -8`
+- convert each value into a 4-bit code relative to that scale
+- pack two 4-bit values into each byte of `qs[]`
+
+#### CPU-optimized quantization
+
+The CPU backend provides a second dispatch layer through `struct ggml_type_traits_cpu` in `include/ggml-cpu.h`. This table adds a `from_float` hook for optimized CPU quantization, alongside `vec_dot`, `vec_dot_type`, and `nrows`. In `src/ggml-cpu/ggml-cpu.c`, the `GGML_TYPE_Q4_0` entry maps:
+
+- `from_float = quantize_row_q4_0`
+- `vec_dot = ggml_vec_dot_q4_0_q8_0`
+- `vec_dot_type = GGML_TYPE_Q8_0`
+
+So the CPU path typically uses signatures like:
+
+```c
+void quantize_row_q4_0(const float * x, void * y, int64_t k);
+```
+
+The reference and optimized versions serve different roles:
+
+- `from_float_ref` in the core traits table defines the reference packing routine
+- `from_float` in the CPU traits table defines the CPU execution path used for faster runtime conversion where available
+
+### Dequantization (quantized → `float`)
+
+Dequantization functions live in `src/ggml-quants.c` and unpack stored blocks into FP32 values. For example, `dequantize_row_q4_0(...)` reads the FP16 block scale `d`, unpacks the low and high 4-bit nibbles from each byte, shifts them into signed form by subtracting 8, and multiplies by `d` to recover approximate floating-point values. `Q4_1`, `Q5_0`, `Q5_1`, `Q8_0`, and `MXFP4` follow the same pattern with format-specific reconstruction rules.
+
+A representative example is:
+
+```c
+void dequantize_row_q4_0(const block_q4_0 * x, float * y, int64_t k) {
+    // for each block:
+    //   d = FP16_TO_FP32(x[i].d)
+    //   unpack low and high 4-bit values
+    //   convert back with (q - 8) * d
+}
+```
+
+At the type-system level, dequantization is exposed through the core trait hook `to_float`, so code can dispatch dequantization by format rather than by hard-coding every block type.
+
+### Direct quantized operations
+
+GGML does not always dequantize into FP32 before computing. On the CPU backend, `struct ggml_type_traits_cpu` provides a `vec_dot` function pointer and a preferred partner type `vec_dot_type`. This allows kernels to compute dot products directly on packed quantized blocks. For `Q4_0`, the CPU traits entry uses `ggml_vec_dot_q4_0_q8_0` with `vec_dot_type = GGML_TYPE_Q8_0`. Similar pairings exist for other formats such as `Q4_1` with `Q8_1`, and `K`-quant formats with `Q8_K`.
+
+This is the main pattern behind efficient quantized matrix and vector kernels:
+
+- keep one operand in a packed low-bit format
+- convert or store the other operand in the backend’s preferred dot-product partner format
+- run the dot product directly on packed blocks through `vec_dot`
+
+### Summary
+
+The quantization flow in GGML is organized around three layers:
+
+- **reference packing** in `src/ggml-quants.c`
+- **format metadata and conversion hooks** through the core type-traits table
+- **backend-specific execution hooks** through the CPU trait table, especially `from_float` and `vec_dot`
