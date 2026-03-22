@@ -171,3 +171,58 @@ A useful way to read this family is:
 - `Q2_K`, `Q4_K`, and `Q5_K` are **affine** formats, where weights are reconstructed as `x = a*q + b`.
 - `Q3_K` and `Q6_K` are **scale-only** formats, where weights are reconstructed as `x = a*q`.
 - `Q8_K` is marked in the code as a helper format for **intermediate quantization and dot products**, not as a general-purpose model storage format.
+
+### I-Quants (Importance-Oriented Quantization)
+
+- `src/ggml-common.h`
+- `src/ggml-quants.c`
+- `src/ggml.c`
+
+The IQ family uses grid-based and lookup-based encodings to push compression below the classic `Q*_K` formats. In `src/ggml-common.h`, these formats are defined as `IQ1_S`, `IQ1_M`, `IQ2_XXS`, `IQ2_XS`, `IQ2_S`, `IQ3_XXS`, `IQ3_S`, `IQ4_NL`, and `IQ4_XS`, each with its own packed block layout. In `src/ggml-quants.c`, their quantizers use precomputed grids, lookup tables, neighbor searches, or non-linear codebooks rather than only uniform linear buckets.
+
+| Type      | Effective bits / value | Packed structure                                                                   | Quantization style                         |
+| --------- | ---------------------: | ---------------------------------------------------------------------------------- | ------------------------------------------ |
+| `IQ1_S`   |                 1.5625 | `ggml_half d` + `qs[QK_K/8]` + `qh[QK_K/32]`                                       | 1-bit grid / indexed encoding              |
+| `IQ1_M`   |                   1.75 | `qs[QK_K/8]` + `qh[QK_K/16]` + `scales[QK_K/32]`                                   | extended 1-bit grid encoding               |
+| `IQ2_XXS` |                 2.0625 | `ggml_half d` + `uint16_t qs[QK_K/8]`                                              | compact 2-bit lookup-grid format           |
+| `IQ2_XS`  |                 2.3125 | `ggml_half d` + `uint16_t qs[QK_K/8]` + `scales[QK_K/32]`                          | 2-bit lookup-grid format with extra scales |
+| `IQ2_S`   |                 2.5625 | `ggml_half d` + `qs[QK_K/4]` + `qh[QK_K/32]` + `scales[QK_K/32]`                   | signed 2-bit grid format                   |
+| `IQ3_XXS` |                 3.0625 | `ggml_half d` + `qs[3*QK_K/8]`                                                     | compact 3-bit lookup-grid format           |
+| `IQ3_S`   |                 3.4375 | `ggml_half d` + `qs[QK_K/4]` + `qh[QK_K/32]` + `signs[QK_K/8]` + `scales[QK_K/64]` | enhanced 3-bit grid format                 |
+| `IQ4_NL`  |                    4.5 | `ggml_half d` + `qs[QK4_NL/2]`                                                     | non-linear 4-bit codebook                  |
+| `IQ4_XS`  |                   4.25 | `ggml_half d` + `scales_h` + `scales_l[QK_K/64]` + `qs[QK_K/2]`                    | super-block non-linear 4-bit format        |
+
+The effective bits-per-value numbers above come directly from the packed block sizes in `src/ggml-common.h`. For example, `block_iq2_xxs` is documented as “(Almost) true 2-bit quantization” but the block layout adds one FP16 scale per 256-value block, so the effective cost is 2.0625 bits per weight rather than exactly 2.0. The same pattern appears for `IQ3_XXS`, which is documented as “(Almost) true 3-bit quantization” and packs to 3.0625 bits per weight.
+
+#### Grid and Lookup Structure
+
+The low-bit IQ formats are implemented around precomputed grids and maps in `src/ggml-quants.c`:
+
+- `IQ2_XXS`, `IQ2_XS`, `IQ1_S`, `IQ1_M`, and `IQ2_S` share helpers such as `iq2_data_index(...)` and `iq2_grid_size(...)`, and select different grids such as `kgrid_2bit_256`, `kgrid_2bit_512`, `kgrid_1bit_2048`, and `kgrid_2bit_1024`.
+- `IQ3_XXS` and `IQ3_S` use `iq3_data[...]` tables together with maps and neighbor tables to snap local blocks to valid 3-bit grid points.
+- `IQ4_NL` and `IQ4_XS` use the non-linear value table `kvalues_iq4nl` through `quantize_row_iq4_nl_impl(...)`.
+
+This is why the IQ family is better described as **grid-coded quantization** rather than plain linear quantization. The quantizer is not just scaling and rounding into evenly spaced buckets; it is selecting encodings from structured low-bit codebooks.
+
+#### Importance Weights
+
+At the GGML layer, the IQ quantizers accept an optional weighting input through the parameter:
+
+```c
+size_t quantize_iq2_xxs(
+    const float * src,
+    void * dst,
+    int64_t nrow,
+    int64_t n_per_row,
+    const float * quant_weights);
+```
+
+The same `const float * quant_weights` parameter is used by `quantize_iq2_xs`, `quantize_iq2_s`, `quantize_iq3_xxs`, `quantize_iq3_s`, `quantize_iq1_s`, `quantize_iq1_m`, `quantize_iq4_nl`, and `quantize_iq4_xs`. Inside the quantizers, when `quant_weights` is present, it influences the per-element error weighting; when it is `NULL`, the routines fall back to internally derived weights such as `x[i] * x[i]` or related magnitude-based heuristics.
+
+So, in GGML terms, IQ quantization supports **importance-weighted quantization**, but the API is phrased in terms of `quant_weights` rather than a hard-coded `imatrix` requirement. Some IQ formats also expose only dequantization in the generic type-traits table: for example, `IQ2_XXS`, `IQ2_XS`, `IQ1_S`, and `IQ1_M` have `from_float_ref = NULL`, while `IQ3_XXS`, `IQ3_S`, `IQ2_S`, `IQ4_NL`, and `IQ4_XS` register reference quantizers.
+
+#### Notes
+
+- `IQ4_NL` is called a “non-linear” 4-bit format, but its packed storage cost is 4.5 bits per value because each 32-value block also stores one FP16 scale.
+- `IQ4_XS` uses a 256-value super-block and stores both high and low parts of the scale metadata, which is why its effective storage cost is 4.25 bits per value.
+- The IQ family mixes two block granularities: most IQ formats use `QK_K = 256`, while `IQ4_NL` uses `QK4_NL = 32`.
