@@ -513,3 +513,35 @@ This direct `vec_dot` path is what makes GGML quantization practical for inferen
 3. run the dot product directly on packed blocks through the format-specific `vec_dot` kernel
 
 This avoids a full dequantize-to-FP32 step before every inner-product computation.
+
+## Backend-Specific Implementations
+
+GGML keeps the quantized storage format definitions shared across the project, but each backend provides its own execution path for quantization, dequantization, and quantized arithmetic. The CPU backend exposes this most directly through `struct ggml_type_traits_cpu` and the `type_traits_cpu[GGML_TYPE_COUNT]` table, while GPU backends provide their own kernel and shader implementations under backend-specific source directories.
+
+### CPU Backend Quantization
+
+The CPU backend is the most explicit backend for quantized execution. Its build logic enables architecture-specific feature flags for x86 and ARM, including `GGML_AVX`, `GGML_AVX2`, `GGML_AVX_VNNI`, `GGML_AVX512`, `DOTPROD`, `MATMUL_INT8`, `SVE`, and `SME`. The same CMake file also includes architecture-specific source trees for RISC-V, including `ggml-cpu/arch/riscv/quants.c` and `ggml-cpu/arch/riscv/repack.cpp`.
+
+At runtime, the CPU backend dispatches quantization and dot products through `type_traits_cpu`. For example, `Q4_0` maps to `quantize_row_q4_0`, `ggml_vec_dot_q4_0_q8_0`, and `GGML_TYPE_Q8_0`; `Q4_K` maps to `quantize_row_q4_K`, `ggml_vec_dot_q4_K_q8_K`, and `GGML_TYPE_Q8_K`; and `IQ4_NL` maps to `quantize_row_iq4_nl` plus `ggml_vec_dot_iq4_nl_q8_0`.
+
+The CPU backend also uses `nrows` to express multi-row kernels. For example, `Q4_0`, `Q4_1`, `Q8_0`, `Q4_K`, and `Q6_K` switch from `nrows = 1` to `nrows = 2` when `__ARM_FEATURE_MATMUL_INT8` is available.
+
+### CUDA Backend Quantization
+
+The CUDA backend is organized around specialized kernel families rather than the CPU trait table. Its build file includes template-instantiated CUDA sources for tiled flash attention, MMA-based flash attention, MMQ kernels, and MMF kernels through globs such as `template-instances/fattn-tile*.cu`, `template-instances/fattn-mma*.cu`, `template-instances/mmq*.cu`, and `template-instances/mmf*.cu`. It also has an option to include all quantized flash-attention vector variants through `GGML_CUDA_FA_ALL_QUANTS`.
+
+This means the CUDA backend uses dedicated kernel families for quantized matrix and attention paths instead of relying on scalar dequantize-then-compute logic. The presence of `mmq.cuh` together with the MMQ template instances is the clearest signal of that design in the source tree.
+
+A useful CUDA-specific note from the GGML discussion forum is that when `src0` is quantized, the CUDA backend may implicitly convert `src1` to `Q8_1`; a maintainer explains that this is motivated by CUDA integer dot-product instructions such as `__dp4a` and by int8 tensor-core matrix multiplication paths.
+
+### Vulkan Backend Quantization
+
+The Vulkan backend is shader-driven. Its CMake build generates a compiled shader bundle from `.comp` sources under `src/ggml-vulkan/vulkan-shaders`, then emits both a SPIR-V output directory and a generated header `ggml-vulkan-shaders.hpp` through the `vulkan-shaders-gen` tool.
+
+So, for Vulkan, quantized execution is organized around generated compute shaders rather than CPU-style function-pointer dispatch. The build system treats shader generation as part of the backend build and explicitly tracks the shader generator sources so shader changes trigger regeneration.
+
+### Metal Backend Quantization
+
+The Metal backend provides its own Metal shader source in `src/ggml-metal/ggml-metal.metal`. That shader file contains per-format dequantization helpers directly in Metal Shading Language, including routines such as `dequantize_iq2_xs(...)`, which shows that quantized values are unpacked inside the GPU kernel path rather than only on the CPU side.
+
+So the Metal path is best described as a dedicated shader implementation with format-specific unpacking and quantized math helpers embedded in the Metal source, instead of a generic fallback that simply reuses CPU quantization code.0}
