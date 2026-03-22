@@ -6,6 +6,7 @@ A knowledge base for understanding GGML, including its architecture, core concep
 - [Quantization System](./2_QuantizationSystem.md)
 - [Memory Management and Allocation](./3_MemoryManagementAndAllocation.md)
 - [Backend Interface and Abstraction](./4_BackendInterfaceAndAbstraction.md)
+- [Graph Scheduler and Multi-Backend Execution](./5_GraphSchedulerAndMultiBackendExecution.md)
 
 # Overview
 
