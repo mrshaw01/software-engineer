@@ -188,3 +188,111 @@ So the overall model is:
 - `ggml_build_forward_expand(...)` collects them into a `ggml_cgraph`
 - the graph stores ordered nodes, leaves, and optional gradient metadata
 - backend APIs plan and execute the graph on one or more devices
+
+## Graph Execution Model
+
+### Execution Context
+
+- `include/ggml-cpu.h`
+- `include/ggml-backend.h`
+- `src/ggml-cpu/ggml-cpu.c`
+
+GGML exposes two graph-execution paths: a CPU execution path in `include/ggml-cpu.h` and a backend execution path in `include/ggml-backend.h`. The CPU path is built around `struct ggml_cplan`, which contains `work_size`, `work_data`, `n_threads`, `threadpool`, an abort callback, and a `use_ref` flag. The backend path exposes graph-plan, direct graph-compute, async graph-compute, and scheduler-based execution APIs.
+
+### CPU Execution APIs
+
+The CPU execution API consists of:
+
+- `ggml_graph_plan(...)`
+- `ggml_graph_compute(...)`
+- `ggml_graph_compute_with_ctx(...)`
+
+`ggml_graph_plan(...)` returns a `ggml_cplan` describing the temporary workspace required for execution. If `plan.work_size > 0`, the caller allocates `plan.work_data` before calling `ggml_graph_compute(...)`. The helper `ggml_graph_compute_with_ctx(...)` provides the same execution path but allocates the work buffer from the `ggml_context` instead of requiring a separate caller-managed buffer.
+
+### Backend Execution APIs
+
+The backend execution API consists of:
+
+- `ggml_backend_graph_plan_create(...)`
+- `ggml_backend_graph_plan_free(...)`
+- `ggml_backend_graph_plan_compute(...)`
+- `ggml_backend_graph_compute(...)`
+- `ggml_backend_graph_compute_async(...)`
+
+For multi-backend execution, GGML also provides the scheduler API:
+
+- `ggml_backend_sched_reserve(...)`
+- `ggml_backend_sched_alloc_graph(...)`
+- `ggml_backend_sched_graph_compute(...)`
+- `ggml_backend_sched_graph_compute_async(...)`
+- `ggml_backend_sched_synchronize(...)`
+
+This separates classic CPU graph execution from backend-managed execution on one or more devices.
+
+### Execution Flow
+
+A repo-aligned execution flow is:
+
+1. **Build the graph** with `ggml_new_graph(...)` and `ggml_build_forward_expand(...)`.
+2. **Choose an execution path**:
+   - CPU path with `ggml_graph_plan(...)` and `ggml_graph_compute(...)`, or
+   - backend path with `ggml_backend_graph_compute(...)` or the backend scheduler APIs.
+3. **Prepare temporary resources**:
+   - for the CPU path, allocate `cplan.work_data` if needed, or use `ggml_graph_compute_with_ctx(...)`;
+   - for the scheduler path, reserve and allocate graph buffers as needed.
+4. **Execute the graph** in dependency order through the selected execution API.
+
+### Dispatch and Parallelism
+
+On the CPU path, parallelism is configured through `ggml_cplan.n_threads` and `ggml_cplan.threadpool`. GGML also exposes threadpool management functions such as `ggml_threadpool_new(...)`, `ggml_threadpool_free(...)`, `ggml_threadpool_pause(...)`, and `ggml_threadpool_resume(...)`. For the CPU backend object, GGML provides `ggml_backend_cpu_set_n_threads(...)` and `ggml_backend_cpu_set_threadpool(...)`.
+
+Type-specific CPU execution is also part of the public CPU interface. `include/ggml-cpu.h` exposes `struct ggml_type_traits_cpu`, which includes hooks such as `from_float`, `vec_dot`, `vec_dot_type`, and `nrows`, and provides access through `ggml_get_type_traits_cpu(...)`. This is the CPU-side type-dispatch layer used by quantized and non-quantized kernels.
+
+### Example: Building and Executing a Graph
+
+The following example follows the graph-construction pattern documented in `include/ggml.h` and uses the declared CPU execution API from `include/ggml-cpu.h`. The same compute call pattern also appears in `examples/gpt-2/main-ctx.cpp`.
+
+```c
+// 1. Initialize context
+struct ggml_init_params params = {
+    .mem_size   = 16 * 1024 * 1024,
+    .mem_buffer = NULL,
+};
+
+struct ggml_context * ctx = ggml_init(params);
+
+// 2. Create tensors
+struct ggml_tensor * x = ggml_new_tensor_1d(ctx, GGML_TYPE_F32, 1);
+struct ggml_tensor * a = ggml_new_tensor_1d(ctx, GGML_TYPE_F32, 1);
+struct ggml_tensor * b = ggml_new_tensor_1d(ctx, GGML_TYPE_F32, 1);
+
+ggml_set_param(ctx, x);
+
+// 3. Build the expression: f(x) = a*x^2 + b
+struct ggml_tensor * x2 = ggml_mul(ctx, x, x);
+struct ggml_tensor * f  = ggml_add(ctx, ggml_mul(ctx, a, x2), b);
+
+// 4. Build the forward graph
+struct ggml_cgraph * gf = ggml_new_graph(ctx);
+ggml_build_forward_expand(gf, f);
+
+// 5. Set values
+ggml_set_f32(x, 2.0f);
+ggml_set_f32(a, 3.0f);
+ggml_set_f32(b, 4.0f);
+
+// 6. Execute
+ggml_graph_compute_with_ctx(ctx, gf, n_threads);
+
+// 7. Read result
+float result = ggml_get_f32_1d(f, 0);
+// result = 16
+```
+
+This graph has:
+
+- **leaf tensors**: `x`, `a`, `b`
+- **intermediate tensor**: `x2 = x * x`
+- **output tensor**: `f = a * x2 + b`
+
+The important point is that graph construction and graph execution are separate steps: tensor operations define the graph first, and execution happens only when a compute API is called.
