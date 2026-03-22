@@ -8,6 +8,7 @@ A knowledge base for understanding GGML, including its architecture, core concep
 - [Backend Interface and Abstraction](./4_BackendInterfaceAndAbstraction.md)
 - [Graph Scheduler and Multi-Backend Execution](./5_GraphSchedulerAndMultiBackendExecution.md)
 - [CPU Backend](./6_CPUBackend.md)
+- [Vulkan Backend](./7_VulkanBackend.md)
 
 # Overview
 
