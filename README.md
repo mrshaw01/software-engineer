@@ -101,11 +101,11 @@ All code is compatible with **Python 3.7+** and written to be **minimal, focused
 
 ## Star History
 
-<a href="https://www.star-history.com/#mrshaw01/software-engineer&Date">
+<a href="https://star-history.dera.page/#mrshaw01/software-engineer&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mrshaw01/software-engineer&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=mrshaw01/software-engineer&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=mrshaw01/software-engineer&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=mrshaw01/software-engineer&type=date&legend=top-left" />
  </picture>
 </a>
 
